@@ -172,7 +172,6 @@ LOCATIONS = {
         ("Roundtable Hold :: Crepus's Black-Key Crossbow - near Table of Lost Grace [f11107710]", 7771039, 11107710),
         ('Roundtable Hold :: Clinging Bone - around Table of Lost Grace [f11107900]', 7771040, 11107900),
         ('Roundtable Hold :: Sewer-Gaol Key - around Table of Lost Grace (region unconfirmed) [f400380]', 7773732, 400380),
-        ('Roundtable Hold :: Carian Inverted Statue (region unconfirmed) [f400391]', 7773733, 400391),
         ('Roundtable Hold :: Blessing of Marika (region unconfirmed) [f530950]', 7773876, 530950),
         ('Roundtable Hold :: Smithing Stone [1] (region unconfirmed) [f540500]', 7773887, 540500),
         ('Roundtable Hold :: Cracked Pot - m99_99 (region unconfirmed) [f99997020]', 7774101, 99997020),
@@ -792,6 +791,7 @@ LOCATIONS = {
         ('Belurat :: Crusade Insignia - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400694]', 7770645, 400694),
         ('Belurat :: Scorpion Stew - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400720]', 7770647, 400720),
         ('Belurat :: [Sorcery] Watchful Spirit - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400721]', 7770648, 400721),
+        ('Belurat :: Gourmet Scorpion Stew [f400722]', 7770649, 400722),
         ('Belurat :: Gourmet Scorpion Stew - near Theatre of the Divine Beast, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400723]', 7770650, 400723),
         ('Belurat :: Remembrance of the Dancing Lion - Divine Beast Dancing Lion [f510400]', 7770668, 510400),
         ('Belurat :: Message from Leda - near Scaduview Cross, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f580600]', 7770809, 580600),
@@ -934,6 +934,7 @@ LOCATIONS = {
         ("Caelid :: [Incantation] Theodorix's Magma - from Cathedral of Dragon Communion [f290780]", 7770520, 290780),
         ("Caelid :: [Incantation] Greyoll's Roar - from Cathedral of Dragon Communion [f290790]", 7770521, 290790),
         ('Caelid :: [Sorcery] Death Lightning - m60_44_52 (region unconfirmed) [f400309]', 7770597, 400309),
+        ('Caelid :: Prosthesis-Wearer Heirloom [f400320]', 7770598, 400320),
         ("Caelid :: Lusat's Glintstone Crown - around Sellia Hideaway, may be sweep-granted by Putrid Crystalian (Spear) (m31_11) [f400431]", 7770621, 400431),
         ("Caelid :: Great-Jar's Arsenal - m60_47_41 (region unconfirmed), may be sweep-granted by Putrid Avatar (m60_47_40) [f400470]", 7770624, 400470),
         ('Caelid :: Remembrance of the Starscourge - Starscourge Radahn [f510300]', 7770665, 510300),
@@ -1664,7 +1665,6 @@ LOCATIONS = {
         ('Enir Ilim :: Revered Spirit Ash - dropped by a thick inquisitor near the Gate of Divinity, may be sweep-granted by Radahn, Consort of Miquella (m20_01) [f20017900]', 7771881, 20017900),
         ('Enir Ilim :: Circlet of Light - around Gate of Divinity, may be sweep-granted by Needle Knight Leda (m20_01) [f20017981]', 7771882, 20017981),
         ("Enir Ilim :: Horned Warrior's Greatsword - around Gate of Divinity, may be sweep-granted by Radahn, Consort of Miquella (m20_01) [f20017991]", 7771883, 20017991),
-        ('Enir Ilim :: Golden Lion Shield - m60_49_40 (region unconfirmed) [f400600]', 7773742, 400600),
         ("Enir Ilim :: Wise Man's Mask [f400627]", 7773746, 400627),
         ("Enir Ilim :: Freyja's Helm - near Cleansing Chamber Anteroom, may be sweep-granted by Needle Knight Leda (m20_01) [f400602]", 7900060, 400602),
         ("Enir Ilim :: Freyja's Armor - near Cleansing Chamber Anteroom, may be sweep-granted by Radahn, Consort of Miquella (m20_01) [f400602]", 7900061, 400602),
@@ -1861,7 +1861,6 @@ LOCATIONS = {
         ("Gravesite :: Greater Potentate's Cookbook [2] - near Greatbridge, North, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f68730]", 7770156, 68730),
         ("Gravesite :: Ancient Dragon Knight's Cookbook [1] - near Fog Rift Catacombs, may be sweep-granted by Death Knight (m40_00) [f68740]", 7770157, 68740),
         ("Gravesite :: Fire Knight's Cookbook [2] - near Castle Front, may be sweep-granted by Ghostflame Dragon (m61_45_44) [f68900]", 7770172, 68900),
-        ('Gravesite :: Gourmet Scorpion Stew [f400722]', 7770649, 400722),
         ("Gravesite :: Death Knight's Twin Axes - in Fog Rift Catacombs [f520700]", 7770691, 520700),
         ('Gravesite :: Grave Glovewort [5] - near Fog Rift Catacombs, may be sweep-granted by Death Knight (m40_00) [f40007000]', 7772424, 40007000),
         ('Gravesite :: Great Ghost Glovewort - near Fog Rift Catacombs, may be sweep-granted by Death Knight (m40_00) [f40007800]', 7772425, 40007800),
@@ -2051,7 +2050,6 @@ LOCATIONS = {
     ],
     'Haligtree': [
         ("Haligtree :: Malenia's Great Rune - Malenia [f176]", 7770006, 176),
-        ('Haligtree :: Prosthesis-Wearer Heirloom [f400320]', 7770598, 400320),
         ('Haligtree :: Unalloyed Gold Needle - around Prayer Room, may be sweep-granted by Malenia, Blade of Miquella (m15_00) [f400321]', 7770599, 400321),
         ("Haligtree :: Millicent's Prosthesis - around Prayer Room, may be sweep-granted by Loretta, Knight of the Haligtree (m15_00) [f400323]", 7770600, 400323),
         ("Haligtree :: Miquella's Needle - around Prayer Room, may be sweep-granted by Malenia, Blade of Miquella (m15_00) [f400324]", 7770601, 400324),
@@ -3167,6 +3165,7 @@ LOCATIONS = {
         ('Liurnia :: Haligtree Secret Medallion (Right) - Kill albinauric disguised as pot (or, talk to him) [f400130]', 7773708, 400130),
         ("Liurnia :: Royal Greatsword - around Ranni's Rise, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400158]", 7773709, 400158),
         ('Liurnia :: Glowstone - around Church of Vows, may be sweep-granted by Bell Bearing Hunter (m60_37_46) [f400209]', 7773713, 400209),
+        ('Liurnia :: Carian Inverted Statue - around Caelem Ruins [f400391]', 7773733, 400391),
         ("Liurnia :: Blue Silver Mail Hood - around Slumbering Wolf's Shack, may be sweep-granted by Omenkiller (m60_35_42) [f400412]", 7773736, 400412),
         ("Liurnia :: Nomadic Merchant's Bell Bearing [5] - around Laskyar Ruins, may be sweep-granted by Adan, Thief of Fire (m60_38_41) [f400905]", 7773770, 400905),
         ("Liurnia :: Nomadic Merchant's Bell Bearing [6] - around Bellum Church, may be sweep-granted by Onyx Lord (m60_36_50) [f400908]", 7773773, 400908),
@@ -4503,6 +4502,7 @@ LOCATIONS = {
         ('Shadow Keep :: Shadow Realm Rune [6] - near Fingerstone Hill, may be sweep-granted by Fallingstar Beast (m61_52_48) [f2053487010]', 7773656, 2053487010),
         ('Shadow Keep :: Hefty Cracked Pot - near West Rampart, may be sweep-granted by Fallingstar Beast (m61_52_48) [f66980]', 7773699, 66980),
         ("Shadow Keep :: Leda's Rune [f400596]", 7773741, 400596),
+        ('Shadow Keep :: Golden Lion Shield - m60_49_40 (region unconfirmed) [f400600]', 7773742, 400600),
         ('Shadow Keep :: Furnace Visage - around Storehouse, First Floor, may be sweep-granted by Base Serpent Messmer (m21_01) [f400612]', 7773745, 400612),
         ('Shadow Keep :: [Sorcery] Gravitational Missile - Fallingstar Beast, may be sweep-granted by Fallingstar Beast (m61_52_48) [f530960]', 7773878, 530960),
         ('Shadow Keep :: Smithing Stone [7] - near Storehouse, Back Section, may be sweep-granted by Base Serpent Messmer (m21_01) [f21017090]', 7773934, 21017090),
@@ -5572,4 +5572,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:a86923501762edc9146fb29e09dd62ec921f20e86a67fa6700206755244cdb2e', 'module': 'data.py', 'body_sha256': 'sha256:c8788ce61df7ce6f085da1e072c90888e57a495f908305ea84742ddd24994869'}
+_GEN_STAMP = {'inputs_hash': 'sha256:4933224342564e02898c4aac6c834bffff10d6524f6973e945df10c74b5aa9d2', 'module': 'data.py', 'body_sha256': 'sha256:9df352289b7bc9a216cd723ef24d9d56f052f034828b1bf5f6fb572c533f42d4'}

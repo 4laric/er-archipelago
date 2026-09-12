@@ -10,17 +10,17 @@ Its independent region queue corroborates disagreement for ten of the twelve;
 item-identity/missing-slot gates pass. No upstream labels or descriptions are
 copied here. The oracle's regional clustering is not a placement authority.
 
-## Strong correction candidates
+## Corrections implemented in PR #1555
 
-| Flag | Reward | Current | Candidate | Our evidence |
+| Flag | Reward | Current | Corrected | Our evidence |
 | --- | --- | --- | --- | --- |
 | 400320 | Prosthesis-Wearer Heirloom | Haligtree | Caelid | gen_data's existing quest adjudication traces needle handover -> state 4186 -> lot 103200; both relocating NPC script copies include the award. region_map.csv instead assigns Haligtree by flag prefix. |
-| 400391 | Carian Inverted Statue | Roundtable Hold | Liurnia | t106016000_x37 awards lot 103910; the quest DAG resolves its prerequisite to Liurnia. The raw region pipeline labels the lot globally unplaced; needs the NPC placement join before applying a fix. |
+| 400391 | Carian Inverted Statue | Roundtable Hold | Liurnia | t106016000_x37 awards lot 103910; the quest DAG resolves its prerequisite to Liurnia. The raw region pipeline labels the lot globally unplaced; x28/x29 use the local handover latch 1034509421 in m60_34_50. |
 | 400600 | Golden Lion Shield | Enir Ilim | Shadow Keep | gen_data already traces Freyja's letter flag 21019371 to x52 / lot 106000 in t417002101; flag_lots has no independent death-drop lot for this flag. GLOBAL_RECOVER currently pins the reward to Enir Ilim. |
 | 400722 | Gourmet Scorpion Stew | Gravesite | Belurat | gen_data traces Grandam's x39 -> x48 -> lot 107220 with flags 20009286/20009290; m20_00 event 20000702 governs refusal. Current manual region override is Gravesite. |
 
-All four are independently queued by the Matt oracle. These are source-supported
-correction candidates, not four newly implemented or live-verified fixes.
+All four were independently queued by the Matt oracle. Their generator assignments
+are now corrected and regression-tested; they have not been live-verified.
 
 ## Remaining screen hits — not adjudicated as errors
 
@@ -38,4 +38,5 @@ correction candidates, not four newly implemented or live-verified fixes.
 Do not batch-reassign these from prerequisite regions or script folder names.
 For each fix, resolve the award's state and NPC placement, change the generator,
 regenerate, and test the distinct acquisition rather than the item name alone.
-No generated tables or reward assignments were changed by this audit.
+The four corrections above were subsequently implemented at the user's request;
+the remaining eight screen hits are unchanged.
