@@ -7,21 +7,34 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Optional for what has landed so far — the rune-detection fix is entirely world-side. The paired client work (clients #685, which writes the possession band on rune delivery) wants a matching client, but no seed generated here needs one.
+- **APWorld:** Host-only, for newly generated rooms after this version ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Profile/assets:** No action; no map or asset changes.
 
-Window opened AT THE TAG of v0.6.0.10 with ZERO commits past it.
+`CONTRACT_HASH` is `613fb438`, **unmoved** (read from `contract.py`, not assumed) and unchanged since v0.6.0.3. No slot_data shape moved, so the handshake is unaffected: a v0.6.0.3-or-newer client plays every seed this window generates, and this window's apworld plays with those clients. Standing exceptions, none new here: **Elden Ring 2.7.1.0 needs at least a v0.6.0.6 client**, the Respec overlay action needs v0.6.0.7 or newer, and the trap-replay and main-menu delivery fixes live in v0.6.0.8 or newer.
 
-`CONTRACT_HASH` is `613fb438`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
-
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+The version string moved 0.6.0.10 → 0.6.0.11, so the client's `contract_gen.rs` version site moves with it; the gitlink re-pin rides in the window-opening commit (3edfad68).
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.10 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+The six boss Great Rune checks (Godrick, Radahn, Morgott, Rykard, Mohg, Malenia)
+are now detected on their boss's DEFEAT flag instead of on vanilla's Great Rune
+possession band. Flags 171-176 are what the game itself counts as "runes held"
+(`common.emevd` `$Event(730)` counts 170-179), so once the client starts writing
+that band on rune delivery — clients #685, so third-party rune counters and the
+vanilla capital wall agree with your AP inventory — setting a rune's flag before
+its demigod dies would mark the boss lot collected and that check could never be
+sent: the rune arrives and the location is lost. Moving the poll onto the defeat
+flag leaves the band to the client.
+
+**World-only change, and old seeds are unaffected** — they never carried the
+override. Location names, AP ids and the datapackage are untouched (the checks
+still read `[f171]`), the vanilla rune goods stay suppressed at their lots exactly
+as before, and `CONTRACT_HASH` does not move. The client half is clients #685.
 
 ## v0.6.0.10 — 2026-09-12
 
