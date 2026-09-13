@@ -49,7 +49,6 @@ from typing import Dict, List
 
 from ..registry import Feature, register
 from ..item_categories import GREAT_RUNES
-from ..tables.data import HUB, LOCATIONS
 
 try:  # AP is absent in the standalone host harness
     from BaseClasses import ItemClassification
@@ -142,8 +141,10 @@ def detect_flag_overrides(world) -> Dict[int, int]:
     does not have it. Only rows whose region is in `[HUB] + kept` are emitted; on a seed without
     Stormveil there is simply nothing to override.
     """
-    scope = set([HUB] + list(world._kept()))
-    in_scope = {int(ap) for rn in scope for (_n, ap, _f) in LOCATIONS.get(rn, ())}
+    # world.tables, not a by-name table import: test_gf_data_tables_loader bars new features from
+    # importing generated modules directly (#1464).
+    scope = set([world.tables.hub] + list(world._kept()))
+    in_scope = {int(ap) for rn in scope for (_n, ap, _f) in world.tables.locations.get(rn, ())}
     return {ap: fl for ap, fl in GREAT_RUNE_DETECT_FLAGS.items() if ap in in_scope}
 
 

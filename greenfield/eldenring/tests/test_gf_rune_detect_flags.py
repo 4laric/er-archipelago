@@ -99,6 +99,8 @@ class TestEmittedFlagsAvoidThePossessionBand(WorldTestBase):
 
     def test_no_emitted_location_detects_on_the_possession_band(self):
         emitted = {int(k): int(v) for k, v in self.world.fill_slot_data()["locationFlags"].items()}
+        # WITNESS (test_gf_vacuous_pass ratchet): the scan saw a real seed, not an empty table.
+        assert len(emitted) > 1000, f"only {len(emitted)} locationFlags emitted; the scan saw nothing"
         offenders = {ap: fl for ap, fl in emitted.items() if fl in POSSESSION_BAND}
         assert not offenders, (
             f"{len(offenders)} location(s) detect on vanilla's Great Rune possession band "
@@ -136,4 +138,6 @@ class TestReducedSeedPublishesOnlyWhatItKept(WorldTestBase):
 
     def test_no_emitted_location_detects_on_the_possession_band(self):
         emitted = {int(k): int(v) for k, v in self.world.fill_slot_data()["locationFlags"].items()}
+        # WITNESS (test_gf_vacuous_pass ratchet): a 3-region seed still emits its kept checks.
+        assert len(emitted) > 100, f"only {len(emitted)} locationFlags emitted; the scan saw nothing"
         assert not {ap: fl for ap, fl in emitted.items() if fl in POSSESSION_BAND}
