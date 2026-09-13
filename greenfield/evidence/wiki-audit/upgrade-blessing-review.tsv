@@ -54,11 +54,11 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774011	glovewort	repeated_material_row	Gravesite	Grave Glovewort [6]	40007050	m40_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774017	glovewort	repeated_material_row	Gravesite	Grave Glovewort [7]	40007110	m40_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772425	glovewort	repeated_material_row	Gravesite	Great Ghost Glovewort	40007800	m40_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
-7771560	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001300		remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771561	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001310		remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771562	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001320		remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771563	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001330		remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7771564	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001340		remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771560	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001300	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771561	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001310	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771562	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001320	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771563	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001330	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7771564	glovewort	repeated_material_row	Haligtree	Ghost Glovewort [9]	15001340	m15_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771656	glovewort	unique_material_row	Haligtree	Ghost-Glovewort Picker's Bell Bearing [3]	15007910	m15_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7771654	glovewort	repeated_material_row	Haligtree	Great Grave Glovewort	15007890	m15_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7772412	glovewort	repeated_material_row	Leyndell	Ghost Glovewort [6]	35007900	m35_00	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source

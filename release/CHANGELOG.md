@@ -21,6 +21,14 @@ The version string moved 0.6.0.10 → 0.6.0.11, so the client's `contract_gen.rs
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Elphael's five Ghost Glovewort [9] enemy drops now sweep on Loretta and Malenia (apworld):**
+  the five guaranteed drops along the outer brace near the Prayer Room were the only Haligtree
+  checks no boss sweep could pay, so they stayed on the tracker after both bosses died (Ace's
+  report). Their map is now recovered from the flag like every other interior pickup and they
+  join the existing Haligtree round-robin. Location NAMES change for the Haligtree rows whose
+  "may be sweep-granted by" clause re-phased; ids and flags are untouched. World-only, contract
+  unmoved.
+
 The six boss Great Rune checks (Godrick, Radahn, Morgott, Rykard, Mohg, Malenia)
 are now detected on their boss's DEFEAT flag instead of on vanilla's Great Rune
 possession band. Flags 171-176 are what the game itself counts as "runes held"
