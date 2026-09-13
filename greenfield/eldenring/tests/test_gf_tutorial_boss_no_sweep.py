@@ -598,8 +598,14 @@ def test_the_sweep_corpus_did_not_shrink():
     # Rellana 2048440800, and the round-robin deals these two no slot. Hand collection remains,
     # which is the conservative direction: a sweep that granted them from a Gravesite boss was
     # granting an Ensis check off a Gravesite kill, which is what #1059 forbids.
-    assert total == 4113, (
-        "sweep corpus is %d, expected 4113. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-13 (Ace's Haligtree report): 4113 -> 4118. ADDED 5, removed 0. The five Ghost
+    # Glovewort [9] guaranteed ENEMY-DROP lots f15001300..15001340 (Elphael outer brace, "around
+    # Prayer Room") were method flag_prefix / map PENDING because the flag-prefix map recovery in
+    # gen_data.py never listed the "15" prefix, so they failed the interior-member gate while the
+    # neighbouring map lots f15001250..15001290 were already dealt to Loretta and Malenia. They now
+    # recover to m15_00 and join the same Haligtree round-robin. Nothing loses coverage.
+    assert total == 4118, (
+        "sweep corpus is %d, expected 4118. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -954,6 +960,13 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # f530865) lose coverage and are accounted for at the corpus total above.
     # 2026-09-12: exactly 16 member links move from the three Avatar proxies to
     # 2050480800. The owned acquisition flags and every unrelated owner are unchanged.
-    assert (digest, n) == ("132220155d8778d3", 4113), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (132220155d8778d3, 4113). The total alone will "
+    # 2026-09-13 (Ace's Haligtree report), measured by (trigger, flag) against origin/main
+    # ecef615f: digest 132220155d8778d3 -> 830d4ccff488de1f, n 4113 -> 4118. ADDED 5 (the five
+    # f15001300..15001340 Ghost Glovewort [9] enemy drops: three dealt to Malenia 15000800, two to
+    # Loretta 15000850), REMOVED 0, RE-OWNED 99 -- and every one of the 99 is a Haligtree map lot
+    # trading between Malenia and Loretta (50 one way, 49 the other) as the round-robin re-phased
+    # around the five insertions, the #363 modulus shape. ZERO crossed a region boundary:
+    # SWEEP_REGION is 'Haligtree' for both owners of all 99.
+    assert (digest, n) == ("830d4ccff488de1f", 4118), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (830d4ccff488de1f, 4118). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

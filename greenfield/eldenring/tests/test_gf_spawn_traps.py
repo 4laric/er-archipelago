@@ -626,7 +626,11 @@ class TheNameSurface(unittest.TestCase):
         # contract move this file caused, and it objects to neither. The pin is re-anchored rather
         # than deleted: its claim is that the SPAWN-NAME work adds no shape, and it can only keep
         # making that claim from a current value.
-        self.assertEqual(contract.CONTRACT_HASH[:8], "613fb438")
+        # 613fb438 -> 2aa64f43 on 2026-09-13: the optional `unobtainableLocations` key (the
+        # tracker's per-seed unobtainable set, Ace's Haligtree 116/123 report), ledgered under
+        # v0.6.0.11 in release/CONTRACT-VERSIONS.tsv with the clients#686 bridge. Not this file's
+        # move either; re-anchored for the same reason as the two above.
+        self.assertEqual(contract.CONTRACT_HASH[:8], "2aa64f43")
 
     def test_a_name_the_game_writes_with_a_comma_is_offered_without_one(self):
         """🛑 A COMMA IS A SEPARATOR WHERE PLAYERS WRITE THESE. `spawn_traps: [Alexander, Warrior

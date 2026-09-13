@@ -219,6 +219,11 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "unobtainable_locations": "pins the per-seed `unobtainableLocations` emission (Ace's Haligtree "
+                              "116/123 report): the reviewed questline-route table, the pure "
+                              "kept-set function, two built-world seeds, and the questline_dag.tsv "
+                              "keeper read beside the package. Needs the installed world, so it "
+                              "belongs in TESTS_JOB",
     "rune_detect_flags": "pins that no location is detected on vanilla's Great Rune possession band "
                          "170-179 and that the six boss-rune checks sit on their boss defeat flags. "
                          "Cites common.emevd in its docstring only; AP-free pytest with no script "

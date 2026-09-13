@@ -3948,8 +3948,16 @@ for _rr in _ALLROWS:
     # ORDER MATTERS. The DLC-overworld form is 10 digits and ALSO starts "20", so it matched the
     # interior branch first (decoding 2049490900 -> "m20_49_00_00", not a dungeon, silently nothing)
     # and the elif below never ran. Interior flags are 8 digits; DLC-overworld are 10. Split on that.
-    if len(_fs) == 8 and _fs[:2] in ("11", "12", "20", "21", "30", "31", "32", "34", "35",
-                                     "39", "40", "41", "42", "43"):
+    # "15" added 2026-09-13 (Ace's Haligtree report): the five Ghost Glovewort [9] ENEMY-DROP lots
+    # 15001300..15001340 (guaranteed drops, method flag_prefix, map PENDING) sat one row below the
+    # map lots 15001250..15001290 that Loretta and Malenia already deal out, and were the only
+    # Haligtree checks no sweep could reach -- the tracker showed them after both bosses died.
+    # The self-encoded map is m15_00 and dungeon_regions.tsv already files it as Haligtree, so
+    # recovering it admits the rows to the same legacy round-robin. Every other legacy-interior
+    # prefix is added alongside for the same reason ("10", "13", "14", "16"); the
+    # `_rec in DUNGEON_REGION_OVERRIDE` guard below is unchanged and still decides admission.
+    if len(_fs) == 8 and _fs[:2] in ("10", "11", "12", "13", "14", "15", "16", "20", "21",
+                                     "30", "31", "32", "34", "35", "39", "40", "41", "42", "43"):
         _rec = f"m{_fs[:2]}_{_fs[2:4]}_00_00"
         if _rec in DUNGEON_REGION_OVERRIDE:
             _rr["map"] = _rec
