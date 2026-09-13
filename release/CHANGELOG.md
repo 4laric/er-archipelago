@@ -7,13 +7,13 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Optional for what has landed so far — the rune-detection fix is entirely world-side. The paired client work (clients #685, which writes the possession band on rune delivery) wants a matching client, but no seed generated here needs one.
+- **Client:** **Required for seeds generated on this version.** `CONTRACT_HASH` moves (a new optional slot_data key, `unobtainableLocations`), so a v0.6.0.10-or-older client refuses a v0.6.0.11 seed with `VERSION MISMATCH`. The v0.6.0.11 client (clients #686) reads every earlier 0.6.0-line seed (contract `613fb438`, v0.6.0.3 through v0.6.0.10) as an audited compatible subset, so updating the `.dll` mid-run on an older seed is safe.
 - **APWorld:** Host-only, for newly generated rooms after this version ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible; no regeneration or save migration required.
 - **Profile/assets:** No action; no map or asset changes.
 
-`CONTRACT_HASH` is `613fb438`, **unmoved** (read from `contract.py`, not assumed) and unchanged since v0.6.0.3. No slot_data shape moved, so the handshake is unaffected: a v0.6.0.3-or-newer client plays every seed this window generates, and this window's apworld plays with those clients. Standing exceptions, none new here: **Elden Ring 2.7.1.0 needs at least a v0.6.0.6 client**, the Respec overlay action needs v0.6.0.7 or newer, and the trap-replay and main-menu delivery fixes live in v0.6.0.8 or newer.
+`CONTRACT_HASH` **moves** `613fb438` → `2aa64f43` (read from `contract.py`, not assumed) in this change: one optional key, `unobtainableLocations`, was added. The move is allowed on a fixpack only because the paired client bridges the older contract -- `is_legacy_contract_compatible` lists every v0.6.0.3 … v0.6.0.10 seed at `613fb438` (clients #686), so a v0.6.0.11 client plays every seed this line has generated; the reverse does NOT hold, and a seed generated here needs the v0.6.0.11 client. Standing exceptions, none new here: **Elden Ring 2.7.1.0 needs at least a v0.6.0.6 client**, the Respec overlay action needs v0.6.0.7 or newer, and the trap-replay and main-menu delivery fixes live in v0.6.0.8 or newer.
 
 The version string moved 0.6.0.10 → 0.6.0.11, so the client's `contract_gen.rs` version site moves with it; the gitlink re-pin rides in the window-opening commit (3edfad68).
 
@@ -35,6 +35,21 @@ flag leaves the band to the client.
 override. Location names, AP ids and the datapackage are untouched (the checks
 still read `[f171]`), the vanilla rune goods stay suppressed at their lots exactly
 as before, and `CONTRACT_HASH` does not move. The client half is clients #685.
+
+The tracker no longer lists checks this seed can never award (clients #686).
+Ace's report: Haligtree stuck at 116/123 with both its bosses dead,
+because Millicent's Prayer Room rewards — Unalloyed Gold Needle, Millicent's
+Prosthesis, Miquella's Needle and the Somber Ancient Dragon Smithing Stone — were
+listed under Haligtree while her questline starts with Gowry in Caelid, a region
+that seed had not kept. The apworld now sends `unobtainableLocations`: the ids
+whose reviewed NPC-questline route (`features/unobtainable_locations.py`) passes
+through a region `num_regions` dropped, and the client hides them from the region
+groups and counts and prints the hidden total under the checks line. The routes
+shipped are Millicent, Ranni's Ainsel leg, the three Volcano Manor letters,
+Sellen and Edgar; twelve further datamined cross-region rows are named as
+review-pending in the same file and are NOT hidden. AP-side nothing changes: the
+locations stay in the multiworld, randomised, missable-tagged and filler-only, and
+a client that predates the key shows them exactly as before.
 
 ## v0.6.0.10 — 2026-09-12
 

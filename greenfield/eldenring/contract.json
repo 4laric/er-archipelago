@@ -164,6 +164,17 @@
       "doc": "fine region NAME -> COARSE key: the region whose lock decides in-logic. \"\" means ALWAYS ACCESSIBLE (the hub). Usually the region itself; it differs only for a LOCKLESS region whose physical space is gated by another region's lock (the finale -> its host). \ud83d\uded1 SENT, not derived client-side: which region hosts a lockless one is OUR design decision, and re-deriving it in Rust would be a second copy of a convention free to drift from this one."
     },
     {
+      "name": "unobtainableLocations",
+      "shape": "INT_LIST",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/unobtainable_locations.py",
+      "consumer": "er-logic tracker_tables::build_tracker_tables -> tracker::build_tracker_model hides them",
+      "doc": "AP location ids in THIS seed (always a subset of locationRegions) that cannot be obtained because a reviewed NPC-questline route passes through a region this seed did not keep. Sent, not derived client-side: which region a quest must visit is world data (features/unobtainable_locations.REVIEWED_QUEST_ROUTES). Empty on a full-map seed. AP semantics unchanged: the ids stay in the multiworld as filler-only missable checks; a client that hides them must still SEND them if the player somehow fires the flag."
+    },
+    {
       "name": "options",
       "shape": "OPTIONS_DICT",
       "required": true,
