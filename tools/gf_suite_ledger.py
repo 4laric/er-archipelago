@@ -219,6 +219,10 @@ GENERATORS = [
 # value = why the inputs are reachable there. Remaining per-test skips inside them are census
 # families in expected_skips_ci.json.
 TESTS_JOB = {
+    "rune_detect_flags": "pins that no location is detected on vanilla's Great Rune possession band "
+                         "170-179 and that the six boss-rune checks sit on their boss defeat flags. "
+                         "Cites common.emevd in its docstring only; AP-free pytest with no script "
+                         "entry point, so it belongs in TESTS_JOB",
     "mfg_silver_scarab": "Recovered chest evidence and region/grace/kick witnesses require the repository-aware pytest job",
     "mfg_briars": "Briars source/identity regression reads committed evidence and generator AST; runs in the repository-aware pytest job",
     "boss_reward_category_coverage": "category-wide boss and remembrance coverage regression "

@@ -44,7 +44,8 @@ fill guarantees it reachable, and that upgrade lives in `core._class_for`, which
 `_required_runes()` / `gf_leyndell_runes`. Filing them under the floor would have split one item's
 classification across two owners.
 """
-from typing import List
+import logging
+from typing import Dict, List
 
 from ..registry import Feature, register
 from ..item_categories import GREAT_RUNES
@@ -53,6 +54,98 @@ try:  # AP is absent in the standalone host harness
     from BaseClasses import ItemClassification
 except ImportError:  # pragma: no cover - exercised only outside an AP checkout
     ItemClassification = None
+
+
+# ---- DETECTION: the six boss runes poll the BOSS DEFEAT flag, not the POSSESSION flag ----------
+#
+# 🛑 FLAGS 170-179 ARE VANILLA'S GREAT RUNE POSSESSION BAND. THEY ARE NOT OURS TO DETECT ON.
+#
+# Evidence, from the decompiled corpus in this repo's own bundle:
+#
+#   * `elden_ring_artifacts/event/common.emevd.dcx.js:3124` -- $Event(6905) derives the possession
+#     band from the demigod REMEMBRANCE reward flags, one contiguous slot per rune:
+#         510010->171, 510300->172, 510040->173, 510220->174, 510120->175, 510200->176, 197->177.
+#   * `elden_ring_artifacts/event/common.emevd.dcx.js:1110` -- $Event(730)
+#     大ルーン所持数チェック ("check number of large runes in possession") is
+#     `CountEventFlags(EventFlag, 170, 179) >= countThreshold`. THAT is what a rune counter reads:
+#     the whole 170-179 band, not any single flag.
+#
+#   (features/leyndell_gate.py's "ALL SEVEN COUNT AT THE GATE" block walks the same two events for
+#   the gate's threshold; this is the same evidence pointed at the detection question instead.)
+#
+# WHY THIS MOVED (client lost-check scenario, 2026-09-13). clients #685 makes the client SET
+# 171-177 when it DELIVERS a Great Rune, so third-party rune counters -- thefifthmatt's gates, and
+# vanilla's own $Event(730)/$Event(1045522500) capital wall -- agree with the AP inventory instead
+# of reading zero for a player who is holding six runes. That write is correct and wanted. But the
+# possession flag was ALSO this location's detection flag, and the boss lot carries it as its
+# `getItemFlagId`: setting 171 before Godrick dies marks lot 10010 collected, so the pickup never
+# fires the flag the poll is waiting on and check 7770001 CAN NEVER BE SENT. The rune is delivered,
+# the location is lost, and the seed is unwinnable if the goal wanted that check.
+#
+# The fix is to stop overloading one flag with two jobs. The BOSS DEFEAT flag is the honest
+# detection signal for "you beat the demigod who holds this rune", it is what 6905 itself keys on,
+# and nothing writes it but the boss dying. The possession band is then free for the client.
+#
+# ⭐ THE data.py ROW IS DELIBERATELY UNTOUCHED -- name, ap_id and flag all stay as they are.
+# `[f171]` is the location's IDENTITY (datapackage name) and 171 is still the acquisition flag its
+# lot, its vanilla ware and `check_lots` are keyed on; only the DETECTION flag the client polls
+# moves. `coverage.py` already models exactly this split -- `rec.detect_flag =
+# emitted_location_flags.get(ap_id, flag)` -- so a detect flag that differs from the table flag is
+# a shape the world already understands, not a new one. Keeping the row fixed is also what the
+# ap-ids-stable ruling asks for: no renumber, no rename, no datapackage churn, and old seeds keep
+# working because they never carried this override.
+#
+# NOT check_lots' problem. `CHECK_LOT_SLOTS_MAP` is keyed by LOT ID, and all six rune lots (10010,
+# 10041, 10121, 10201, 10221, 10301) are already in it -- the vanilla rune goods (8148-8153) are
+# repointed at AP_PLACEHOLDER_GOODS and suppressed exactly as before. That machinery never read the
+# detection flag ("Checks are detected by the FLAG POLL, not by the item id" -- its own docstring),
+# so moving the poll leaves suppression untouched.
+#
+# Rennala/the Unborn rune (7900004) is NOT here: it detects on f197, which is 6905's INPUT for slot
+# 177 rather than a slot in the band, so it was never exposed to this collision.
+# 🛑 NOT THE 510xxx FLAGS 6905 READS. Those are REMEMBRANCE REWARD `getItemFlagId`s
+# (`tables/boss_reward_lots.py:240` -- "reward getItemFlagId -> boss DEFEAT flag"), and every one of
+# them is ALREADY the detection flag of its own Remembrance check in data.py -- 510010 is
+# `Remembrance of the Grafted` (7770653), 510040 the Omen King (7770654), 510220 the Blasphemous
+# (7770663), and so on. Repointing a rune onto one would put TWO locations on ONE flag: picking up
+# the Remembrance would send the Great Rune check too, which is the same lost/ghost-check class this
+# change exists to remove, only moved one flag to the left. (That shape is legal in this world ONLY
+# as an allowlisted co-check family with a distinct lot per member in `LOCATION_LOT` -- which these
+# six do not have and do not need.)
+#
+# The target is the boss's own DEFEAT flag, one hop further on, via `BOSS_REWARD_DEFEAT`. Nothing
+# else detects on these, and the client already watches all six as `boss_sweeps` triggers, so the
+# poll is not being asked to do anything new.
+#
+# ⚠️ RADAHN IS THE FESTIVAL-ALIAS TRAP. `BOSS_REWARD_DEFEAT[510300]` is the `10`-prefix ENTITY flag
+# 1052380800, but the flag that actually persists after the festival is the `12`-prefix
+# **1252380800** -- the form `boss_healthbars` / `boss_taxonomy` / `boss_sweeps` all carry, and the
+# one `_festival_alias` exists to bridge (`tests/test_gf_sweep_slot_split.py:105`). A poll on the
+# 10-form would never fire. Fire Giant has the same split; he is not a rune boss.
+GREAT_RUNE_DETECT_FLAGS: Dict[int, int] = {
+    7770001: 10000800,    # Godrick the Grafted        (m10_00 Stormveil)     -- possession f171
+    7770002: 1252380800,  # Starscourge Radahn         (m60_52_38 Redmane)    -- possession f172
+    7770003: 11000800,    # Morgott, the Omen King     (m11_00 Leyndell)      -- possession f173
+    7770004: 16000800,    # Rykard, Lord of Blasphemy  (m16_00 Volcano Manor) -- possession f174
+    7770005: 12050800,    # Mohg, Lord of Blood        (m12_05 Mohgwyn)       -- possession f175
+    7770006: 15000800,    # Malenia, Blade of Miquella (m15_00 Haligtree)     -- possession f176
+}
+
+
+def detect_flag_overrides(world) -> Dict[int, int]:
+    """The subset of GREAT_RUNE_DETECT_FLAGS whose location is actually IN this seed.
+
+    Scoped on purpose. `core._base_slot_data` merges `gf_extra_location_flags` into locationFlags
+    unconditionally and then back-fills loc_regions from data.LOCATIONS, so an unscoped override
+    would PUBLISH a check whose region the draw never kept -- inventing a location on a seed that
+    does not have it. Only rows whose region is in `[HUB] + kept` are emitted; on a seed without
+    Stormveil there is simply nothing to override.
+    """
+    # world.tables, not a by-name table import: test_gf_data_tables_loader bars new features from
+    # importing generated modules directly (#1464).
+    scope = set([world.tables.hub] + list(world._kept()))
+    in_scope = {int(ap) for rn in scope for (_n, ap, _f) in world.tables.locations.get(rn, ())}
+    return {ap: fl for ap, fl in GREAT_RUNE_DETECT_FLAGS.items() if ap in in_scope}
 
 
 def naturally_present(world) -> List[str]:
@@ -87,6 +180,18 @@ class GreatRuneSupply(Feature):
         # answer rather than each recomputing it. Empty on a full-Shattering seed, which is the
         # signal that the draw already supplied everything.
         world.gf_great_runes_injected = injected(world) if world._shuffle_on() else []
+        # Repoint the six boss runes' DETECTION onto the boss defeat flag -- see the evidence block
+        # above GREAT_RUNE_DETECT_FLAGS. Same documented seam features/finale.py uses, and the same
+        # merge idiom, so the two compose instead of clobbering each other.
+        _overrides = detect_flag_overrides(world)
+        if _overrides:
+            flags = dict(getattr(world, "gf_extra_location_flags", {}))
+            flags.update(_overrides)
+            world.gf_extra_location_flags = flags
+        logging.getLogger("Greenfield").info(
+            "[eldenring:%s] great runes: %d injected, %d boss-rune check(s) repointed off the "
+            "170-179 possession band onto boss defeat flags",
+            world.player, len(world.gf_great_runes_injected), len(_overrides))
 
     def create_items(self, world) -> List:
         """Mint one copy of every rune the draw did not supply.
