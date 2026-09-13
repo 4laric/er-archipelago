@@ -1080,6 +1080,25 @@ CONTRACT = (
                 "-> its host). 🛑 SENT, not derived client-side: which region hosts a lockless one "
                 "is OUR design decision, and re-deriving it in Rust would be a second copy of a "
                 "convention free to drift from this one."),
+    # --- per-seed unobtainable checks (2026-09-13, Ace's Haligtree 116/123 report) ---
+    # THE CONSUMER tracker_tables.rs asked for when it dropped the baked `missable` column ("when a
+    # consumer exists, add the key then"). NOT the missable set: missable means "can be LOST", this
+    # means "cannot be OBTAINED in this seed at all" -- an NPC-questline reward whose quest has to be
+    # advanced in a region num_regions did not keep (Millicent's Haligtree rewards start with Gowry
+    # in Caelid). The location still exists for the multiworld (filler-only, unchanged); only the
+    # tracker's view of it changes. Optional: an older client never reads it and shows the check as
+    # it always did; a client that reads it hides those ids from region groups and counts and logs
+    # the hidden count. CONTRACT_HASH moves; the client bridges 613fb438 (see CONTRACT-VERSIONS).
+    ContractKey("unobtainableLocations", "INT_LIST", False, (GREENFIELD,),
+                "features/unobtainable_locations.py",
+                "er-logic tracker_tables::build_tracker_tables -> tracker::build_tracker_model hides them",
+                "AP location ids in THIS seed (always a subset of locationRegions) that cannot be "
+                "obtained because a reviewed NPC-questline route passes through a region this seed "
+                "did not keep. Sent, not derived client-side: which region a quest must visit is "
+                "world data (features/unobtainable_locations.REVIEWED_QUEST_ROUTES). Empty on a "
+                "full-map seed. AP semantics unchanged: the ids stay in the multiworld as "
+                "filler-only missable checks; a client that hides them must still SEND them if the "
+                "player somehow fires the flag."),
     # --- runtime options echo (F1 fix; the client reads options ONLY through this sub-dict) ---
     ContractKey("options", "OPTIONS_DICT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_bool_option et al.",
