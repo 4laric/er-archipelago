@@ -267,8 +267,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7771726	unique_dungeon_pickup	Limgrave	Erdtree's Favor	18007050	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773927	unique_dungeon_pickup	Limgrave	Grave Glovewort [1]	18007060	m18_00	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773928	unique_dungeon_pickup	Limgrave	Haligdrake Talisman	18007070	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7772840	unique_dungeon_pickup	Limgrave	Lance	1042397010	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7772820	unique_dungeon_pickup	Limgrave	Lordsworn's Greatsword	1042377070	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772031	unique_dungeon_pickup	Limgrave	"Prattling Pate ""Hello"""	30027030	m30_02	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
 7772192	unique_dungeon_pickup	Limgrave	Shamshir	31177080	m31_17	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773659	unique_dungeon_pickup	Limgrave	Tarnished's Furled Finger	60220	m18_00	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -621,6 +619,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900266	unique_field_pickup	Consecrated Snowfield	Black Knife Greaves	1048577810	m60_48_57	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
 7773043	unique_field_pickup	Consecrated Snowfield	Black Knife Hood	1048577810	m60_48_57	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
 7774468	unique_field_pickup	Consecrated Snowfield	Fire Blossom	1049557320	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
+7773028	unique_field_pickup	Consecrated Snowfield	Flowing Curved Sword	1048557900	m60_48_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770109	unique_field_pickup	Consecrated Snowfield	Glintstone Craftsman's Cookbook [8]	67440	m60_50_56	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7900272	unique_field_pickup	Consecrated Snowfield	Hoslow's Armor	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
 7900273	unique_field_pickup	Consecrated Snowfield	Hoslow's Gauntlets	1050567700	m60_50_56	remaining_unreviewed	0		first_independent_identity_region_source
@@ -641,6 +640,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900258	unique_field_pickup	Consecrated Snowfield	Sanguine Noble Robe	1047567700	m60_48_57	remaining_unreviewed	0		first_independent_identity_region_source
 7900259	unique_field_pickup	Consecrated Snowfield	Sanguine Noble Waistcloth	1047567700	m60_48_55	remaining_unreviewed	0		first_independent_identity_region_source
 7773005	unique_field_pickup	Consecrated Snowfield	Silver Mirrorshield	1047587800	m60_48_57	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7773070	unique_field_pickup	Consecrated Snowfield	St. Trina's Torch	1049547900	m60_48_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7773027	unique_field_pickup	Consecrated Snowfield	Stalwart Horn Charm +1	1048557600	m60_48_55	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772997	unique_field_pickup	Consecrated Snowfield	Unendurable Frenzy	1047557900	m60_48_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7773894	unique_field_pickup	Ensis	Ash of War: Piercing Throw	540902	m61_48_44	remaining_unreviewed	0		first_independent_identity_region_source
@@ -726,7 +726,9 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772842	unique_field_pickup	Limgrave	Hammer Talisman	1042397700	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770800	unique_field_pickup	Limgrave	Incantation Scarab	580300	m60_43_36	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7773702	unique_field_pickup	Limgrave	Kalé's Bell Bearing	400049	m60_42_36	remaining_unreviewed	0		first_independent_identity_region_source
+7772840	unique_field_pickup	Limgrave	Lance	1042397010	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772890	unique_field_pickup	Limgrave	Lance Talisman	1043407010	m60_42_38	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772820	unique_field_pickup	Limgrave	Lordsworn's Greatsword	1042377070	m60_42_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7773766	unique_field_pickup	Limgrave	Nomadic Merchant's Bell Bearing [1]	400901	m60_45_39	remaining_unreviewed	0		first_independent_identity_region_source
 7773767	unique_field_pickup	Limgrave	Nomadic Merchant's Bell Bearing [2]	400902	m60_44_36	remaining_unreviewed	0		first_independent_identity_region_source
 7773768	unique_field_pickup	Limgrave	Nomadic Merchant's Bell Bearing [3]	400903	m60_42_36	remaining_unreviewed	0		first_independent_identity_region_source
@@ -764,6 +766,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7773736	unique_field_pickup	Liurnia	Blue Silver Mail Hood	400412	m60_35_42	remaining_unreviewed	0		first_independent_identity_region_source
 7900049	unique_field_pickup	Liurnia	Blue Silver Mail Skirt	400412	m60_37_42	remaining_unreviewed	0		first_independent_identity_region_source
 7772546	unique_field_pickup	Liurnia	Blue-White Wooden Shield	1035447120	m60_34_45	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
+7774631	unique_field_pickup	Liurnia	Briars of Sin	1038457500	m60_39_44	remaining_unreviewed	0		first_independent_identity_region_source
 7772734	unique_field_pickup	Liurnia	Cannon of Haima	1039487100	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772668	unique_field_pickup	Liurnia	Carian Glintblade Staff	1038427020	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772474	unique_field_pickup	Liurnia	Carian Knight's Sword	1033477200	m60_34_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

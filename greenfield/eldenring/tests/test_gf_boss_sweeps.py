@@ -188,6 +188,22 @@ class BossSweepScoping(unittest.TestCase):
             return f"m{fs[:2]}_{fs[2:4]}_00_00"
         raw = self.flag_map.get(self.ap_flag.get(ap, -1), "")
         if raw and raw != "PENDING":
+            # A COARSE-LOD overworld column is not a placement. An overworld map id is
+            # m6[01]_XX_YY_LL and LL is the LOD LEVEL: at LL=02 the (XX,YY) pair indexes a 4x4 BLOCK
+            # of level-0 tiles, so "m60_11_13_02" names the block spanning tiles (44..47, 52..55) --
+            # it does NOT mean tile (11,13), which is off the base-game grid entirely. Six rows carry
+            # such a column. Same rule as the dungeon-lot branch above: when the column cannot name a
+            # TILE, the flag's own encoding wins -- but only when the tile it names lies INSIDE the
+            # block the column does name, so this stays a two-derivation agreement rather than a
+            # pick. Re-derived here from the flag and the column, never imported from gen_data.
+            lod = re.match(r"^(m6[01])_(\d\d)_(\d\d)_(\d\d)$", raw)
+            if lod and int(lod.group(4)) in (1, 2) and len(fs) == 10 and fs[:2] in ("10", "20"):
+                grid = "m60" if fs[:2] == "10" else "m61"
+                sx, sy = int(fs[2:4]), int(fs[4:6])
+                bx, by, step = int(lod.group(2)), int(lod.group(3)), 2 ** int(lod.group(4))
+                if (grid == lod.group(1) and bx * step <= sx < (bx + 1) * step
+                        and by * step <= sy < (by + 1) * step):
+                    return "%s_%02d_%02d_00" % (grid, sx, sy)
             return raw
         # OVERWORLD self-encoding, same family as the dungeon rule above: a 10-digit lot flag
         # 10XXYYLLLL encodes tile m60_XX_YY. The late-recovered global/global_filler lots keep

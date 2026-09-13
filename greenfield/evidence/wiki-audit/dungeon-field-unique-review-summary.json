@@ -1,26 +1,26 @@
 {
   "by_category": {
     "unique_dungeon_pickup": {
-      "audited_one_family": 129,
+      "audited_one_family": 127,
       "conflicted": 0,
-      "held": 247,
+      "held": 245,
       "remaining_unreviewed": 118,
-      "total": 483,
+      "total": 481,
       "trusted": 236
     },
     "unique_field_pickup": {
-      "audited_one_family": 191,
+      "audited_one_family": 193,
       "conflicted": 0,
-      "held": 368,
-      "remaining_unreviewed": 177,
-      "total": 530,
-      "trusted": 162
+      "held": 371,
+      "remaining_unreviewed": 178,
+      "total": 535,
+      "trusted": 164
     }
   },
   "excluded": {
     "boss": 67,
-    "no_map_anchor": 838,
-    "repeated_item_name": 3014
+    "no_map_anchor": 832,
+    "repeated_item_name": 3017
   },
   "policy": {
     "dungeon": "descriptor map family m10 through m59",

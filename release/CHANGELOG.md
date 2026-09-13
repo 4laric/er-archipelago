@@ -21,6 +21,28 @@ The version string moved 0.6.0.10 → 0.6.0.11, so the client's `contract_gen.rs
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Six more world pickups can now be paid by a boss kill (apworld):** a sweep of every check no
+  boss group could reach turned up three derivation defects, each one a place the pickup's own
+  flag already encoded and nothing published. (1) An overworld map id is `m6[01]_XX_YY_LL` and `LL`
+  is the LOD **level** -- at `LL=02` the `(XX,YY)` pair indexes a 4x4 block of tiles, so
+  `m60_11_13_02` means the block spanning tiles (44..47, 52..55), not "tile (11,13)". Six rows
+  carry such a column and every consumer read it as a tile name, filing them off the grid. The
+  exact tile is now decoded from the flag and accepted only when it lies inside the block the
+  column names, which un-strands Gravity Stone Fan near Capital Rampart, and Flowing Curved Sword
+  and St. Trina's Torch in the Consecrated Snowfield -- and moves Flail, Lordsworn's Greatsword and
+  Lance off the Stranded Graveyard tutorial pair, which had been paying for pickups around Agheel
+  Lake North, Gatefront and Warmaster's Shack, onto the Limgrave field bosses actually standing
+  there. (2) An accepted native pin that lands on an overworld tile is now admitted like one in a
+  dungeon, which reaches Briars of Sin by the Artist's Shack. (3) The flag-prefix map recovery
+  learns `22` and `28`, the same defect one DLC interior further out than Elphael: in Stone Coffin
+  Fissure and Rauh Base every pickup but the guaranteed **enemy drops** already carried its map, so
+  a Smithing Stone [8] and a Revered Spirit Ash were the only checks in those maps their own boss
+  could not pay. Sweep corpus 4118 -> 4124, nothing loses coverage, no check changes region and no
+  boss grants outside its own region. World-only: ids, flags and `CONTRACT_HASH` are untouched.
+  The 69 remaining unswept pickups are out of scope by standing ruling -- Roundtable Hold has no
+  boss, the Divine Tower of Liurnia rows sit behind the Carian Inverted Statue, the Chapel of
+  Anticipation may never sweep, and the rest have no derivable place to be swept from.
+
 - **Elphael's five Ghost Glovewort [9] enemy drops now sweep on Loretta and Malenia (apworld):**
   the five guaranteed drops along the outer brace near the Prayer Room were the only Haligtree
   checks no boss sweep could pay, so they stayed on the tracker after both bosses died (Ace's

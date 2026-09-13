@@ -6,7 +6,7 @@
 # an AREA, never with the wording used for an item_grace_coords position.
 # Positions are MAP-LOCAL, the same space as item_grace_coords.
 #
-# EMITTED 655.
+# EMITTED 658.
 # REFUSED 0 AMBIGUOUS SWEEP
 # REFUSED 29 NO ARENA:
 #    7770786 (trigger 12030390)
@@ -39,7 +39,7 @@
 #    7773739 (trigger 2049440800)
 #    7773765 (trigger 2049440800)
 # REFUSED 0 ARENA AT ORIGIN
-# REFUSED 3434 ALREADY POSITIONED:
+# REFUSED 3437 ALREADY POSITIONED:
 #    7770041
 #    7770047
 #    7770810
@@ -80,7 +80,7 @@
 #    7770884
 #    7770886
 #    7770888
-#    ... 3394 more
+#    ... 3397 more
 ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	anchor
 7770008	9500	11050800	m11_05_00_00	41.02	65.12	-421.28	sweep_arena
 7770010	9504	35000800	m35_00_00_00	74.54	-298.53	-80.61	sweep_arena
@@ -329,6 +329,8 @@ ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	a
 7771981	21017991	21010800	m15_00_00_00	174.37	431.66	307.9	sweep_arena
 7771994	21027991	2049480800	m61_49_48_00	80.91	580.04	6.88	sweep_arena
 7772009	22007900	22000800	m22_00_00_00	-70.1	-295.01	104.29	sweep_arena
+7772010	22007910	22000800	m22_00_00_00	-70.1	-295.01	104.29	sweep_arena
+7772022	28007900	28000800	m28_00_00_00	-11.75	16.01	-92.36	sweep_arena
 7772057	30087970	30080800	m30_08_00_00	336.11	742.22	13.74	sweep_arena
 7772058	30087980	30080800	m30_08_00_00	336.11	742.22	13.74	sweep_arena
 7772059	30087990	30080800	m30_08_00_00	336.11	742.22	13.74	sweep_arena
@@ -626,6 +628,7 @@ ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	a
 7774628	2046407003	2046410800	m61_46_41_00	-177.91	317.66	54.75	sweep_arena
 7774629	2046407004	2046410800	m61_46_41_00	-177.91	317.66	54.75	sweep_arena
 7774630	2047447901	2048440800	m61_48_44_00	-55.49	427.01	50.56	sweep_arena
+7774631	1038457500	1039440800	m60_39_44_00	-81.59	294.79	-41.36	sweep_arena
 7774632	530861	2045440800	m61_45_44_00	59.1	256.42	-73.89	sweep_arena
 7774633	540424	1049370800	m60_49_37_00	-116.52	102.11	-7.9	sweep_arena
 7774634	540428	1052410850	m60_52_41_00	8.28	221.38	115.71	sweep_arena

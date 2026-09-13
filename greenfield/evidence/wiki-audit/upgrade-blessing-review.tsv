@@ -136,7 +136,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7773714	golden_seed	uniquely_anchored_collectible	Stormveil	Golden Seed	400220		remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772904	golden_seed	uniquely_anchored_collectible	Weeping	Golden Seed	1044327020	m60_44_32	trusted	2	gameplay-guide:powerpyx;gameplay-wiki:fextralife	unresolved	none_identity_region_trusted
 7772021	revered_spirit_ash	uniquely_anchored_collectible	Abyssal	Revered Spirit Ash	28007110	m28_00	trusted	2	gameplay-guide:game8;gameplay-guide:redmaw	unresolved	none_identity_region_trusted
-7772022	revered_spirit_ash	uniquely_anchored_collectible	Abyssal	Revered Spirit Ash	28007900		trusted	2	gameplay-guide:game8;gameplay-guide:samurai-gamers	unresolved	none_identity_region_trusted
+7772022	revered_spirit_ash	uniquely_anchored_collectible	Abyssal	Revered Spirit Ash	28007900	m28_00	trusted	2	gameplay-guide:game8;gameplay-guide:samurai-gamers	unresolved	none_identity_region_trusted
 7773210	revered_spirit_ash	uniquely_anchored_collectible	Ancient Ruins	Revered Spirit Ash	2044467000	m61_44_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773220	revered_spirit_ash	uniquely_anchored_collectible	Ancient Ruins	Revered Spirit Ash	2044467950	m61_44_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773355	revered_spirit_ash	uniquely_anchored_collectible	Ancient Ruins	Revered Spirit Ash	2046477950	m61_46_46	trusted	2	gameplay-guide:powerpyx;gameplay-guide:samurai-gamers	unresolved	none_identity_region_trusted
@@ -322,7 +322,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7773513	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [6]	2049387060	m61_48_38	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773950	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [6]	22007190	m22_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773461	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [7]	2048397000	m61_48_38	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7772010	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [8]	22007910		remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7772010	smithing_stone	repeated_material_row	Cerulean	Smithing Stone [8]	22007910	m22_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773296	smithing_stone	repeated_material_row	Cerulean	Somber Smithing Stone [6]	2046387050	m61_46_38	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772296	smithing_stone	repeated_material_row	Consecrated Snowfield	Ancient Dragon Smithing Stone	32117030	m32_11	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
 7773102	smithing_stone	repeated_material_row	Consecrated Snowfield	Ancient Dragon Smithing Stone	1050567600	m60_50_56	remaining_unreviewed	0		unresolved	first_exact_landmark_source

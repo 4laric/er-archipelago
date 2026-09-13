@@ -496,7 +496,14 @@ def test_full_area_sweeps_delta_is_exactly_the_surface_cut():
         for ap in extra:
             for cls in _CUTTABLE & set(LOCATION_TAGS.get(ap, ())):
                 gained[cls] += 1
-    assert dict(gained) == {"Fragment": 40, "Seedtree": 38, "Revered": 22, "Church": 13}, (
+    # 2026-09-13: Revered 22 -> 23, and that one row is the whole delta -- Fragment, Seedtree and
+    # Church are unmoved. f28007900 Revered Spirit Ash (Rauh Base, m28_00) is a guaranteed ENEMY-DROP
+    # lot with no lot row to carry its map column, so it sat at map PENDING and never reached the
+    # membership gate at all; the flag-prefix map recovery in gen_data.py now lists the "28" prefix,
+    # it joins m28_00's own map-local sweep, and being `Revered`-tagged it lands in exactly this
+    # cuttable band. The default-surface cut therefore takes it straight back and only
+    # full_area_sweeps restores it, which is what this number counts.
+    assert dict(gained) == {"Fragment": 40, "Seedtree": 38, "Revered": 23, "Church": 13}, (
         "the measured default-surface delta moved: %s. This is a corpus fact, so a regen may "
         "legitimately move it -- re-measure, re-state the WHY, and never re-baseline it to make a "
         "red go away." % dict(gained))

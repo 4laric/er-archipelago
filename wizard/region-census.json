@@ -975,19 +975,19 @@
     }
    },
    "sweep_slots_max": {
-    "all": 42,
-    "bosses": 90,
+    "all": 40,
+    "bosses": 88,
     "minidungeons": 28
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
-     "all": 42,
-     "bosses": 90,
+     "all": 40,
+     "bosses": 88,
      "minidungeons": 28
     },
     "SweepSlotMinor": {
-     "all": 42,
-     "bosses": 90,
+     "all": 40,
+     "bosses": 88,
      "minidungeons": 28
     }
    },
@@ -1633,5 +1633,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "565648b8f1b19bfb4c6f73eee0957fe61143bae8eef8087bc7fa41ce75696e21"
+ "source_sha256": "6e5a79f7f2e8848d8c4e6870e367cf17c91e03025d80cf5945e1bb27ebdb23d3"
 }

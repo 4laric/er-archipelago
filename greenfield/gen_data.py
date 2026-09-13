@@ -3929,6 +3929,80 @@ print(f"dungeon regions: {len(DUNGEON_REGION_OVERRIDE)} maps "
       f"({len(DUNGEON_REGION_OVERRIDE) - len(DUNGEON_REGION_CURATED)} derived + "
       f"{len(DUNGEON_REGION_CURATED)} curated)")
 
+# ---- COARSE-LOD OVERWORLD MAP COLUMNS (2026-09-13) -------------------------------------------------
+# An overworld map id is `m6[01]_XX_YY_LL`, and LL is the LOD LEVEL, not part of the tile name: at
+# LL=00 the row names one level-0 tile, but at LL=02 (XX,YY) indexes a 4x4 BLOCK of level-0 tiles, so
+# `m60_11_13_02` is not "tile (11,13)" -- it is the block spanning tiles (44..47, 52..55).
+# Everything downstream (`_OVERWORLD_TILE_RE`, the `_mem_tile` bucket regex, the Chebyshev<=2
+# neighbourhood pass) reads the first three fields as the tile name, so these six rows were filed on
+# tile (11,13) / (12,13) / (10,09) -- coordinates that are off the base-game grid entirely and host no
+# field boss. Three of them (f1045527000 Gravity Stone Fan, f1048557900 Flowing Curved Sword,
+# f1049547900 St. Trina's Torch) were therefore un-sweepable; the other three rode their region
+# bucket instead and were swept from the wrong place.
+#
+# 🛑 TWO DERIVATIONS MUST AGREE, the `_recovered_m60_tile` standard. We do NOT pick a tile out of the
+# block: the flag ITSELF self-encodes one (`10XXYYLLLL` -> m60_XX_YY, the public id convention), and
+# we accept it only when it falls INSIDE the block the column names. All six rows pass -- e.g.
+# f1045527000 -> (45,52), inside (44..47, 52..55). A flag that decodes outside its own column's block,
+# or does not decode at all, is REFUSED (returns None): we would be guessing which of sixteen tiles it
+# meant, and a sweep is a gameplay grant (CONTRIBUTING rule 1).
+#
+# LL values other than 01/02 are passed through unchanged. The only ones in the corpus are 00 (exact,
+# today's behaviour) and the ten m61_45_46_10 rows, whose flags self-encode m61_45_46 -- the very tile
+# their column already names -- so they were never mis-filed and are deliberately left alone.
+_OVERWORLD_LOD_RE = re.compile(r"^(m6[01])_(\d\d)_(\d\d)_(\d\d)$")
+_LOD_TILE_TALLY = Counter()
+
+
+def _self_encoded_overworld_tile(_flag):
+    """(grid, xx, yy) encoded IN THE FLAG ITSELF, or None. `10XXYYLLLL` -> m60_XX_YY and `20XXYYLLLL`
+    -> m61_XX_YY are the public ER id convention, so ANY oracle can re-derive this from the flag alone
+    with no access to our tables -- which is exactly why the sweep gates ask for it."""
+    try:
+        _s = str(int(_flag))
+    except (TypeError, ValueError):
+        return None
+    if len(_s) != 10 or _s[:2] not in ("10", "20"):
+        return None
+    return ("m60" if _s[:2] == "10" else "m61", int(_s[2:4]), int(_s[4:6]))
+
+
+def _exact_overworld_map(_row):
+    """The exact level-0 map id for a row whose map column is a COARSE-LOD block, else None.
+
+    None means "leave the column alone": either it is not a coarse-LOD column at all, or it is one we
+    refuse to resolve. Refusals are tallied, never silently resolved in favour of a guess."""
+    _m = _OVERWORLD_LOD_RE.match(_row.get("map") or "")
+    if not _m:
+        return None
+    _grid, _xx, _yy, _lod = _m.group(1), int(_m.group(2)), int(_m.group(3)), int(_m.group(4))
+    if _lod not in (1, 2):
+        return None
+    _se = _self_encoded_overworld_tile(_row.get("flag"))
+    if not _se:
+        _LOD_TILE_TALLY["REFUSED: LOD %d column, flag self-encodes no overworld tile" % _lod] += 1
+        return None
+    _sg, _sx, _sy = _se
+    _step = 2 ** _lod
+    if _sg != _grid or not (_xx * _step <= _sx < (_xx + 1) * _step
+                            and _yy * _step <= _sy < (_yy + 1) * _step):
+        _LOD_TILE_TALLY["REFUSED: flag tile %s_%02d_%02d outside its LOD %d column block"
+                        % (_sg, _sx, _sy, _lod)] += 1
+        return None
+    _LOD_TILE_TALLY["admitted (flag tile inside its LOD %d column block)" % _lod] += 1
+    return "%s_%02d_%02d_00" % (_sg, _sx, _sy)
+
+
+# PUBLISH the decoded tile into the map COLUMN, rather than decoding it privately inside the sweep
+# gate. `_recovered_m60_tile` says why in as many words: a locality claim nothing outside gen_data can
+# re-derive is one the independent scoping oracle (tests/test_gf_boss_sweeps.test_field_sweeps_are_local,
+# which re-reads region_map.csv) will correctly refuse to certify. The column is the publication.
+for _rr in _ALLROWS:
+    _exact = _exact_overworld_map(_rr)
+    if _exact:
+        _rr["map"] = _exact
+
+
 # Map recovery for UNPLACED dungeon checks: a catacomb/cave/tunnel pickup identified only by flag
 # prefix (method 'flag_prefix', map PENDING) still encodes its map in the flag (30.XX.. -> m30_XX), so
 # recover map = mAA_BB_00_00 -- IF that map is a known dungeon (in DUNGEON_REGION_OVERRIDE). Without
@@ -3956,7 +4030,17 @@ for _rr in _ALLROWS:
     # recovering it admits the rows to the same legacy round-robin. Every other legacy-interior
     # prefix is added alongside for the same reason ("10", "13", "14", "16"); the
     # `_rec in DUNGEON_REGION_OVERRIDE` guard below is unchanged and still decides admission.
-    if len(_fs) == 8 and _fs[:2] in ("10", "11", "12", "13", "14", "15", "16", "20", "21",
+    # "22"/"28" added 2026-09-13, the SAME shape one DLC legacy interior further out. Stone Coffin
+    # Fissure (m22_00) and Rauh Base (m28_00) each have nine / five flag_prefix PENDING rows, and in
+    # both maps every row whose flag is a MAP LOT already carries the map column from the lot scan --
+    # only the guaranteed ENEMY-DROP lots (f22007910 Smithing Stone [8], f28007900 Revered Spirit
+    # Ash) have no lot row to carry it, so they alone stayed PENDING and fell out of the map-local
+    # pass while their eight / four map-lot neighbours were swept. Exactly the f15001300..15001340
+    # defect above. dungeon_regions.tsv already files m22_00 -> Cerulean (grace join, "Stone Coffin
+    # merged into Cerulean 2026-08-10") and m28_00 -> Abyssal, and both maps host a boss, so the
+    # recovered rows join their own map's sweep and cross no region boundary.
+    if len(_fs) == 8 and _fs[:2] in ("10", "11", "12", "13", "14", "15", "16", "20", "21", "22",
+                                     "28",
                                      "30", "31", "32", "34", "35", "39", "40", "41", "42", "43"):
         _rec = f"m{_fs[:2]}_{_fs[2:4]}_00_00"
         if _rec in DUNGEON_REGION_OVERRIDE:
@@ -10519,6 +10603,16 @@ _SWEEP_EXCLUDED_BMAPS = {"m10_01"}
 
 _OVERWORLD_TILE_RE = re.compile(r"^m6[01]_\d\d_\d\d")
 _INTERIOR_MAP_RE = re.compile(r"^m\d\d_\d\d$")
+def _native_pin_tile_agrees(_row):
+    """True when an M4G-native pin sits on an overworld tile that its OWN FLAG independently names.
+
+    Two derivations, no picking: the map COLUMN (already normalised to an exact level-0 tile by the
+    coarse-LOD recovery far above) and the flag's own `10XXYYLLLL` / `20XXYYLLLL` encoding. Both must
+    produce the same tile. A pin with no self-encoding, or one whose column and flag point at
+    different tiles, is not admitted -- the disagreement is the signal, not a thing to resolve."""
+    _m = _OVERWORLD_TILE_RE.match(_row.get("map") or "")
+    _se = _self_encoded_overworld_tile(_row.get("flag"))
+    return bool(_m) and _se is not None and _m.group(0) == "%s_%02d_%02d" % _se
 
 
 def _is_interior_member_map(_mp):
@@ -10779,8 +10873,17 @@ for _i, _r in enumerate(rows):
         # row was DISCOVERED, not where it lives; the map conditions below stay the arbiter.
         # Accepted native M4G dungeon pins use the same filler and physical-map guards.
         # Overworld recovery is deliberately outside this dungeon-only admission.
+        # OVERWORLD-NATIVE M4G PINS (2026-09-13). The dungeon-only clause above was written when the
+        # `_OVERWORLD_TILE_RE` branch below did not exist; an accepted native pin that lands on an
+        # overworld TILE is the same evidence in the same shape, and the one such row in the corpus
+        # (f1038457500 Briars of Sin, an Artist's Shack enemy drop in Liurnia) was the only pin left
+        # with no sweep that could pay it. Admitted on the `_recovered_m60_tile` standard -- TWO
+        # DERIVATIONS AGREEING: the map COLUMN reads m60_38_45_00 and the flag's own `10XXYYLLLL`
+        # encoding independently reads m60_38_45. A pin whose column and flag disagree is not
+        # admitted here, and the filler cut below applies to it exactly as to every other branch.
         (_r["method"] in ("flag_prefix", "global", "global_filler", "cookbook")
-         or (_r["method"] == "mfg_native_pin" and _is_dungeon(_mp2(_r["map"]))))
+         or (_r["method"] == "mfg_native_pin"
+             and (_is_dungeon(_mp2(_r["map"])) or _native_pin_tile_agrees(_r))))
         and (_is_dungeon(_mp2(_r["map"])) or _is_interior_member_map(_mp2(_r["map"]))
              # ...and a row that already names an OVERWORLD TILE (piece A). Without this the m61
              # neighbourhood pass has nothing to assign: `_mem_tile` is fed from rows that passed
@@ -10838,6 +10941,10 @@ print("co-checks: %d sibling membership(s) mirrored onto their primary's sweeps 
 # how many recovered-global rows joined the field-neighborhood pass and WHY each of the rest did not.
 # A count that moves between regens must be explainable as "the input got better" or "the predicate
 # got looser" -- this printout is what makes that answerable without re-deriving it by hand.
+# Rule 4 again for the coarse-LOD decode: say what it claimed and what it refused. Silence here would
+# hide a corpus that grew a LOD-01/02 column we cannot place.
+for _why, _n in sorted(_LOD_TILE_TALLY.items(), key=lambda _kv: (-_kv[1], _kv[0])):
+    print("boss_sweeps: coarse-LOD overworld column: %-64s %d" % (_why[:64], _n))
 _rec_admitted = _REC_SWEEP_TALLY.get("admitted (self-encoded, agreed)", 0)
 print("boss_sweeps: recovered-global field-sweep candidates: %d admitted / %d considered"
       % (_rec_admitted, sum(_REC_SWEEP_TALLY.values())))

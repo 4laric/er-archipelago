@@ -186,8 +186,16 @@ class NoBosslessInteriorMapIsOrphaned(unittest.TestCase):
         # ("Abyssal", "m28_00"): 3 -- REMOVED 2026-08-19: the full-census regen gave the three
         # Midra's-Manse rows real MSB placements, so they joined the m28_00 sweep.
         # ("Cerulean", "m22_00"): 9 -> 1, same regen, same direction (eight gained real maps).
+        # ("Cerulean", "m22_00"): 1 -> 0 -- REMOVED 2026-09-13, and by the fix this file's own note
+        # above prescribes rather than by a rebaseline. The last orphan was f22007910 Smithing Stone
+        # [8], the one m22_00 row that is a guaranteed ENEMY-DROP lot and so had no lot row to carry
+        # its map column; the flag-prefix map recovery in gen_data.py now lists the "22" prefix, so
+        # the map IS published (m22_00) and the row joins Stone Coffin Fissure's own map-local sweep.
+        # The identical "28" recovery landed alongside it, which is why the f28007070 WHYNOT above is
+        # spent too. NOTHING ENTERED. ("Ashen Capital", "m11_05") is untouched: f11057030 is method
+        # global_filler with no lot row and no self-encoded map, so there is still nothing to publish
+        # for it -- it stays the honest remainder this dict exists to name.
         ("Ashen Capital", "m11_05"): 1,
-        ("Cerulean", "m22_00"): 1,
     }
 
     def test_the_only_orphans_left_are_the_pending_map_rows(self):
