@@ -779,11 +779,17 @@ def check_award_source(records, ctx):
     lot, map 10182, awards NOTHING) and 320820 (no lot at all -- the eventFlag_forStock of
     ShopLineupParam 102282, a row the shop pipeline itself excludes). Shop checks are exempt: the
     purchase is the award, and check_detection already validates their stock rows. Deliberately
-    NOT subtractable via ACCEPTED_LEAKS -- a leak pays too much; this can never pay at all."""
+    NOT subtractable via ACCEPTED_LEAKS -- a leak pays too much; this can never pay at all.
+
+    TWO classes are EMEVD-awarded rather than lot-awarded, and are exempt because the game really
+    does set the flag -- gestures (data.GESTURE_AWARD_FLAGS) and boss defeat flags
+    (boss_sweeps.DUNGEON_SWEEPS). Both are verified memberships of a derived table, not an
+    allowlist of bare numbers; see the two `continue`s below."""
     out = []
     sm, se, si = ctx["static_map"], ctx["static_enemy"], ctx["static_items"]
     shop_flag_by_ap = ctx["shop_flag_by_ap"]
     gestures = ctx.get("GESTURE_AWARD_FLAGS", {})
+    sweep_triggers = frozenset(ctx.get("DUNGEON_SWEEPS", {}))
     for rec in records.values():
         if rec.detect_kind == "shop_stock_flag" or rec.ap_id in shop_flag_by_ap:
             continue
@@ -794,6 +800,21 @@ def check_award_source(records, ctx):
             # ItemLotParam row (gen_data._gesture_derive asserts the flag is OUTSIDE the lot/shop
             # award universe, which is precisely why it is absent from check_lots_table.json).
             rec.provenance["award"] = "data.GESTURE_AWARD_FLAGS (EMEVD SetEventFlagID)"
+            continue
+        if f in sweep_triggers:
+            # BOSS-DEFEAT-awarded, the same shape as the gesture exemption above: the game DOES set
+            # this flag -- the boss dying sets it -- just not through an ItemLotParam row, so it is
+            # correctly absent from check_lots_table.json. The authority is DUNGEON_SWEEPS, whose
+            # keys gen_data derives from the EMEVD as boss defeat flags and which the client
+            # ALREADY flag-watches to fire sweeps; "unobservable" cannot be true of a flag the poll
+            # is demonstrably watching for another purpose.
+            #
+            # Used by features/great_runes.GREAT_RUNE_DETECT_FLAGS: the six boss Great Rune checks
+            # detect on their boss's defeat flag because their vanilla acquisition flags (171-176)
+            # are vanilla's Great Rune POSSESSION band, which clients #685 writes into on delivery
+            # (common.emevd $Event(730) counts 170-179; $Event(6905) fills it). Their lot-side
+            # suppression is unchanged and still keyed on 171-176.
+            rec.provenance["award"] = "boss_sweeps.DUNGEON_SWEEPS (EMEVD boss defeat flag)"
             continue
         if f in sm or f in se or f in si:
             continue
