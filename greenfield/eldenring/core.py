@@ -245,10 +245,14 @@ class Goal(Choice):
 
 
 class EndingCondition(Choice):
-    """Whether the seed's goal also requires Great Runes. This is independent of Goal Region
-    Unlock Policy, which separately chooses whether Region Locks, completed regions, or neither
-    are required. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;
-    ``great_runes`` requires the configured rune count.
+    """Whether the seed's goal ALSO requires Great Runes, on top of the region-side gate.
+
+    This does NOT decide whether Region Locks are needed to open the Ashen Capital -- Goal Region
+    Unlock Policy does, and its default (items_held) keeps every required Region Lock in the
+    gate. So ``great_runes`` with the default policy means Region Locks AND the rune count; for a
+    runes-only ending set Goal Region Unlock Policy to ``none``. ``region_locks`` is the
+    compatibility spelling for no Great-Rune requirement; ``great_runes`` requires the configured
+    rune count.
 
     Great Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the
     rune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable
@@ -501,8 +505,11 @@ _OPTION_GROUPS = [
     ("Goal & Regions", [
         "num_regions", "num_regions_order", "start_regions", "start_region_pool", "start_region_selection", "goal",
         "ending_condition",
-        "goal_great_runes", "leyndell_runes_required", "region_grace_unlock",
-        "grace_attunement", "grace_attunement_anchor", "goal_region_unlock_policy"]),
+        # goal_region_unlock_policy sits directly under the rune pair because it is the OTHER half of
+        # the goal gate (Mrks, 2026-09-13: a great_runes seed still needed every Region Lock and
+        # nothing near the rune count said why -- the policy was the last row of the group).
+        "goal_great_runes", "goal_region_unlock_policy", "leyndell_runes_required", "region_grace_unlock",
+        "grace_attunement", "grace_attunement_anchor"]),
     ("DLC & Blessings", [
         "enable_dlc", "enable_dlc_gear", "enable_tarnished_pack", "dlc_only", "scadutree_blessing_scope", "dlc_blessing_catchup",
         "global_scadutree_blessing"]),

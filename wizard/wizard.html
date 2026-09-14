@@ -294,11 +294,11 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "goal",
     "ending_condition",
     "goal_great_runes",
+    "goal_region_unlock_policy",
     "leyndell_runes_required",
     "region_grace_unlock",
     "grace_attunement",
-    "grace_attunement_anchor",
-    "goal_region_unlock_policy"
+    "grace_attunement_anchor"
    ]
   },
   {
@@ -500,7 +500,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "class": "EndingCondition",
    "compatibility_only": false,
    "display_name": "Ending Condition",
-   "description": "Whether the seed's goal also requires Great Runes. This is independent of Goal Region\nUnlock Policy, which separately chooses whether Region Locks, completed regions, or neither\nare required. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;\n``great_runes`` requires the configured rune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
+   "description": "Whether the seed's goal ALSO requires Great Runes, on top of the region-side gate.\n\nThis does NOT decide whether Region Locks are needed to open the Ashen Capital -- Goal Region\nUnlock Policy does, and its default (items_held) keeps every required Region Lock in the\ngate. So ``great_runes`` with the default policy means Region Locks AND the rune count; for a\nrunes-only ending set Goal Region Unlock Policy to ``none``. ``region_locks`` is the\ncompatibility spelling for no Great-Rune requirement; ``great_runes`` requires the configured\nrune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
    "kind": "choice",
    "base": "Choice",
    "default": "region_locks",
@@ -1916,7 +1916,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "class": "GoalRegionUnlockPolicy",
    "compatibility_only": false,
    "display_name": "Goal Region Unlock Policy",
-   "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nThis is independent of Ending Condition: any of these three policies can be combined with or\nwithout the Great Rune threshold.",
+   "description": "Whether Region Locks are required to open the Ashen Capital, the synthetic final region.\nThis is the region half of the goal gate; Ending Condition adds the Great Rune half.\n\n``items_held`` (default) preserves the original rule: receiving every required Region Lock opens\nthe final region -- and it stays required under a ``great_runes`` Ending Condition, which is\nthe pairing players read as \"why do I still need all the region unlocks\". ``none`` is the\nrunes-only (or nothing-required) ending. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nIndependent of Ending Condition: any of these three policies can be combined with or without\nthe Great Rune threshold. ``none`` + ``great_runes`` is the runes-alone ending.",
    "kind": "choice",
    "base": "Choice",
    "default": "items_held",
@@ -5384,6 +5384,15 @@ const ERW = (() => {
     if (key === "full_area_sweeps" && v("dungeon_sweep") === "none") return "Choose a Dungeon Sweep setting other than None to use this setting.";
     return "";
   }
+  /* Advisory, not a disable: the two halves of the goal gate live in two options, and a
+     great_runes seed under the default policy still needs every Region Lock (Mrks, 2026-09-13). */
+  function adviceNote(meta, state, key){
+    const v = k => getVal(meta,state,k);
+    const runesOnTop = v("ending_condition") === "great_runes" && v("goal_region_unlock_policy") === "items_held";
+    if (key === "ending_condition" && runesOnTop) return "Region Locks are still required to open the Ashen Capital (Goal Region Unlock Policy: items held). Set that policy to none for a runes-only ending.";
+    if (key === "goal_region_unlock_policy" && runesOnTop) return "With the Great Runes ending, every required Region Lock is needed as well as the runes. Choose none to end on runes alone.";
+    return "";
+  }
 
   function getVal(meta, state, key){
     if (key in state.values) return state.values[key];
@@ -5986,7 +5995,7 @@ const ERW = (() => {
              draw: draw <= 0 ? total : Math.min(draw, total), total };
   }
 
-  return { profiles, activeProfile, applyProfile, inactiveReason, loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
+  return { profiles, activeProfile, applyProfile, inactiveReason, adviceNote, loadMeta, newState, applyPreset, getVal, setVal, isDefault, deviations,
            buildYaml, findings, pretty, sanitizeName, seedSize, surfaceCoverage,
            surfaceTree, surfaceMarginals, isPlainObject, fmtDefault, AP_CORE,
            SCALING_HP_LADDER, AUTO_CEILING_EXPONENT, BASE_GAME_CEILING_PCT, DLC_RUNG_START,
@@ -7495,13 +7504,20 @@ if (typeof module !== "undefined") module.exports = ERW;
         : "Bosses collect assigned area loot. Selected progression pickups stay separate, except the selected check within each sweep.") + "</p>");
     if (ERW.getVal(meta,state,"enable_dlc_gear") && ERW.getVal(meta,state,"vanilla_pool"))
       lines.push("<p class='small'>Original item pool disables extra gear injection, including DLC gear.</p>");
+    if (ERW.getVal(meta,state,"ending_condition") === "great_runes"){
+      const pol = ERW.getVal(meta,state,"goal_region_unlock_policy");
+      lines.push("<p class='small'><b>Finale gate:</b> " + ERW.getVal(meta,state,"goal_great_runes") + " Great Runes" +
+        (pol === "items_held" ? " AND every required Region Lock (Goal Region Unlock Policy: items held)."
+         : pol === "regions_completed" ? " AND every non-final region completed."
+         : " only; no Region Locks required (policy: none).") + "</p>");
+    }
     $("#run-summary").innerHTML = lines.join("");
   }
   function paintDependencies(){
     document.querySelectorAll("[data-option]").forEach(row => {
       const reason = ERW.inactiveReason(meta,state,row.getAttribute("data-option"));
       row.querySelectorAll("input, select, textarea, button").forEach(control => { control.disabled = !!reason; });
-      const note = row.querySelector(".inactive-reason"); if (note) note.textContent = reason;
+      const note = row.querySelector(".inactive-reason"); if (note) note.textContent = reason || ERW.adviceNote(meta,state,row.getAttribute("data-option"));
     });
   }
 

@@ -98,11 +98,11 @@
     "goal",
     "ending_condition",
     "goal_great_runes",
+    "goal_region_unlock_policy",
     "leyndell_runes_required",
     "region_grace_unlock",
     "grace_attunement",
-    "grace_attunement_anchor",
-    "goal_region_unlock_policy"
+    "grace_attunement_anchor"
    ]
   },
   {
@@ -304,7 +304,7 @@
    "class": "EndingCondition",
    "compatibility_only": false,
    "display_name": "Ending Condition",
-   "description": "Whether the seed's goal also requires Great Runes. This is independent of Goal Region\nUnlock Policy, which separately chooses whether Region Locks, completed regions, or neither\nare required. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;\n``great_runes`` requires the configured rune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
+   "description": "Whether the seed's goal ALSO requires Great Runes, on top of the region-side gate.\n\nThis does NOT decide whether Region Locks are needed to open the Ashen Capital -- Goal Region\nUnlock Policy does, and its default (items_held) keeps every required Region Lock in the\ngate. So ``great_runes`` with the default policy means Region Locks AND the rune count; for a\nrunes-only ending set Goal Region Unlock Policy to ``none``. ``region_locks`` is the\ncompatibility spelling for no Great-Rune requirement; ``great_runes`` requires the configured\nrune count.\n\nGreat Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the\nrune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable\nthis seed, so it can never make a seed unbeatable.\n\n'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as\n`great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client\ncount distinct held names from that set (#813).",
    "kind": "choice",
    "base": "Choice",
    "default": "region_locks",
@@ -1720,7 +1720,7 @@
    "class": "GoalRegionUnlockPolicy",
    "compatibility_only": false,
    "display_name": "Goal Region Unlock Policy",
-   "description": "When the synthetic final region opens.\n\n``items_held`` preserves the original rule: receiving every required Region Lock opens the\nfinal region. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nThis is independent of Ending Condition: any of these three policies can be combined with or\nwithout the Great Rune threshold.",
+   "description": "Whether Region Locks are required to open the Ashen Capital, the synthetic final region.\nThis is the region half of the goal gate; Ending Condition adds the Great Rune half.\n\n``items_held`` (default) preserves the original rule: receiving every required Region Lock opens\nthe final region -- and it stays required under a ``great_runes`` Ending Condition, which is\nthe pairing players read as \"why do I still need all the region unlocks\". ``none`` is the\nrunes-only (or nothing-required) ending. ``none`` imposes no region-side requirement. ``regions_completed`` waits until\nevery progression-surface check in every non-final region has been satisfied. A shop check is\nsatisfied when its merchant inventory is viewed; buying the ware is not required. Completion\nis reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so\nreconnecting cannot lose progress.\n\nIndependent of Ending Condition: any of these three policies can be combined with or without\nthe Great Rune threshold. ``none`` + ``great_runes`` is the runes-alone ending.",
    "kind": "choice",
    "base": "Choice",
    "default": "items_held",
