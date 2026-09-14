@@ -23,6 +23,18 @@ The one commit past the tag is the reason this window was opened by hand: the op
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Leyndell opens on its Lock, like every other region (apworld):** the capital's Great-Rune
+  wall is retired. Receiving the Leyndell Lock lights the full capital bundle -- including the
+  Shunning-Grounds graces -- and the physical two-rune seal opens on the same receipt (the
+  world sends the seal flags through the existing `lockRevealFlags` wire, so no contract change
+  and no client update is required for the world half; the client's own seal-opening half is a
+  separate PR). Great Runes stay in the pool and still count for the `great_runes` ending, but
+  they gate nothing in Leyndell any more: a Leyndell-kept seed with zero runes reachable is
+  winnable, by construction. Old YAMLs carrying `leyndell_runes_required` still generate -- the
+  setting is accepted and ignored. The one exception is `natural_progression` mode, which mints
+  no Locks: there the game's own two-rune wall is still the wall, unchanged.
+  `CONTRACT_HASH` is unmoved (`2aa64f43`), so no version bump rides with this.
+
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.11 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).

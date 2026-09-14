@@ -17,8 +17,16 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened 1 commit(s) PAST the v0.6.0.11 tag, so this file exists before its first entry does,
-which is the point of it.
+Leyndell opens on its Lock now, like everywhere else.
+
+The capital used to sit behind a second gate -- two Great Runes on top of the Leyndell Lock --
+and while that wall was armed the Lock lit nothing at all: it arrived and nothing visibly
+happened, the single most-reported "my Lock is broken" in the mod. That wall is gone. The
+Leyndell Lock lights the whole capital bundle, sewer graces included, and the physical seal
+opens on the same receipt. Great Runes are still worth finding -- the `great_runes` ending
+counts them, and holding one is what counts, never activating it -- but they open no doors in
+Leyndell any more. (The one place the two-rune wall still stands is `natural_progression`
+mode, which has no Locks to open anything with: there the game's own gate is still the gate.)
 
 ## What carried over from v0.6.0.11
 
