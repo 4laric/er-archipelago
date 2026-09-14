@@ -115,10 +115,15 @@ def _population():
     DERIVED, never hand-listed -- a hand-list is the failure we are guarding against. Restricted to
     names that are REAL catalog items: legible_keys also carries display aliases ("Dectus Medallion")
     that are never granted, so they cannot fail this way.
-    """
+
+    🛑 GREAT RUNES COME FROM natural_progression SINCE 2026-09-14. The Leyndell rune wall retired
+    with features/leyndell_gate.py; the capital gate that remains is natural_progression mode's,
+    so that feature's GREAT_RUNES is the derivation that keeps the seven rune rows covered. If no
+    feature gated on runes any more, the rows would go stale by test_no_stale_rows below -- which
+    is the correct outcome then, not a failure to work around."""
     from worlds.eldenring.features.natural_progression import GATE_CLAUSES
     from worlds.eldenring.features.legacy_key_gates import _LEGACY_KEYS, _MULTI_KEYS
-    from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
+    from worlds.eldenring.features.natural_progression import GREAT_RUNES
     from worlds.eldenring.features.legible_keys import CAPSTONE_VANILLA_KEYS
 
     names = set()
@@ -248,7 +253,7 @@ class TestTheKnownCasesAreRecorded:
         assert "8109" in r["evidence"], "the possession claim must cite the goods id it was read from"
 
     def test_great_runes_are_all_present(self):
-        from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
+        from worlds.eldenring.features.natural_progression import GREAT_RUNES
         rows = {r["item"] for r in _rows()}
         assert set(GREAT_RUNES) <= rows, sorted(set(GREAT_RUNES) - rows)
 
@@ -258,9 +263,11 @@ class TestTheKnownCasesAreRecorded:
         90005110); 197 is Rennala's acquisition flag (relief $Event(6905) maps it to 177). The
         capital gate is NOT these flags -- the 王都の封印 reads 182 && 105, 182 being common
         $Event(730)'s count over the possession band 170-179; see key_item_gates.tsv rows 40-46.
+        (Since the 2026-09-14 Leyndell ruling the client writes 105+182 on Leyndell Lock receipt,
+        via lockRevealFlags, rather than on rune receipt -- same flags, new trigger.)
         This pin is the ledger between the table and the client's writes: drift here means the
         table and keyitems.rs disagree."""
-        from worlds.eldenring.features.leyndell_gate import GREAT_RUNES
+        from worlds.eldenring.features.natural_progression import GREAT_RUNES
         seen = set()
         for name in GREAT_RUNES:
             r = self._row(name)
