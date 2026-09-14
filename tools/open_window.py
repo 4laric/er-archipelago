@@ -154,8 +154,16 @@ def contract_hash():
 
 
 def tag_position():
-    """(latest_tag, commits_past_it) -- the fact every ledger row opens with."""
-    tag = _git("describe", "--tags", "--abbrev=0")
+    """(latest_tag, commits_past_it) -- the fact every ledger row opens with.
+
+    Match RELEASE tags only. CI publishes the beta channel as the moving lightweight tag `dev`
+    on main, and v0.6.0.11 was the first release cut as a lightweight tag rather than an
+    annotated one: with both on the same commit, a bare `describe --tags` answered `dev`, the
+    stable row read `stable	dev`, and gen_latest_json refused it ("no tagged stable channel"),
+    which is how the v0.6.0.12 open failed on the runner (run 34815358251, 2026-09-14).
+    check_release_notes.py already filters the same way.
+    """
+    tag = _git("describe", "--tags", "--match", "v[0-9]*", "--abbrev=0")
     if not tag:
         return None, None
     past = _git("rev-list", "--count", "%s..HEAD" % tag)

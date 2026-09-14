@@ -3,6 +3,30 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.0.12 — 2026-09-14
+
+### What you need to update
+
+- **Client:** Optional. This window's client half is a version stamp only (clients #688): `CONTRACT_HASH` is unmoved, so a v0.6.0.11 client plays every v0.6.0.12 seed and the v0.6.0.12 client plays every 0.5.x and 0.6.0.x seed through the audited legacy-contract bridge. Standing exceptions carry over: Elden Ring 2.7.1.0 needs v0.6.0.6 or newer, Respec needs v0.6.0.7 or newer, the trap-replay and main-menu delivery fixes need v0.6.0.8 or newer, and a seed generated on v0.6.0.11 or newer needs a v0.6.0.11-or-newer client.
+- **APWorld:** Host-only, for newly generated rooms after this version ships.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Profile/assets:** No action; no map or asset changes.
+
+Window opened 1 commit(s) PAST the v0.6.0.11 tag.
+
+`CONTRACT_HASH` is `2aa64f43`, **unmoved** since v0.6.0.11 (read by loading `contract.py` after the bump, not assumed). No slot_data shape moved, so the handshake is unaffected in both directions between v0.6.0.11 and this window, and the v0.6.0.11 bridge to every 0.5.x / 0.6.0.x contract (`13db0b3a`, `8397a952`, `ffc0f1b5`, `613fb438`) carries over unchanged.
+
+The version string moved 0.6.0.11 → 0.6.0.12, so the client half is a version stamp only: `contract_gen.rs` regenerated, crate `Cargo.toml` and `Cargo.lock` at 0.6.0+f12, shipped as clients #688 and pinned by the gitlink in this same commit (AGENTS §7).
+
+The one commit past the tag is the reason this window was opened by hand: the open-window workflow's run on the v0.6.0.11 tag wrote a `dev` stable row into `CHANNELS.tsv`, because v0.6.0.11 was the first release cut as a lightweight tag and CI's moving `dev` prerelease tag sits on the same commit, so a bare `git describe --tags` answered `dev`. `tools/open_window.py` now matches release tags only (`v[0-9]*`), the way `check_release_notes.py` already did; that fix rides in this window-open commit because rule 14 refuses any other commit on main between a tag and its window.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.0.11 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.6.0.11 — 2026-09-12
 
 ### What you need to update
