@@ -14,11 +14,12 @@ GOAL_REGION = "Leyndell"
 
 # VANILLA HARD WALLS -- gated child -> the parent region it is physically entered from.
 #
-# These three regions sit behind a wall the GAME already enforces: Raya Lucaria's seal wants the
-# Academy Glintstone Key, the capital's main gate wants Great Runes (leyndell_runes_required), and
-# the m35 Shunning-Grounds are entered down a well INSIDE the capital (no independent entrance), so
-# the Sewer inherits Leyndell's wall transitively. The 2026-07-14 playtest bug was the apworld
-# GRANTING a child's grace bundle on region-open -- a warp target on the far side of the wall
+# These regions sit behind a wall the GAME already enforces: Raya Lucaria's seal wants the
+# Academy Glintstone Key (retired as a LOGIC wall 2026-08-16 -- the Academy Lock grants the
+# graces now), and the m35 Shunning-Grounds are entered down a well INSIDE the capital (no
+# independent entrance), so the Sewer inherits Leyndell's wall transitively. The 2026-07-14
+# playtest bug was the apworld GRANTING a child's grace bundle on region-open -- a warp target
+# on the far side of the wall
 # (East Capital Rampart 71102, BonfireWarpParam 110002, straight past the 2-rune gate). The fix is
 # to let the game keep enforcing its own walls and encode the containment ONCE, here:
 #   * features/graces.py withholds a child's grace bundle (walk in, touch the graces yourself);
@@ -28,10 +29,15 @@ GOAL_REGION = "Leyndell"
 #   * features/start_grace.pick_anchor_region refuses a child as the run's opening region (the
 #     anchor grant is exactly the bundle being withheld).
 # tests/test_gf_gated_children.py asserts every region-entry gate feature (legacy_key_gates map
-# ranges, leyndell_gate's GOAL_REGION) has an entry here, so a future gate cannot land without one.
+# ranges) has an entry here, so a future gate cannot land without one.
 REGION_PARENT = {
     "Raya Lucaria Academy": "Liurnia",   # Academy Glintstone Key seal (features/legacy_key_gates)
-    "Leyndell": "Altus",                 # capital main gate, N Great Runes (features/leyndell_gate)
+    # 🛑 GEOGRAPHY ONLY SINCE 2026-09-14 (Alaric: Leyndell is an ordinary Lock region). The
+    # capital's Great-Rune gate is retired -- no logic wall, no withheld bundle, Great Runes
+    # gate nothing in Leyndell. This entry stays because the containment is still the physical
+    # truth (the capital is entered from Altus) and everything above still reads it: the Lock
+    # chain, the kept-set closure, the anchor bar, and the synthetic 7698x open flag (#278).
+    "Leyndell": "Altus",
     # "Sewer" MERGED into Leyndell 2026-08-20 (Alaric): the well is inside the capital walls,
     # so it is not a parented child any more -- it is the same region.
     # Scaduview's containment entry was REMOVED 2026-07-19: the Hinterland was FOLDED into Shadow Keep

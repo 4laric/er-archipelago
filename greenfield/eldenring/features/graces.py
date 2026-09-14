@@ -7,7 +7,7 @@ REGION_GRACE_POINTS (all warp graces per major region, sorted) is generated from
 always a real, physically-present warp point (never a sealed boss arena). Region Locks stay the sole
 progression, so any seed is winnable by construction.
 
-GATED CHILDREN are the exception (region_spine.REGION_PARENT: Raya Lucaria Academy, Leyndell, Sewer).
+GATED CHILDREN are the exception (region_spine.REGION_PARENT: Raya Lucaria Academy, Leyndell).
 Each sits behind a wall the GAME already enforces -- the Academy seal wants the Academy Glintstone
 Key, the capital main gate wants Great Runes, and the Sewer is entered down a well inside the capital.
 Granting such a region's bundle hands the player a warp target on the FAR side of that wall: the
@@ -49,6 +49,14 @@ This RETIRES the two half-shipped grace gates that used to live here:
     Academy Lock be the thing that grants all the graces"), so WALL_ARMED's Raya predicate is False
     in every seed and the bundle rides the Lock like any ungated region's. Nothing is granted on a
     key receipt; the Lock is the only permission, and holding it is the whole entitlement.
+    🛑 SUPERSEDED 2026-09-14, same shape one wall deeper (Alaric: "Leyndell becomes an ordinary
+    Lock region"). The capital's Great-Rune wall is retired outright -- features/leyndell_gate.py
+    keeps only the deprecated option shim, Great Runes gate nothing in Leyndell, and the physical
+    two-rune seal is opened by the client on Leyndell Lock receipt (lockRevealFlags 105+182,
+    features/area_locks.py). So WALL_ARMED's Leyndell predicate is False in every seed and the
+    capital bundle rides the Lock like any ungated region's. No wall is armed in logic on any
+    seed now; the pairing entries stay because bundle_withheld withholds UNCONDITIONALLY for a
+    REGION_PARENT child with no entry, and deleting one would re-arm the wall by omission.
 
 Client contract: regionGraces (region.rs) {item_name: [grace_flag,...]} -- light on receipt of ANY
 keyed item. Keys are region Locks; a gated child's Lock maps to [] while its wall is armed.
@@ -71,9 +79,9 @@ try:
 except ImportError:      # table predates the landmarks tier -- see _bundle_for()
     REGION_GRACE_LANDMARKS = {}
 
-# Gated child -> "is its wall armed in logic this seed?". Reads the state the gate features publish
-# in generate_early (leyndell_gate.gf_leyndell_runes, legacy_key_gates.gf_legacy_keys), so the
-# bundle decision and the fill rules can never disagree. Sewer: containment wall, always armed.
+# Gated child -> "is its wall armed in logic this seed?". The Raya entry reads the state the
+# legacy-key gate publishes in generate_early (legacy_key_gates.gf_legacy_keys), so the bundle
+# decision and the fill rules can never disagree. Sewer: containment wall, always armed.
 WALL_ARMED = {
     # 🛑 FALSE IN EVERY SEED SINCE 2026-08-16, and deliberately expressed this way rather than as
     # `lambda world: False`. The Academy Glintstone Key was removed from legacy_key_gates._LEGACY_KEYS,
@@ -82,8 +90,14 @@ WALL_ARMED = {
     # Written as the live predicate so that restoring the key gate restores the wall in one edit.
     "Raya Lucaria Academy":
         lambda world: "Academy Glintstone Key" in getattr(world, "gf_legacy_keys", ()),
+    # 🛑 FALSE IN EVERY SEED SINCE 2026-09-14 (Alaric: Leyndell is an ordinary Lock region). The
+    # capital's Great-Rune wall is retired -- features/leyndell_gate.py is a deprecated-option shim
+    # now, so there is no gate state left to read and no live predicate to express this with. The
+    # pairing stays for the same fail-closed reason as Raya's: deleting it would withhold the
+    # capital bundle unconditionally, the precise opposite of the ruling. Restoring a wall here
+    # means restoring a gate feature first, then re-arming this entry.
     "Leyndell":
-        lambda world: bool(getattr(world, "gf_leyndell_runes", ())),
+        lambda world: False,
     # "Sewer" wall REMOVED 2026-08-20: the Shunning-Grounds merged into Leyndell (Alaric's
     # audible on #917) -- its graces ride Leyndell's own bundle behind Leyndell's own wall,
     # exactly the Scaduview -> Shadow Keep fold below.
@@ -282,10 +296,12 @@ def _attune_split(world, region, bundle):
     reads as a bug rather than a setting. At threshold 4 this skips 12 of the 29 bundled regions
     and gates 17. Traversal is not the problem in a two-grace region anyway.
 
-    🛑 A WITHHELD BUNDLE IS NEVER GATED. Gated children (REGION_PARENT: Raya Lucaria Academy,
-    Leyndell, Sewer) already emit [] while their vanilla wall is armed -- there is nothing to split,
-    and handing them an anchor would be the 2026-07-14 bug this module exists to prevent (a warp
-    target on the far side of a wall the game enforces).
+    🛑 A WITHHELD BUNDLE IS NEVER GATED. A gated child (REGION_PARENT) whose wall is armed
+    emits [] -- there is nothing to split, and handing it an anchor would be the 2026-07-14 bug
+    this module exists to prevent (a warp target on the far side of a wall the game enforces).
+    No wall is armed in any seed since 2026-09-14 (Raya since 2026-08-16, Leyndell since the
+    rune-wall retirement), so this branch is currently unreachable -- it stays as the guard for
+    a wall that returns.
 
     THE ANCHOR is the region's own front door by default: REGION_OPEN_FLAGS[region], which is a
     member of the region's grace points for all 29 bundled regions (the three where it is not are

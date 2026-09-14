@@ -35,7 +35,7 @@ Currently gated:
                               gated checks live in Scadu Altus.
 
 Toggle `legacy_dungeon_keys` (DefaultOnToggle). Off -> no gate; the key stays filler and default fill
-is unchanged. LOGIC-only for now (no client hard-gate / kick), same status as features/leyndell_gate.
+is unchanged. LOGIC-only for now (no client hard-gate / kick).
 """
 from Options import DefaultOnToggle
 from ..registry import Feature, register

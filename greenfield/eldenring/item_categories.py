@@ -175,9 +175,10 @@ def _goods_category(name: str) -> str:
 
 # ---- THE GREAT RUNES: SEVEN, and keyed on the PARAM ROW, not the name ---------------------------
 #
-# 🛑 THE ONE DEFINITION. `core`, `features/leyndell_gate`, `features/natural_progression` and
-# `features/legacy_key_gates` each used to carry their own `endswith("Great Rune")` over
-# ITEM_CATALOG. Four copies of one predicate, and all four were WRONG in the same way:
+# 🛑 THE ONE DEFINITION. `core`, `features/natural_progression` and `features/legacy_key_gates`
+# each used to carry their own `endswith("Great Rune")` over ITEM_CATALOG (with
+# `features/leyndell_gate` a fourth until its 2026-09-14 retirement). Four copies of one predicate,
+# and all four were WRONG in the same way:
 # **"Great Rune of the Unborn" puts the words in the other order**, so a pure name-suffix match
 # dropped it and every consumer counted six. That is the same species as joining `flag_lots` on a
 # name -- a lexical test standing in for an identity.
