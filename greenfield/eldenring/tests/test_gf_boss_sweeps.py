@@ -184,6 +184,20 @@ class BossSweepScoping(unittest.TestCase):
         # Stranded Graveyard), a mis-scan gen_data._swept_map_prefix now corrects by trusting the flag.
         # Mirror that here (flag wins for dungeon-lot flags) so this independent oracle re-derives the
         # SAME true map instead of trusting the stale column -- exactly what the docstring promises.
+        # CURATED MAP -> OVERWORLD TILE ANCHOR (2026-09-13, Alaric's ruling; gen_data's
+        # `_SWEEP_MAP_TILE_ANCHOR`). m34_11's own boss 34110800 is CUT CONTENT -- the Divine Tower of
+        # Liurnia has no fight and its defeat flag can never be set (contract._RUNTIME_SWEEP_SKIP_REASONS,
+        # #1530) -- so the map's checks re-home to the nearest Liurnia FIELD boss rather than sit under
+        # a trigger nobody can fire. Their EFFECTIVE place for the locality question is therefore the
+        # overworld tile the Study Hall stands on; without this the oracle would red on members that
+        # are exactly where the ruling put them. Ahead of the dungeon-lot branch below, which would
+        # otherwise answer m34_11 from the flag and stop.
+        # 🛑 Restated here from the two committed tables rather than imported from gen_data, which is
+        # what keeps this oracle independent: grace_ground.tsv has grace 73420 "Study Hall Entrance" on
+        # m34_11 as an interior SEAM onto play region 6200004, and item_play_regions.tsv has 6200004 as
+        # tile m60_38_46. A pin that stops agreeing with those rows should fail here.
+        if _mp2(self.flag_map.get(self.ap_flag.get(ap, -1), "")) == "m34_11":
+            return "m60_38_46_00"
         if len(fs) >= 8 and fs[4] == "7" and fs[:2] in DUNGEON_LOT_PREFIXES:
             return f"m{fs[:2]}_{fs[2:4]}_00_00"
         raw = self.flag_map.get(self.ap_flag.get(ap, -1), "")

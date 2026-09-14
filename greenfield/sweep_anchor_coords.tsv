@@ -6,9 +6,9 @@
 # an AREA, never with the wording used for an item_grace_coords position.
 # Positions are MAP-LOCAL, the same space as item_grace_coords.
 #
-# EMITTED 658.
+# EMITTED 664.
 # REFUSED 0 AMBIGUOUS SWEEP
-# REFUSED 29 NO ARENA:
+# REFUSED 28 NO ARENA:
 #    7770786 (trigger 12030390)
 #    7771302 (trigger 12030390)
 #    7771305 (trigger 12030390)
@@ -16,7 +16,6 @@
 #    7900026 (trigger 12030390)
 #    7773960 (trigger 30130810)
 #    7773962 (trigger 30130810)
-#    7772320 (trigger 34110800)
 #    7770735 (trigger 1036450800)
 #    7770751 (trigger 1036450800)
 #    7774129 (trigger 1036450800)
@@ -39,7 +38,7 @@
 #    7773739 (trigger 2049440800)
 #    7773765 (trigger 2049440800)
 # REFUSED 0 ARENA AT ORIGIN
-# REFUSED 3437 ALREADY POSITIONED:
+# REFUSED 3442 ALREADY POSITIONED:
 #    7770041
 #    7770047
 #    7770810
@@ -80,7 +79,7 @@
 #    7770884
 #    7770886
 #    7770888
-#    ... 3397 more
+#    ... 3402 more
 ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	anchor
 7770008	9500	11050800	m11_05_00_00	41.02	65.12	-421.28	sweep_arena
 7770010	9504	35000800	m35_00_00_00	74.54	-298.53	-80.61	sweep_arena
@@ -339,6 +338,12 @@ ap_location_id	check_flag	trigger_defeat_flag	boss_map	local_x	local_y	local_z	a
 7772170	31117300	31110800	m31_11_00_00	-145.79	126.94	135.72	sweep_arena
 7772171	31117990	31110800	m31_11_00_00	-145.79	126.94	135.72	sweep_arena
 7772275	32057900	32050800	m32_05_00_00	53.19	777.2	-37.9	sweep_arena
+7772315	34117400	1037460800	m60_37_46_00	-48.34	398.31	9.79	sweep_arena
+7772316	34117401	1037460800	m60_37_46_00	-48.34	398.31	9.79	sweep_arena
+7772317	34117402	1037460800	m60_37_46_00	-48.34	398.31	9.79	sweep_arena
+7772318	34117403	1037460800	m60_37_46_00	-48.34	398.31	9.79	sweep_arena
+7772320	34117700	1037460800	m60_37_46_00	-48.34	398.31	9.79	sweep_arena
+7772321	34117710	1037460800	m60_37_46_00	-48.34	398.31	9.79	sweep_arena
 7772344	34147720	34140850	m34_14_00_00	572.7	-373.48	-321.0	sweep_arena
 7772348	35007010	35000800	m35_00_00_00	74.54	-298.53	-80.61	sweep_arena
 7772349	35007020	35000850	m35_00_00_00	-203.85	-153.85	-306.87	sweep_arena

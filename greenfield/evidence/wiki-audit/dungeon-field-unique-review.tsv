@@ -769,9 +769,11 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7774631	unique_field_pickup	Liurnia	Briars of Sin	1038457500	m60_39_44	remaining_unreviewed	0		first_independent_identity_region_source
 7772734	unique_field_pickup	Liurnia	Cannon of Haima	1039487100	m60_38_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772668	unique_field_pickup	Liurnia	Carian Glintblade Staff	1038427020	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772314	unique_field_pickup	Liurnia	Carian Glintstone Staff	34117200	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772474	unique_field_pickup	Liurnia	Carian Knight's Sword	1033477200	m60_34_48	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770741	unique_field_pickup	Liurnia	Carian Piercer	540220	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772528	unique_field_pickup	Liurnia	Cerulean Amber Medallion +2	1035417100	m60_34_42	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
+7772310	unique_field_pickup	Liurnia	Cerulean Seed Talisman	34117080	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770623	unique_field_pickup	Liurnia	Companion Jar	400460	m60_39_44	remaining_unreviewed	0		first_independent_identity_region_source
 7774192	unique_field_pickup	Liurnia	Crystal Cave Moss	1036457020	m60_36_45	remaining_unreviewed	0		first_independent_identity_region_source
 7772481	unique_field_pickup	Liurnia	Crystal Sword	1034427050	m60_34_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -794,6 +796,10 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770113	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [3]	67480	m60_39_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770105	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [4]	67400	m60_36_45	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770111	unique_field_pickup	Liurnia	Glintstone Craftsman's Cookbook [6]	67460	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772317	unique_field_pickup	Liurnia	Godskin Noble Bracelets	34117402	m60_37_46	remaining_unreviewed	0		first_independent_identity_region_source
+7772315	unique_field_pickup	Liurnia	Godskin Noble Hood	34117400	m60_37_46	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7772316	unique_field_pickup	Liurnia	Godskin Noble Robe	34117401	m60_37_46	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7772318	unique_field_pickup	Liurnia	Godskin Noble Trousers	34117403	m60_37_46	remaining_unreviewed	0		first_independent_identity_region_source
 7772605	unique_field_pickup	Liurnia	Gold Sewing Needle	1037467000	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772626	unique_field_pickup	Liurnia	Great Mace	1037497200	m60_36_50	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7774217	unique_field_pickup	Liurnia	Howl of Shabriri	1038497900	m60_38_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
@@ -810,6 +816,9 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772674	unique_field_pickup	Liurnia	Land Squirt Ashes	1038447040	m60_39_43	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770619	unique_field_pickup	Liurnia	Latenna the Albinauric	400410	m60_37_42	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7772719	unique_field_pickup	Liurnia	Lucerne	1039427050	m60_39_43	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772321	unique_field_pickup	Liurnia	Lucidity	34117710	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772320	unique_field_pickup	Liurnia	Magic Downpour	34117700	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772311	unique_field_pickup	Liurnia	Mask of Confidence	34117100	m60_37_46	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7900019	unique_field_pickup	Liurnia	Miriel's Bell Bearing	400209	m60_37_46	remaining_unreviewed	0		first_independent_identity_region_source
 7773770	unique_field_pickup	Liurnia	Nomadic Merchant's Bell Bearing [5]	400905	m60_38_41	remaining_unreviewed	0		first_independent_identity_region_source
 7773773	unique_field_pickup	Liurnia	Nomadic Merchant's Bell Bearing [6]	400908	m60_36_50	remaining_unreviewed	0		first_independent_identity_region_source
@@ -834,6 +843,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900232	unique_field_pickup	Liurnia	Snow Witch Skirt	1034517900	m60_34_50	remaining_unreviewed	0		first_independent_identity_region_source
 7772611	unique_field_pickup	Liurnia	Spiralhorn Shield	1037477030	m60_37_46	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7772610	unique_field_pickup	Liurnia	Stalwart Horn Charm	1037477020	m60_36_48	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7900218	unique_field_pickup	Liurnia	Stargazer Heirloom	34117500	m60_37_46	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7774176	unique_field_pickup	Liurnia	Sword of Night and Flame	1035507900	m60_35_50	trusted	2	gameplay-guide:powerpyx;gameplay-guide:redmaw	none_identity_region_trusted
 7774270	unique_field_pickup	Liurnia	Treespear	1040407000	m60_38_41	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7774177	unique_field_pickup	Liurnia	Troll Knight's Sword	1035507990	m60_35_50	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source

@@ -10791,6 +10791,32 @@ _mreg = {}; _ap_region = {}; _mreg_votes = defaultdict(Counter)
 # the recovered boss-reward/deathroot rows, which carry the 'Boss' tag), DISJOINT (nearest-boss
 # partition assigns each check once), REGION-CONSISTENT (_freg match), distance <= 2 (cap).
 _M60_TILE_RE = re.compile(r"^m60_\d\d_\d\d$")
+# ---- CURATED MAP -> OVERWORLD TILE ANCHOR (2026-09-13, Alaric's ruling) ---------------------------
+# An interior map whose own boss CANNOT BE FOUGHT has no map-local sweep worth the name: its checks
+# are unpayable, not gated. Anchoring the map to the overworld tile it physically stands on lets the
+# ordinary field-neighbourhood pass deal its members to the nearest field boss IN THE SAME REGION --
+# the same re-home the _SWEEP_UNSPAWNED field bosses already get, reached through the same code.
+#
+# 🛑 A CURATED PIN, because no derivation can answer: m34_11's rows carry the dungeon-lot flag form
+# (3411.7NNN), which self-encodes the MAP and no tile, and m34_11 appears in no coordinate table
+# (sweep_anchor_coords.tsv and boss_reward_coords.tsv both have m34_14 rows and no m34_11 row). So it
+# is pinned, and the WHY is a two-step join over committed tables, not a look at a map:
+#   * grace_ground.tsv:186 -- grace 73420 "Study Hall Entrance" stands on m34_11, and its ground is
+#     `interior-seam: プレイ領域 6200004 マルチ壁 オープン側上書き@6.6m`: an interior seam whose
+#     OPEN SIDE is play region 6200004. That is the Study Hall doorway opening onto Liurnia.
+#   * item_play_regions.tsv:3873 -- play region 6200004 IS tile m60_38_46 (bucket 62000, the Liurnia
+#     overworld; area_tiers.tsv:122 lists that bucket's tiles and m60_38_46 is among them).
+# Two committed tables, joined on the play-region id, land on one tile. The neighbourhood pass then
+# picks the boss; this file does not name one, so a future regen that moves a Liurnia field boss
+# re-decides the owner on its own rather than holding a stale pin.
+#
+# 🛑 SCOPED TO MAPS WHOSE TRIGGER IS DECLARED CUT CONTENT. An anchor on a map with a LIVE boss would
+# quietly move its checks off a fight the player can win and onto a field boss, which is the opposite
+# of what sweeps are for -- the assertion below enforces that, so this table cannot grow by accident.
+_SWEEP_MAP_TILE_ANCHOR = {
+    "m34_11": "m60_38_46",
+}
+_SWEEP_ANCHOR_TALLY = Counter()
 _REC_SWEEP_TALLY = Counter()
 def _self_encoded_m60_tile(_flag):
     """The m60 tile encoded IN THE FLAG ITSELF: 10-digit 10XXYYLLLL -> m60_XX_YY. This is the public
@@ -10895,6 +10921,14 @@ for _i, _r in enumerate(rows):
         continue
     _ap = BASE_AP + _i; _reg = region_of(_r); _mp = _swept_map_prefix(_r)
     _ap_region[_ap] = _reg
+    # A map anchored to an overworld tile (its own boss is cut content) joins the FIELD pass and
+    # nothing else. Same shape as the `_rec_tile` branch below, and for the same reason: it must not
+    # also sit in `_mem_map`, or the dead trigger would keep claiming it alongside the field boss.
+    _anchor = _SWEEP_MAP_TILE_ANCHOR.get(_mp)
+    if _anchor:
+        _mem_tile[_anchor].append(_ap)
+        _SWEEP_ANCHOR_TALLY[(_mp, _anchor)] += 1
+        continue
     if _rec_tile:
         # Field-neighborhood candidate ONLY (see the scope note above): not _mem_region (legacy
         # divvy unchanged), not _mem_map (dungeon map-local sweeps unchanged).
@@ -10943,6 +10977,12 @@ print("co-checks: %d sibling membership(s) mirrored onto their primary's sweeps 
 # got looser" -- this printout is what makes that answerable without re-deriving it by hand.
 # Rule 4 again for the coarse-LOD decode: say what it claimed and what it refused. Silence here would
 # hide a corpus that grew a LOD-01/02 column we cannot place.
+for (_amp, _atile), _n in sorted(_SWEEP_ANCHOR_TALLY.items()):
+    print("boss_sweeps: curated tile anchor: %s -> %s, %d member(s) re-homed to the field pass"
+          % (_amp, _atile, _n))
+assert set(_SWEEP_ANCHOR_TALLY) == {(_k, _v) for _k, _v in _SWEEP_MAP_TILE_ANCHOR.items()}, (
+    "a _SWEEP_MAP_TILE_ANCHOR entry matched NO member (rule 2: an empty result is a FAILURE). "
+    "Claimed %s, hit %s" % (sorted(_SWEEP_MAP_TILE_ANCHOR.items()), sorted(_SWEEP_ANCHOR_TALLY)))
 for _why, _n in sorted(_LOD_TILE_TALLY.items(), key=lambda _kv: (-_kv[1], _kv[0])):
     print("boss_sweeps: coarse-LOD overworld column: %-64s %d" % (_why[:64], _n))
 _rec_admitted = _REC_SWEEP_TALLY.get("admitted (self-encoded, agreed)", 0)
@@ -11237,13 +11277,30 @@ DUNGEON_SWEEPS = {}; SWEEP_REGION = {}
 # sweeping it from an unrelated fight would award an inaccessible check and bypass the key gate.
 # Keep this flag-shaped (rather than AP-shaped) so co-checks such as f34117500 are excluded together.
 _SWEEP_EXCLUDED_FLAGS = {
-    # Study Hall's defeat trigger is on the ordinary layout, while these flags exist only after the
-    # Carian Inverted Statue changes the map.
-    34110800: {
-        34117100, 34117110, 34117120,
-        34117400, 34117401, 34117402, 34117403,
-        34117500, 34117710,
-    },
+    # 34110800 (Carian Study Hall / Divine Tower of Liurnia) HELD NINE FLAGS HERE AND NO LONGER DOES.
+    # The original entry was right about the facts and is preserved: f34117100/110/120, f34117400..403,
+    # f34117500 and f34117710 exist only after the Carian Inverted Statue inverts the map, while
+    # 34110800 is a trigger on the ORDINARY layout -- so sweeping them from it would have paid checks
+    # the player had not proved they could reach, the #1513 bypass.
+    #
+    # ALARIC'S RULING, 2026-09-13: BACKDOOR REACHABILITY OUTWEIGHS THE STATUE GATE FOR THESE NINE.
+    # What changed is not the gate reading but the alternative. 34110800 is CUT CONTENT -- the Divine
+    # Tower of Liurnia has no boss at all (contract._RUNTIME_SWEEP_SKIP_REASONS, #1530: the m34_11
+    # constructor never arms 34112800/34112810/34112849, so the defeat flag cannot be set by any
+    # player) -- so "excluded here, granted by its own map's boss instead" was never on the table for
+    # them. The exclusion was not holding a gate closed; it was the second of two locks on a door with
+    # no key, and these ten checks (nine flags, f34117500 carries a co-check) were simply unpayable.
+    # The ruling is that a Liurnia boss kill may pay them.
+    #
+    # 🛑 IT IS NOT DONE BY DELETING THE EXCLUSION AND LETTING 34110800 SWEEP THEM. That would hand a
+    # sweep to a trigger no player can fire, which is the #1530 defect wearing this entry as a hat.
+    # The trigger STAYS skipped as cut content. Instead m34_11 gets an overworld TILE ANCHOR
+    # (`_SWEEP_MAP_TILE_ANCHOR`, far above) and its whole membership -- these nine and the five
+    # ordinary-layout rows 34110800 used to hold -- re-homes through the existing field-neighbourhood
+    # pass to the nearest LIURNIA field boss, exactly as the _SWEEP_UNSPAWNED members do. Same region,
+    # so #1059 holds; the trigger's own group empties, which is the honest state for a fight that does
+    # not exist. The statue gate is now the ONLY lock on these checks, and a Liurnia field boss is a
+    # door the player can actually open.
     # 34140850 Fell Twin (m34_14, Divine Tower of East Altus). f400001 Rold Medallion is a
     # _SWEEP_POST_BOSS_GIFTS row (below): its whole point is that it hangs on the EXACT defeat
     # condition vanilla uses, Morgott's 11000800, and "must never enter the region divvy". Its
@@ -12232,6 +12289,21 @@ try:
     _SWEEP_SKIPS = _ctrmod.runtime_sweep_skips()
 except Exception as _e:
     print(f"[gen_data] contract.runtime_sweep_skips unavailable ({_e!r}); no sweep clause suppressed")
+
+# THE SCOPE GUARD `_SWEEP_MAP_TILE_ANCHOR` PROMISES. An anchor takes a map's checks away from its own
+# boss and hands them to a field boss outside, which is only ever right when that boss CANNOT BE
+# FOUGHT. If a map named there ever hosts a killable fight, the anchor is stealing from it -- so every
+# boss standing on an anchored map must be declared cut content in the same breath the anchor is.
+# Checked against contract, not against a second list kept here: one declaration, two consumers.
+if _SWEEP_SKIPS:
+    for _amap in sorted(_SWEEP_MAP_TILE_ANCHOR):
+        _live = sorted(_e for _e, _inf in BOSS_HEALTHBARS.items()
+                       if _inf[0] == _amap and _e not in _SWEEP_SKIPS)
+        assert not _live, (
+            "_SWEEP_MAP_TILE_ANCHOR[%r] re-homes that map's checks to an overworld tile, but %s "
+            "stand(s) on it and is NOT in contract._RUNTIME_SWEEP_SKIP_REASONS -- a fight the player "
+            "can win would be robbed of its own loot. Either drop the anchor or declare the boss."
+            % (_amap, _live))
 
 _sweep_of = {}
 for _st, _sms in DUNGEON_SWEEPS.items():

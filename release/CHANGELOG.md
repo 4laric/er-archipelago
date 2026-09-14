@@ -39,9 +39,22 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   a Smithing Stone [8] and a Revered Spirit Ash were the only checks in those maps their own boss
   could not pay. Sweep corpus 4118 -> 4124, nothing loses coverage, no check changes region and no
   boss grants outside its own region. World-only: ids, flags and `CONTRACT_HASH` are untouched.
-  The 69 remaining unswept pickups are out of scope by standing ruling -- Roundtable Hold has no
-  boss, the Divine Tower of Liurnia rows sit behind the Carian Inverted Statue, the Chapel of
-  Anticipation may never sweep, and the rest have no derivable place to be swept from.
+  The 59 remaining unswept pickups are out of scope by standing ruling -- Roundtable Hold has no
+  boss, the Chapel of Anticipation may never sweep, and the rest have no derivable place to be
+  swept from.
+
+- **The Divine Tower of Liurnia's ten checks can be reached again (apworld):** the Carian
+  Inverted Statue rows behind the Study Hall -- the Godskin Noble set, Cursemark of Death,
+  Stargazer Heirloom, Lucidity and the rest -- were excluded from their own map's sweep so a
+  boss on the ordinary layout could not pay past the statue gate. The trouble is that the tower
+  has **no boss at all**: its fight is cut content and the defeat flag can never be set, so the
+  exclusion was the second lock on a door with no key and the checks were simply unpayable.
+  Alaric's ruling: backdoor reachability outweighs the statue gate here. The dead trigger is
+  **not** revived -- that would promise a fight nobody can start -- instead the map is anchored
+  to the overworld tile the Study Hall stands on, and its whole membership re-homes through the
+  ordinary field pass to the **Bell Bearing Hunter** at the Church of Vows, one tile away and in
+  Liurnia like the checks themselves. The statue still gates the pickups; what changes is that a
+  kill can now pay them. Five more rows the tower used to hold move with them.
 
 - **Elphael's five Ghost Glovewort [9] enemy drops now sweep on Loretta and Malenia (apworld):**
   the five guaranteed drops along the outer brace near the Prayer Room were the only Haligtree
