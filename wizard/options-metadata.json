@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.6.0.12",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "8fd4aeb24455c7cf157f4a45a52e85b87e32bd5c47e9ecf71f8057c34377837e",
+ "source_sha256": "d0be8200b81e493bfa7ff08330152336f3bf975abab2e43ea9795d664ecda1e1",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -541,11 +541,24 @@
    "class": "ArmorBundles",
    "compatibility_only": false,
    "display_name": "Armor Bundles",
-   "description": "on (default): each complete armor set compacts into one '... Set' item that grants every\npiece on receipt -- one pool slot per set, and no orphaned second helmets. off: every armor\npiece is its own item, the pre-#849 pool.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": true,
-   "choices": null,
+   "description": "How complete armor sets arrive.\n\nsets (default): each complete armor set compacts into one '... Set' item that grants every\npiece on receipt -- one pool slot per set, and no orphaned second helmets. off: every armor\npiece is its own item, the pre-#849 pool. mixed: one shuffled 'Mixed Armor Set' item per\nset -- the same pool shape as sets, but the pieces inside are drawn from every set at\nrandom, per seed. A mixed set grants a full kit (head, body, arms, legs where the set it\nreplaces had them), just not a matching one.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "sets",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "sets",
+     "value": 1
+    },
+    {
+     "name": "mixed",
+     "value": 2
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,

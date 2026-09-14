@@ -1,4 +1,9 @@
-"""armor_bundles option (world#985): the #849 set-wrappers become a YAML Toggle.
+"""armor_bundles option (world#985): the #849 set-wrappers become a YAML Choice.
+
+sets (default) is the shipped behavior and is covered by test_gf_pool_compaction.py's live-pool
+worlds; this file owns the OFF state -- no wrapper items, no `armorBundles` wire, and no
+`armor_bundles` client-feature demand, so an older client accepts the seed. The mixed third
+mode lives in test_gf_armor_bundles_random.py.
 
 on (default) is the shipped behavior and is covered by test_gf_pool_compaction.py's live-pool
 worlds; this file owns the OFF state -- no wrapper items, no `armorBundles` wire, and no

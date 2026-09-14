@@ -1414,7 +1414,20 @@ class GreenfieldEldenRingWorld(World):
         # None disables the bundle branch of compact_name (features/pool_compaction.py): with
         # armor_bundles off (#985) every protector piece stays its own pool item.
         from .features.armor_bundles import armor_bundles_on as _armor_bundles_on
+        from .features.armor_bundles import is_random as _armor_bundles_random
+        from .features.armor_bundles import is_bundle_name as _is_armor_bundle
+        from .features.armor_bundles import remap_bundle as _remap_bundle
         _seen_armor_bundles = set() if _armor_bundles_on(self) else None
+        # Mixed mode: the k-th distinct vanilla set the walk encounters pays "Mixed Armor Set k"
+        # (features/armor_bundles.remap_bundle). ONE dict shared by every compaction site below,
+        # so the encounter order is the walk's order. None in sets mode -- compact_name's own
+        # return stands. Count-neutral either way: one wrapper per distinct family encountered.
+        _mixed_for = {} if _armor_bundles_random(self) else None
+
+        def _remap_bundle_name(_nm):
+            if _mixed_for is not None and _is_armor_bundle(_nm):
+                return _remap_bundle(_nm, _mixed_for)
+            return _nm
         if shuffle and not _vanilla:
             # Feature floors contribute before the vanilla tail is built. Compact them first and
             # carry the same seen sets into the tail, otherwise a floor-protected armour piece can
@@ -1422,8 +1435,8 @@ class GreenfieldEldenRingWorld(World):
             # Replacements are count-neutral normal filler, so contributor accounting stays exact.
             from .features.pool_compaction import compact_name as _compact_name
             for _pool_ix, _item in enumerate(pool):
-                _compacted = _compact_name(
-                    _item.name, _seen_weapon_names, _seen_armor_bundles)
+                _compacted = _remap_bundle_name(_compact_name(
+                    _item.name, _seen_weapon_names, _seen_armor_bundles))
                 if _compacted != _item.name:
                     pool[_pool_ix] = self.create_item(
                         _compacted if _compacted is not None else self._pick_filler())
@@ -1603,7 +1616,7 @@ class GreenfieldEldenRingWorld(World):
             # Doing this in the location walk would remember a weapon/family from the cut tail and
             # then delete the sole surviving copy. The resulting filler enters the shared allocator
             # below, so every removed piece remains useful count-neutral economy capacity.
-            _names = [(_compact_name(nm, _seen_weapon_names, _seen_armor_bundles) or FILLER)
+            _names = [(_remap_bundle_name(_compact_name(nm, _seen_weapon_names, _seen_armor_bundles)) or FILLER)
                       for nm in _names]
         if _vanilla:
             # slots == total and pool is empty (no locks, no feature contributors), so _names is
@@ -1627,8 +1640,8 @@ class GreenfieldEldenRingWorld(World):
             _plan = _fb.plan(self, len(_budget_ix))
             for _k, _pick in zip(_budget_ix, _plan):
                 if _pick is not None:      # None = keep what the check already paid (junk / Rune)
-                    _names[_k] = (_compact_name(
-                        _pick, _seen_weapon_names, _seen_armor_bundles) or FILLER)
+                    _names[_k] = (_remap_bundle_name(_compact_name(
+                        _pick, _seen_weapon_names, _seen_armor_bundles)) or FILLER)
         _tail_start = len(pool)
         for _nm in _names:
             # Under vanilla_placement an unpinnable location (a gesture, an unnamed `check -` row:

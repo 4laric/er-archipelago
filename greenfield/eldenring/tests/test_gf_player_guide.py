@@ -78,6 +78,8 @@ _NOT_OPTIONS = {
     "junk",         # the drop target when a category over-allocates; prose, not a key
     # VALUES of dungeon_sweep
     "bosses", "minidungeons", "none",
+    # VALUES of armor_bundles
+    "sets", "mixed",
     # VALUES of pool_builder_intensity ("max" doubles as a dungeon_sweep-adjacent word, but all
     # three are option VALUES the guide has to name to explain the rarity floor).
     "normal", "high", "max",
