@@ -21,6 +21,14 @@ The version string moved 0.6.0.10 → 0.6.0.11, so the client's `contract_gen.rs
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Wizard: the Great Runes ending says that Region Locks are still required (apworld, wizard):**
+  Mrks's group set `ending_condition: great_runes` and asked why the Ashen Capital still wanted
+  every Region Lock. It does under the default Goal Region Unlock Policy (items held), and
+  nothing near the rune count said so. That policy now sits directly under the rune pair in Goal
+  & Regions, both options say which half of the finale gate they own, the wizard shows an inline
+  note on either row when the pairing is active, and the run summary spells out the finale gate.
+  No option semantics change; `goal: auto` is still Elden Beast with the base game in play and
+  Promised Consort under DLC Only.
 - **Elphael's five Ghost Glovewort [9] enemy drops now sweep on Loretta and Malenia (apworld):**
   the five guaranteed drops along the outer brace near the Prayer Room were the only Haligtree
   checks no boss sweep could pay, so they stayed on the tracker after both bosses died (Ace's
