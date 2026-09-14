@@ -1,6 +1,6 @@
-# Known Issues -- v0.4.0
+# Known Issues -- v0.6.0.11
 
-Current as of **v0.4.0** (2026-08-12).
+Current as of **v0.6.0.11** (2026-09-14).
 
 Everything we currently know about, what it looks like in play, and what (if
 anything) to do about it.
@@ -55,6 +55,19 @@ players, one section per fix, and it is the honest record.
   warp in, so the checks really are reachable; the logic is looser than the map.
   What to do: nothing.
 
+- **Dying in a Leyndell boss arena can respawn you in Maliketh's arena, or replay
+  the Ashen Capital cutscene** (Mrks, 2026-09-13). `capital_reconciler` (on by
+  default) re-runs the game's burn bookkeeping on every load, and a load that
+  lands while the map-version flag is still off can arm vanilla's post-burn
+  warp: a death to Godfrey sends you to Maliketh's arena and then the
+  Roundtable, and a load in Gideon's arena plays the Ashen Capital cutscene.
+  Nothing is lost -- your checks, Locks and items are untouched, and the
+  Royal Capital stays yours -- it is a wrong respawn, not a wrong region. What
+  to do: warp back from the Roundtable and carry on. If it keeps happening on
+  your seed, set `capital_reconciler: false` for that run (see the burn note
+  under By-design behaviours). A load-window hold on the client side is the
+  planned fix; a client log from a run that hit this would help build it.
+
 - **Some region data is wrong.** East Divine Tower loot files under Altus, and
   the Sage's Cave and Wyndham graces are missing (#324). The Moonlight Altar is
   keyed to Liurnia (#410), which files Ranni's late checks under an early
@@ -76,6 +89,23 @@ players, one section per fix, and it is the honest record.
   the Flask of Wondrous Physick, the Tarnished's Furled Finger and the Tailoring
   Tools. What to do: nothing, and nothing is lost -- you still get the vanilla
   item, there is just no multiworld check attached.
+
+- **Fia's Cursemark of Death is never in the pool, so a seed cannot strand
+  Fortissax -- but a run started before 2026-07-28 might have.** The Cursemark
+  is a protected key item and stays on its vanilla lot, so the Fia questline
+  and the Lichdragon Fortissax check are always reachable on a current seed.
+  If you are on an older seed and Fia will not take you to the Deeproot
+  fight, the rescue is a console command: `!give 0x40001FFF 1` hands you the
+  Cursemark, then talk to Fia. It is safe because the item is not a
+  multiworld item and nothing else in the seed depends on it.
+
+- **Redmane Castle stays in festival form after Radahn is dead** until you
+  talk to Jerren in the chapel and reload. That is the game's own rule, not
+  ours: the client forces the festival on so Radahn is always fightable, and
+  the game only ends it after the Jerren talk on a load from outside the
+  castle. The plaza duo (Crucible Knight and Misbegotten Warrior) is
+  unavailable while the festival is on. What to do: kill Radahn, talk to
+  Jerren, warp out and back.
 
 - **Evergaol boss rewards are withheld until you teleport out** (#296). The
   reward lands when you leave the arena rather than when the boss dies, and
