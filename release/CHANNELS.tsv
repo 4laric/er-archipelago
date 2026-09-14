@@ -83,5 +83,5 @@ stable	v0.6.0.8	2026-09-11	eighth fixpack on the 0.6.0 line, mostly client hygie
 beta	main	2026-09-11	the open v0.6.0.9 window
 stable	v0.6.0.9	2026-09-12	Tagged v0.6.0.9: map performance and missing-pin fixes; recorded while opening the next window
 beta	main	2026-09-12	the open v0.6.0.10 window
-stable	v0.6.0.10	2026-09-12	TODO(open) -- what this window shipped, and why the promotion is paid HERE rather than tomorrow morning
+stable	v0.6.0.10	2026-09-12	MapForGoblins performance improvements, plus the Scadutree Avatar sweep completion fix (clients #682). CONTRACT_HASH unmoved at 613fb438. Promoted in the v0.6.0.11 window-open commit so latest.json and the stable wizard move with the tag; the sentence itself was owed until 2026-09-14, the morning of the v0.6.0.11 cut, and open_window --check-notes refused the cut until it was paid.
 beta	main	2026-09-12	the open v0.6.0.11 window
