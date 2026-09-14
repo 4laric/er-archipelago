@@ -139,7 +139,7 @@ BOSS_TAXONOMY = {
     32080800: ('tunnel', 'tunnel', 'm32_08', 'Caelid', 'Fallingstar Beast'),
     32110800: ('tunnel', 'tunnel', 'm32_11', 'Consecrated Snowfield', 'Astel, Stars of Darkness'),
     34100800: ('legacy_dungeon', 'legacy', 'm34_10', 'Stormveil', ''),
-    34110800: ('legacy_dungeon', 'legacy', 'm34_11', 'Liurnia', ''),
+    34110800: ('legacy_dungeon', 'legacy', 'm34_11', '', ''),
     34120800: ('legacy_dungeon', 'legacy', 'm34_12', 'Altus', 'Onyx Lord'),
     34130800: ('legacy_dungeon', 'legacy', 'm34_13', 'Caelid', 'Godskin Apostle'),
     34140850: ('legacy_dungeon', 'legacy', 'm34_14', 'Leyndell', 'Fell Twin'),

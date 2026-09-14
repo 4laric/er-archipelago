@@ -382,6 +382,20 @@ def test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind():
     """
     from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
 
+    # THE ONE RULED EXEMPTION (Alaric, 2026-09-13). 1037460800 Bell Bearing Hunter (m60_37_46) is
+    # dealt the ten Carian-Inverted-Statue checks of m34_11, and it does not sit behind the statue.
+    # That is the bypass this property exists to catch, and it was ruled acceptable ANYWAY, on a
+    # ground this test cannot see: the alternative was not "granted by a boss behind the same gate",
+    # it was NOTHING. m34_11's own trigger 34110800 is cut content -- the Divine Tower of Liurnia has
+    # no fight and its defeat flag can never be set (contract._RUNTIME_SWEEP_SKIP_REASONS, #1530) --
+    # so these ten checks had no sweep that could ever pay them. Backdoor reachability outweighs the
+    # statue gate here; the statue still gates the CHECKS themselves, and a player who cannot invert
+    # the Study Hall simply cannot pick them up. Every other gated sweep is still held to the rule.
+    # 🛑 KEYED ON (trigger, key), not on the trigger alone: if Bell Bearing Hunter is ever dealt a
+    # check behind a DIFFERENT key, this still reds. Narrow on purpose -- an exemption that swallowed
+    # the whole trigger would be a hole, not a ruling.
+    RULED_EXEMPT = {(1037460800, "Carian Inverted Statue")}
+
     req = _key_requirements()
     bad, gated_sweeps = [], 0
     for defeat, members in DUNGEON_SWEEPS.items():
@@ -389,7 +403,7 @@ def test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind():
         if not needed:
             continue
         gated_sweeps += 1
-        have = _trigger_keys(defeat)
+        have = _trigger_keys(defeat) | {k for (t, k) in RULED_EXEMPT if t == defeat}
         if not needed <= have:
             bad.append("%s: members need %s, trigger has %s"
                        % (defeat, sorted(needed), sorted(have)))
@@ -403,18 +417,36 @@ def test_no_sweep_grants_a_check_its_trigger_is_not_gated_behind():
         "If the gates moved, re-derive them rather than deleting this.")
 
 
-def test_carian_inverted_checks_stay_out_of_the_standard_layout_sweep():
-    """The ordinary Study Hall fight must not pay out checks from the inverted layout."""
-    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS
+def test_carian_inverted_checks_are_paid_by_a_liurnia_field_boss_not_the_dead_tower():
+    """RESTATED 2026-09-13 on Alaric's ruling. It used to assert "the ordinary Study Hall fight must
+    not pay out checks from the inverted layout", and the ordinary fight still does not -- because
+    34110800 no longer holds a sweep group at all. The Divine Tower of Liurnia is CUT CONTENT
+    (contract._RUNTIME_SWEEP_SKIP_REASONS, #1530): its EMEVD chain is never armed, so its defeat flag
+    cannot be set by any player. Excluding the statue checks from a trigger nobody can fire was not
+    protecting a gate, it was the second lock on a door with no key, and the ten checks were unpayable.
+
+    The ruling: a Liurnia boss kill may pay them. m34_11 is anchored to overworld tile m60_38_46
+    (gen_data._SWEEP_MAP_TILE_ANCHOR) and its membership re-homes through the ordinary
+    field-neighbourhood pass. So this asserts the shape of that outcome, both halves: the dead trigger
+    holds nothing, and the statue checks are held by a LIURNIA field boss -- not by no one, and not by
+    a boss in some other region (#1059)."""
+    from worlds.eldenring.tables.boss_sweeps import DUNGEON_SWEEPS, SWEEP_REGION
     from worlds.eldenring.tables.data import LOCATIONS
     from worlds.eldenring.features import legacy_key_gates as lkg
 
+    assert not DUNGEON_SWEEPS.get(34110800), (
+        "34110800 holds a sweep group again. The Divine Tower of Liurnia has no boss -- a group here "
+        "is a promise the client renders as 'waiting on the boss' forever (#1530).")
+
     statue_flags = set(lkg._LEGACY_EXTRA["Carian Inverted Statue"])
     flag_of = {ap: int(flag) for locs in LOCATIONS.values() for (_name, ap, flag) in locs}
-    swept_flags = {flag_of[ap] for ap in DUNGEON_SWEEPS[34110800]}
-    assert statue_flags.isdisjoint(swept_flags), (
-        "Study Hall's standard-layout sweep bypasses the Carian Inverted Statue gate: %s"
-        % sorted(statue_flags & swept_flags))
+    owners = {trig for trig, members in DUNGEON_SWEEPS.items()
+              for ap in members if flag_of.get(ap) in statue_flags}
+    assert owners, ("no sweep pays the Carian Inverted Statue checks -- the ruling was that a Liurnia "
+                    "boss kill should reach them, and nothing does")
+    bad = sorted(t for t in owners if SWEEP_REGION.get(t) != "Liurnia")
+    assert not bad, ("Carian Inverted Statue checks are swept from outside Liurnia by %s -- #1059 "
+                     "forbids granting a region's checks off another region's kill" % bad)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -496,7 +528,14 @@ def test_full_area_sweeps_delta_is_exactly_the_surface_cut():
         for ap in extra:
             for cls in _CUTTABLE & set(LOCATION_TAGS.get(ap, ())):
                 gained[cls] += 1
-    assert dict(gained) == {"Fragment": 40, "Seedtree": 38, "Revered": 22, "Church": 13}, (
+    # 2026-09-13: Revered 22 -> 23, and that one row is the whole delta -- Fragment, Seedtree and
+    # Church are unmoved. f28007900 Revered Spirit Ash (Rauh Base, m28_00) is a guaranteed ENEMY-DROP
+    # lot with no lot row to carry its map column, so it sat at map PENDING and never reached the
+    # membership gate at all; the flag-prefix map recovery in gen_data.py now lists the "28" prefix,
+    # it joins m28_00's own map-local sweep, and being `Revered`-tagged it lands in exactly this
+    # cuttable band. The default-surface cut therefore takes it straight back and only
+    # full_area_sweeps restores it, which is what this number counts.
+    assert dict(gained) == {"Fragment": 40, "Seedtree": 38, "Revered": 23, "Church": 13}, (
         "the measured default-surface delta moved: %s. This is a corpus fact, so a regen may "
         "legitimately move it -- re-measure, re-state the WHY, and never re-baseline it to make a "
         "red go away." % dict(gained))

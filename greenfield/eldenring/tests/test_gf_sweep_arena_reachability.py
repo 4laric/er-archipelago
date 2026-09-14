@@ -154,7 +154,16 @@ BOBLERRR_KEPT = frozenset({"Ancient Ruins", "Belurat", "Cerulean", "Jagged Peak"
 # both groups in every Gravesite seed. The rulings now also decide each boss's HOST region, so the
 # pair arrive as ordinary matched groups rather than new #445 screens -- coverage up, split set
 # still 0.
-ARENA_COVERAGE_FLOOR = 187
+# 2026-09-13 (Alaric's ruling on the m34_11 statue checks): 187 -> 186, and NOTHING LOST ITS ARENA.
+# This floor counts triggers with a known arena region, and the DENOMINATOR moved: 34110800 (Divine
+# Tower of Liurnia) no longer holds a sweep group, so it is no longer a trigger to have coverage for.
+# Its arena region was known, hence -1 on both sides -- 186 of 207, where it was 187 of 208. The group
+# went because the tower is CUT CONTENT (contract._RUNTIME_SWEEP_SKIP_REASONS, #1530) and its ten
+# otherwise-unpayable checks re-home to a Liurnia field boss via gen_data._SWEEP_MAP_TILE_ANCHOR.
+# 🛑 A DROP HERE IS NORMALLY A REGRESSION -- `sweep_trigger_reachable` treats an unknown arena as
+# reachable, so a trigger lost from AR becomes a group nothing can screen. That is not what happened
+# here: this one left the numerator by leaving the corpus entirely, which screens it absolutely.
+ARENA_COVERAGE_FLOOR = 186
 
 
 class SweepArenaTable(unittest.TestCase):

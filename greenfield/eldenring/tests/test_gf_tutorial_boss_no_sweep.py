@@ -604,8 +604,41 @@ def test_the_sweep_corpus_did_not_shrink():
     # gen_data.py never listed the "15" prefix, so they failed the interior-member gate while the
     # neighbouring map lots f15001250..15001290 were already dealt to Loretta and Malenia. They now
     # recover to m15_00 and join the same Haligtree round-robin. Nothing loses coverage.
-    assert total == 4118, (
-        "sweep corpus is %d, expected 4118. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-13 (the unswept-pickup pass, #1559 follow-up): 4118 -> 4124. ADDED 6, REMOVED 0.
+    # Three derivation repairs, each of which PUBLISHES a place the row's own flag already encoded:
+    #   * COARSE-LOD OVERWORLD COLUMNS. An overworld map id is m6[01]_XX_YY_LL and LL is the LOD
+    #     LEVEL: at LL=02, (XX,YY) indexes a 4x4 BLOCK of level-0 tiles, so m60_11_13_02 is the block
+    #     spanning tiles (44..47, 52..55), not "tile (11,13)". Six rows carry such a column and every
+    #     consumer read the first three fields as a tile name, filing them off the grid entirely.
+    #     `_overworld_member_tile` now decodes the exact tile from the flag's own 10XXYYLLLL encoding
+    #     and accepts it ONLY when it lies inside the block the column names (all six do; a flag that
+    #     decodes outside its block, or does not decode, is REFUSED rather than picked). ADDS
+    #     f1045527000 Gravity Stone Fan -> 1045520800 (Altus) and f1048557900 Flowing Curved Sword +
+    #     f1049547900 St. Trina's Torch -> 1248550800 (Consecrated Snowfield).
+    #   * OVERWORLD-NATIVE M4G PINS. The native-pin clause admitted dungeon maps only, written before
+    #     the overworld-tile branch existed. ADDS f1038457500 Briars of Sin -> 1039440800 (Liurnia),
+    #     admitted only because its map column (m60_38_45_00) and its flag independently name the
+    #     same tile.
+    #   * FLAG-PREFIX PREFIXES "22"/"28" -- the f15001300..15001340 defect one DLC interior further
+    #     out. ADDS f22007910 Smithing Stone [8] -> 22000800 (Cerulean, map-local) and f28007900
+    #     Revered Spirit Ash -> 28000800 (Abyssal, map-local). In both maps every OTHER flag_prefix
+    #     row already carried its map from the lot scan; only these guaranteed ENEMY-DROP lots, which
+    #     have no lot row to carry it, stayed PENDING.
+    # Nothing loses coverage. The three RE-OWNERSHIPS the LOD decode causes are at the digest below.
+    # ALARIC'S RULING, 2026-09-13, layered on the same pass: 4124 -> 4134, ADDED 10 more, REMOVED 0.
+    # The nine `_SWEEP_EXCLUDED_FLAGS[34110800]` Carian-Inverted-Statue flags (f34117100/110/120,
+    # f34117400..403, f34117500, f34117710 -- ten checks, f34117500 carries a co-check) leave that
+    # exclusion. The gate reading was never wrong; the ALTERNATIVE was. 34110800 is cut content
+    # (contract._RUNTIME_SWEEP_SKIP_REASONS, #1530), so "excluded here, paid by its own map's boss
+    # instead" was never available to them and they were simply unpayable. Backdoor reachability wins.
+    # 🛑 The trigger is NOT un-skipped -- that would hand a sweep to a fight nobody can start. m34_11
+    # gets a curated overworld TILE ANCHOR (`_SWEEP_MAP_TILE_ANCHOR`, m60_38_46, joined out of
+    # grace_ground.tsv's seam onto play region 6200004 and item_play_regions.tsv's tile for it) and its
+    # whole membership re-homes through the ordinary field-neighbourhood pass, the same road the
+    # _SWEEP_UNSPAWNED bosses' members take. 34110800's own group empties and the trigger count drops
+    # 208 -> 207, which is the honest state for a boss that does not exist.
+    assert total == 4134, (
+        "sweep corpus is %d, expected 4134. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -967,6 +1000,26 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # trading between Malenia and Loretta (50 one way, 49 the other) as the round-robin re-phased
     # around the five insertions, the #363 modulus shape. ZERO crossed a region boundary:
     # SWEEP_REGION is 'Haligtree' for both owners of all 99.
-    assert (digest, n) == ("830d4ccff488de1f", 4118), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (830d4ccff488de1f, 4118). The total alone will "
+    # 2026-09-13 (the unswept-pickup pass), measured by (trigger, flag) against origin/main ed90bd50:
+    # digest 830d4ccff488de1f -> 988c8ffdc0bda9fd, n 4118 -> 4124. ADDED 6 (the six named at the
+    # corpus total above), REMOVED 0, RE-OWNED 3 -- and all three are the coarse-LOD decode CORRECTING
+    # a mis-file, which is the point of it. f1042377060 Flail and f1042397010 Lance left 18000800 and
+    # f1042377070 Lordsworn's Greatsword left 18000850 -- the m18 Stranded Graveyard tutorial pair,
+    # which was paying for pickups around Agheel Lake North, Gatefront and Warmaster's Shack because
+    # their m60_10_09_02 column had filed them on phantom tile (10,09). Decoded, they sit on
+    # m60_42_37 / m60_42_39 and are dealt to the field bosses actually standing there: 1042370800 x2
+    # and 1042380800. ZERO region crossings -- SWEEP_REGION is 'Limgrave' for the old owner and the
+    # new owner of all three, and for all six additions the new owner's SWEEP_REGION equals the
+    # member's own region (Cerulean, Abyssal, Liurnia, Altus, Consecrated Snowfield x2), so #1059 is
+    # satisfied member by member.
+    # ALARIC'S RULING, 2026-09-13, measured by (trigger, flag) against origin/main ed90bd50 with the
+    # rest of this pass: digest 988c8ffdc0bda9fd -> ae600a3cfe980be8, n 4124 -> 4134. ADDED 10 more (the
+    # nine statue-gated m34_11 flags above, all to 1037460800 Bell Bearing Hunter, m60_37_46 --
+    # Chebyshev 1 from the m60_38_46 anchor and the nearest Liurnia field boss to the Study Hall).
+    # REMOVED 0. RE-OWNED 5 MORE: the five ordinary-layout m34_11 rows 34110800 used to hold
+    # (f34117010, f34117060, f34117080, f34117200, f34117700) follow the same anchor to the same boss.
+    # ZERO region crossings -- SWEEP_REGION is 'Liurnia' for 34110800 and for 1037460800 alike, so
+    # every one of these fifteen stays inside its own region and #1059 holds.
+    assert (digest, n) == ("ae600a3cfe980be8", 4134), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (ae600a3cfe980be8, 4134). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

@@ -58,6 +58,14 @@ class RuntimeSweepFireability(WorldTestBase):
                 # before it can be filtered at runtime. Both mechanisms agree; only one can be
                 # observed in the shipped data.
                 continue
+            if flag == 34110800:
+                # 2026-09-13, Alaric's ruling: same situation, reached a different way. m34_11 is now
+                # anchored to overworld tile m60_38_46 (gen_data._SWEEP_MAP_TILE_ANCHOR) so its ten
+                # otherwise-unpayable checks re-home to a Liurnia field boss -- which empties this
+                # trigger's group in the bake, before the runtime filter can be seen removing it.
+                # Both mechanisms still agree that the group must not reach the tracker, and the
+                # slot_data test below is where that is now observed for this flag.
+                continue
             self.assertTrue(DUNGEON_SWEEPS.get(flag),
                             f"fixture lost the cut-content group {flag}; the filter is untested")
 

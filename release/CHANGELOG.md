@@ -21,6 +21,41 @@ The version string moved 0.6.0.10 → 0.6.0.11, so the client's `contract_gen.rs
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Six more world pickups can now be paid by a boss kill (apworld):** a sweep of every check no
+  boss group could reach turned up three derivation defects, each one a place the pickup's own
+  flag already encoded and nothing published. (1) An overworld map id is `m6[01]_XX_YY_LL` and `LL`
+  is the LOD **level** -- at `LL=02` the `(XX,YY)` pair indexes a 4x4 block of tiles, so
+  `m60_11_13_02` means the block spanning tiles (44..47, 52..55), not "tile (11,13)". Six rows
+  carry such a column and every consumer read it as a tile name, filing them off the grid. The
+  exact tile is now decoded from the flag and accepted only when it lies inside the block the
+  column names, which un-strands Gravity Stone Fan near Capital Rampart, and Flowing Curved Sword
+  and St. Trina's Torch in the Consecrated Snowfield -- and moves Flail, Lordsworn's Greatsword and
+  Lance off the Stranded Graveyard tutorial pair, which had been paying for pickups around Agheel
+  Lake North, Gatefront and Warmaster's Shack, onto the Limgrave field bosses actually standing
+  there. (2) An accepted native pin that lands on an overworld tile is now admitted like one in a
+  dungeon, which reaches Briars of Sin by the Artist's Shack. (3) The flag-prefix map recovery
+  learns `22` and `28`, the same defect one DLC interior further out than Elphael: in Stone Coffin
+  Fissure and Rauh Base every pickup but the guaranteed **enemy drops** already carried its map, so
+  a Smithing Stone [8] and a Revered Spirit Ash were the only checks in those maps their own boss
+  could not pay. Sweep corpus 4118 -> 4124, nothing loses coverage, no check changes region and no
+  boss grants outside its own region. World-only: ids, flags and `CONTRACT_HASH` are untouched.
+  The 59 remaining unswept pickups are out of scope by standing ruling -- Roundtable Hold has no
+  boss, the Chapel of Anticipation may never sweep, and the rest have no derivable place to be
+  swept from.
+
+- **The Divine Tower of Liurnia's ten checks can be reached again (apworld):** the Carian
+  Inverted Statue rows behind the Study Hall -- the Godskin Noble set, Cursemark of Death,
+  Stargazer Heirloom, Lucidity and the rest -- were excluded from their own map's sweep so a
+  boss on the ordinary layout could not pay past the statue gate. The trouble is that the tower
+  has **no boss at all**: its fight is cut content and the defeat flag can never be set, so the
+  exclusion was the second lock on a door with no key and the checks were simply unpayable.
+  Alaric's ruling: backdoor reachability outweighs the statue gate here. The dead trigger is
+  **not** revived -- that would promise a fight nobody can start -- instead the map is anchored
+  to the overworld tile the Study Hall stands on, and its whole membership re-homes through the
+  ordinary field pass to the **Bell Bearing Hunter** at the Church of Vows, one tile away and in
+  Liurnia like the checks themselves. The statue still gates the pickups; what changes is that a
+  kill can now pay them. Five more rows the tower used to hold move with them.
+
 - **Wizard: the Great Runes ending says that Region Locks are still required (apworld, wizard):**
   Mrks's group set `ending_condition: great_runes` and asked why the Ashen Capital still wanted
   every Region Lock. It does under the default Goal Region Unlock Policy (items held), and
