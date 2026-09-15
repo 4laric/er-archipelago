@@ -27,8 +27,8 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
   wall is retired. Receiving the Leyndell Lock lights the full capital bundle -- including the
   Shunning-Grounds graces -- and the physical two-rune seal opens on the same receipt (the
   world sends the seal flags through the existing `lockRevealFlags` wire, so no contract change
-  and no client update is required for the world half; the client's own seal-opening half is a
-  separate PR). Great Runes stay in the pool and still count for the `great_runes` ending, but
+  and no client update is required: the shipped client already parses that wire generically,
+  and its old rune-count seal logic is unmanaged when no rune trigger is emitted). Great Runes stay in the pool and still count for the `great_runes` ending, but
   they gate nothing in Leyndell any more: a Leyndell-kept seed with zero runes reachable is
   winnable, by construction. Old YAMLs carrying `leyndell_runes_required` still generate -- the
   setting is accepted and ignored. The one exception is `natural_progression` mode, which mints

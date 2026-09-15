@@ -6,7 +6,7 @@ Academy on 2026-08-16, see features/graces.py). The physical two-Great-Rune seal
 client on receipt of the Leyndell Lock -- the world emits the seal flags (105 and 182, the pair
 m60_45_52_00 $Event(1045522500) reads) through `lockRevealFlags["Leyndell Lock"]`
 (features/area_locks.py), and the client sets them the way it used to set them on rune receipt
-(keyitems.rs LEYNDELL_TWO_RUNES_FLAGS; the client half is a separate PR). Great Runes gate NOTHING
+(keyitems.rs LEYNDELL_TWO_RUNES_FLAGS; no client change -- lockRevealFlags is parsed generically). Great Runes gate NOTHING
 in Leyndell any more: they remain in the pool and are progression only under
 `ending_condition: great_runes`.
 

@@ -48,7 +48,8 @@ _DLC_MAP_REVEAL_FLAGS = (62080, 62081, 62082, 62083, 62084)
 # $Event(1045522500)) reads `EventFlag(182) && EventFlag(105)`, where 182 is common $Event(730)'s
 # threshold-2 output over the 170-179 Great-Rune possession band. An AP goods grant sets none of
 # the band flags, so the client writes both directly (keyitems.rs LEYNDELL_TWO_RUNES_FLAGS -- on
-# rune receipt before this ruling, on Lock receipt after; the client half is a separate PR).
+# rune receipt before this ruling, on Lock receipt after via this generic wire -- no client change:
+# its rune-count path is Unmanaged when no naturalKeyTriggers rune clause is emitted).
 # Setting them is monotonic (a seal already open stays open), so re-receipt and reconnect replays
 # are harmless.
 #
