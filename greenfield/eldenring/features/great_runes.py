@@ -14,15 +14,20 @@ clamped to that number. bobler's seed `75791261719639771134` is the case that se
 regions kept, exactly ONE rune in the whole multiworld, `goal_great_runes: 2` resolved to
 `great_rune_items = ["Godrick's Great Rune"]`, and nothing anywhere told him his 2 had become a 1.
 
-🛑 PARTIAL INJECTION ALREADY EXISTED AND WAS IN THE WRONG PLACE. `features/leyndell_gate` topped the
-pool up to the capital wall's floor (`shortfall = max(0, want - len(avail))`), because #589 -- a
-seed with one countable rune sealed Leyndell, the Sewer and Ashen Capital behind a door nothing
-could open, stranding forty-two other players' items. That fix was right and is now this file's
-job instead, for one reason: it was conditioned on **the capital being in the draw**. bobler's seed
-had no Leyndell, so nothing topped anything up. A supply floor that only exists when one particular
-consumer is present is not a floor.
+🛑 PARTIAL INJECTION ALREADY EXISTED AND WAS IN THE WRONG PLACE. The retired
+`features/leyndell_gate` topped the pool up to the capital wall's floor (`shortfall = max(0, want -
+len(avail))`), because #589 -- a seed with one countable rune sealed Leyndell, the Sewer and Ashen
+Capital behind a door nothing could open, stranding forty-two other players' items. That fix was
+right and is now this file's job instead, for one reason: it was conditioned on **the capital
+being in the draw**. bobler's seed had no Leyndell, so nothing topped anything up. A supply floor
+that only exists when one particular consumer is present is not a floor.
 
-The wall now READS a supply it does not CREATE. That separation is the whole point of moving it.
+The wall that motivated the move is itself retired now (2026-09-14: Leyndell opens on its Lock,
+Great Runes gate nothing there outside natural_progression mode). The floor stays regardless --
+the `great_runes` ending and the natural_progression capital wall both still need all seven in
+the pool, and a rune arriving for a demigod who is not in your run is still a documented rule
+rather than an anomaly. The wall now READS a supply it does not CREATE. That separation is the
+whole point of moving it.
 
 WHAT THIS BUYS, and it is more than tidiness:
 
@@ -41,8 +46,8 @@ in a fill regression.
 🛑 NOT A PRESENCE-FLOOR ENTRY. `features/presence_floor` guarantees an item TYPE appears and marks
 its copies `useful`. Great Runes need more than presence: a required one must be `progression` so
 fill guarantees it reachable, and that upgrade lives in `core._class_for`, which reads
-`_required_runes()` / `gf_leyndell_runes`. Filing them under the floor would have split one item's
-classification across two owners.
+`_required_runes()` / `gf_capital_runes` (natural_progression mode). Filing them under the floor
+would have split one item's classification across two owners.
 """
 import logging
 from typing import Dict, List
@@ -70,8 +75,9 @@ except ImportError:  # pragma: no cover - exercised only outside an AP checkout
 #     `CountEventFlags(EventFlag, 170, 179) >= countThreshold`. THAT is what a rune counter reads:
 #     the whole 170-179 band, not any single flag.
 #
-#   (features/leyndell_gate.py's "ALL SEVEN COUNT AT THE GATE" block walks the same two events for
-#   the gate's threshold; this is the same evidence pointed at the detection question instead.)
+#   (features/natural_progression.py's "ALL SEVEN COUNT AT THE GATE" block walks the same two events
+#   for the capital wall's threshold; this is the same evidence pointed at the detection question
+#   instead.)
 #
 # WHY THIS MOVED (client lost-check scenario, 2026-09-13). clients #685 makes the client SET
 # 171-177 when it DELIVERS a Great Rune, so third-party rune counters -- thefifthmatt's gates, and
@@ -176,9 +182,9 @@ class GreatRuneSupply(Feature):
     ITEMS = {}
 
     def generate_early(self, world) -> None:
-        # Recorded on the world so leyndell_gate, the spoiler and the tests can all read the same
-        # answer rather than each recomputing it. Empty on a full-Shattering seed, which is the
-        # signal that the draw already supplied everything.
+        # Recorded on the world so the spoiler and the tests can read the same answer rather than
+        # each recomputing it. Empty on a full-Shattering seed, which is the signal that the draw
+        # already supplied everything.
         world.gf_great_runes_injected = injected(world) if world._shuffle_on() else []
         # Repoint the six boss runes' DETECTION onto the boss defeat flag -- see the evidence block
         # above GREAT_RUNE_DETECT_FLAGS. Same documented seam features/finale.py uses, and the same

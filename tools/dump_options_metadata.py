@@ -120,6 +120,9 @@ COMPATIBILITY_ONLY = frozenset({
     "flask_upgrades_on_progression_surface",
     "global_scadutree_blessing",
     "merchant_bell_logic",
+    # 2026-09-14: the capital opens on its Lock; the count gates nothing any more. Old YAMLs
+    # still parse (the option is a deprecated no-op), new YAMLs must not offer it.
+    "leyndell_runes_required",
 })
 
 # ---------------------------------------------------------------------------

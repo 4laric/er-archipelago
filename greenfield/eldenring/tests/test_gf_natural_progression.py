@@ -80,7 +80,39 @@ class NaturalProgressionTest(WorldTestBase):
         self.assertFalse(without, "Liurnia must be sealed with no Rem. of the Grafted")
         self.assertTrue(with_key, "Rem. of the Grafted must open Liurnia")
 
-    # --- goal = reach the capital (2 Great Runes via leyndell_gate) -------------------
+    def test_leyndell_gated_on_two_great_runes(self):
+        """THE MOVED WALL (2026-09-14): the 'To Leyndell' edge needs two Great Runes -- the fixed
+        vanilla count. Sealed on zero or one, open on two.
+
+        🛑 POSED WITH THE ARMED PAIR, and that is load-bearing, not convenience. AP's
+        CollectionState.collect only tracks ADVANCEMENT items, and only the two sampled runes in
+        world.gf_capital_runes are progression (core._class_for) -- collecting a merely-useful
+        rune registers nothing in has(), so "any two names" cannot be told apart from "one" in a
+        logic test. The rule itself counts ANY two held (the client counts receipts, not
+        advancement); the armed pair is what the test can observe."""
+        p = self.player
+        world = self.multiworld.worlds[p]
+        armed = sorted(getattr(world, "gf_capital_runes", []))
+        self.assertEqual(len(armed), 2, "this mode arms the capital wall on exactly two runes")
+        ent = self.multiworld.get_entrance("To Leyndell", p)
+        by_name = {}
+        for i in self.multiworld.get_items():
+            if i.name in set(armed) and i.player == p:
+                by_name.setdefault(i.name, i)
+        self.assertEqual(sorted(by_name), armed, "the armed runes must exist for this player")
+        empty = CollectionState(self.multiworld)
+        self.assertFalse(ent.access_rule(empty), "Leyndell must be sealed with no Great Runes")
+        one = CollectionState(self.multiworld)
+        one.collect(by_name[armed[0]], prevent_sweep=True)
+        self.assertFalse(ent.access_rule(one),
+                         "Leyndell must stay sealed on a single Great Rune -- the vanilla wall "
+                         "wants two and logic must not believe a door open that the game keeps shut")
+        two = CollectionState(self.multiworld)
+        two.collect(by_name[armed[0]], prevent_sweep=True)
+        two.collect(by_name[armed[1]], prevent_sweep=True)
+        self.assertTrue(ent.access_rule(two), "two Great Runes must open Leyndell")
+
+    # --- goal = reach the capital (2 Great Runes, owned by natural_progression) ---------------
     def test_goal_is_reach_leyndell(self):
         p = self.player
         state = self.multiworld.get_all_state(False)
@@ -104,8 +136,8 @@ class NaturalProgressionTest(WorldTestBase):
         the start spoke (Limgrave) sealed = unplayable from turn one, and a count-gate (Caelid) or the
         capital (Leyndell) sealed forever is a logic/client soft-lock (AP logic can place goal
         progression there, the player can never reach it). So every KEPT region that HAS an open flag
-        must carry a trigger -- INCLUDING the capital pair since the count primitive landed
-        (2026-07-24): Leyndell/Sewer bloom on the Nth Great Rune, exactly when the vanilla wall opens
+        must carry a trigger -- INCLUDING the capital since the count primitive landed
+        (2026-07-24): Leyndell blooms on the 2nd Great Rune, exactly when the vanilla wall opens
         (the 2026-07-24 playtest showed the areaLock seal does NOT open on the game's own wall). This
         is the guard that would have caught the first playtest's born-softlocked Limgrave."""
         from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS
@@ -161,19 +193,22 @@ class NaturalProgressionTest(WorldTestBase):
                          "Caelid must NOT open at start via an empty clause")
 
     def test_leyndell_count_trigger_on_great_runes(self):
-        """The capital blooms client-side on the Nth Great Rune (N = leyndell_runes_required,
-        default 2, clamped by leyndell_gate -> world.gf_leyndell_runes): the count trigger sets open
-        flag 71102 exactly when the vanilla 2-rune wall opens. (The Sewer merged into Leyndell
-        2026-08-20: 73501 rides Leyndell's own bundle and count now -- one region, one trigger.)"""
+        """The capital blooms client-side on the 2nd Great Rune (the fixed vanilla wall, owned by
+        natural_progression since the 2026-09-14 retirement of features/leyndell_gate.py ->
+        world.gf_capital_runes): the count trigger sets open flag 71102 exactly when the vanilla
+        2-rune wall opens. (The Sewer merged into Leyndell 2026-08-20: 73501 rides Leyndell's own
+        bundle and count now -- one region, one trigger.)"""
+        from worlds.eldenring.features import natural_progression as _npcap
         world = self.multiworld.worlds[self.player]
-        runes = list(getattr(world, "gf_leyndell_runes", []))
-        self.assertTrue(runes, "default seed must arm the rune gate (leyndell_runes_required=2)")
+        runes = list(getattr(world, "gf_capital_runes", []))
+        self.assertEqual(len(runes), _npcap.VANILLA_CAPITAL_GATE_RUNES,
+                         "this mode's capital wall is the fixed vanilla two-rune wall")
         for region in ("Leyndell",):
             clauses = self._count_clauses(region)
             self.assertEqual(len(clauses), 1, f"{region}: exactly one count clause")
             c = clauses[0]
             self.assertEqual(c.get("count"), len(runes),
-                             f"{region} opens on the clamped rune count")
+                             f"{region} opens on the vanilla rune count")
             count_items = c.get("countItems", [])
             # 🛑 Membership in the canonical set, NOT `endswith("Great Rune")`. The name-suffix test
             # is the bug this file's subject had for ten days: "Great Rune of the Unborn" puts the

@@ -40,6 +40,25 @@ except Exception:  # pragma: no cover
 # map is revealed when you UNLOCK a DLC region, not only at start (reveal_all_maps + enable_dlc).
 _DLC_MAP_REVEAL_FLAGS = (62080, 62081, 62082, 62083, 62084)
 
+# The capital seal flags the client sets on Leyndell Lock receipt (2026-09-14: Leyndell opens on
+# its Lock like every other region, so the physical two-rune seal has to open WITH it).
+#
+# MEASURED, not chosen (2026-08-22, clients#392 -- see also
+# tests/test_gf_key_item_gate_classification.py): the 王都の封印 (m60_45_52_00/.10
+# $Event(1045522500)) reads `EventFlag(182) && EventFlag(105)`, where 182 is common $Event(730)'s
+# threshold-2 output over the 170-179 Great-Rune possession band. An AP goods grant sets none of
+# the band flags, so the client writes both directly (keyitems.rs LEYNDELL_TWO_RUNES_FLAGS -- on
+# rune receipt before this ruling, on Lock receipt after via this generic wire -- no client change:
+# its rune-count path is Unmanaged when no naturalKeyTriggers rune clause is emitted).
+# Setting them is monotonic (a seal already open stays open), so re-receipt and reconnect replays
+# are harmless.
+#
+# WHY THIS KEY and not a new one: lockRevealFlags is "<Region> Lock -> flags set on lock receipt"
+# (contract.py), which is exactly this wire -- the Ashen burn's world state already rides it for
+# the same reason. No contract change, no hash move: the client parses this map generically
+# (region.rs lock_reveal_flags, live since 2026-07-08).
+_LEYNDELL_SEAL_FLAGS = (105, 182)
+
 try:
     from ..tables.region_open_flags import REGION_OPEN_FLAGS
 except Exception:  # not yet generated -> no open flags -> no ranges (regions stay unlocked)
@@ -119,6 +138,14 @@ class AreaLocks(Feature):
         # (region.rs lock_reveal_flags); this key was contract-declared but previously unemitted.
         reveal = {f"{r} Lock": list(_DLC_MAP_REVEAL_FLAGS)
                   for r in world._kept() if r in DLC_REGIONS}
+        # The capital seal opens WITH the Leyndell Lock (2026-09-14 -- see _LEYNDELL_SEAL_FLAGS
+        # above for the measured flag pair). Only when Leyndell is kept: an unkept capital has no
+        # Lock item, so no receipt could ever carry these. Under natural_progression the same entry
+        # is emitted but inert -- that mode mints no Lock item, so nothing is ever received and the
+        # game's own two-rune wall stays the wall there, exactly as before. (vanilla_placement
+        # returned above with an empty map.)
+        if "Leyndell" in world._kept():
+            reveal["Leyndell Lock"] = list(_LEYNDELL_SEAL_FLAGS)
         # SPEC-ashen-capital-lock: the Erdtree burn's world state rides the SAME key, because it is
         # the same mechanism -- flags set on lock receipt. This feature owns `lockRevealFlags` (two
         # features emitting one key is a generation crash by design, registry.merge_slot_data), so

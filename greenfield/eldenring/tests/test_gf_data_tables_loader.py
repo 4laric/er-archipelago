@@ -46,7 +46,7 @@ FEATURE_ALLOWLIST = frozenset({
     "area_locks.py", "armor_bundles.py", "boss_locks.py", "capital.py", "check_item_flags.py",
     "check_lots.py", "enemy_drops.py", "evidence_progression_hosts.py", "filler_budget.py",
     "filler_curation.py", "filler_foreign.py", "finale.py", "goal_locations.py", "graces.py",
-    "keep_out_of_shops.py", "legacy_key_gates.py", "leyndell_gate.py", "local_items.py",
+    "keep_out_of_shops.py", "legacy_key_gates.py", "local_items.py",
     "lot_stacks.py", "mine_materials.py", "missable_locations.py", "natural_progression.py",
     "no_runes_in_shops.py", "pool_builder.py", "pool_compaction.py", "presence_floor.py",
     "progression_surface.py", "progressive.py", "quest_prerequisite_rules.py", "rune_pricing.py",
