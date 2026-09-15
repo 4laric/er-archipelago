@@ -126,6 +126,18 @@ review-pending in the same file and are NOT hidden. AP-side nothing changes: the
 locations stay in the multiworld, randomised, missable-tagged and filler-only, and
 a client that predates the key shows them exactly as before.
 
+- **`armor_bundles: mixed` shuffles which pieces arrive together (apworld):** the
+  option is now a Choice -- `off` (every piece its own item), `sets` (default, the
+  shipped one-wrapper-per-vanilla-set pool), and `mixed`, which keeps that pool
+  shape but deals every protector piece back by slot, shuffled per seed, so a
+  "Mixed Armor Set" grants a full kit that does not match. All 600 protector
+  FullIDs still appear exactly once per seed, and the pool count is identical
+  across all three modes. Yaml `true`/`false` still mean `sets`/`off`. World-only:
+  the client grants whatever member list the seed sends, so the `armorBundles`
+  wire shape is unchanged and `CONTRACT_HASH` does not move. (The value is spelled
+  `mixed`, not `random`: Archipelago reserves `random` on every Choice as the
+  built-in roll-the-option-itself meta-value.)
+
 ## v0.6.0.10 — 2026-09-12
 
 ### What you need to update

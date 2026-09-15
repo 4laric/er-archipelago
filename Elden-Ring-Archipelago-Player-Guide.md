@@ -335,6 +335,14 @@ run rather than tune it.
   throwing-knife and poison-dart racks. Replacement prices follow the new item,
   so a cheap shelf cannot become an unlimited source of something game-breaking.
   **Arrow and bolt shelves are left alone**, preserving ammo supply lines.
+- **`armor_bundles`** -- how armor sets arrive. `sets` (default) compacts
+  each complete vanilla set into one item that grants every piece at once, so
+  a set takes one pool slot instead of four to six. `mixed` keeps that pool
+  shape but shuffles the pieces across sets per seed: a "Mixed Armor Set"
+  still grants a full kit (head, body, arms, legs where the set it replaces
+  had them), just not a matching one. `off` restores the classic pool where
+  every helm, chest, gauntlet and greave is its own item and sets trickle in
+  a piece at a time.
 - **`merchant_bells_on_talk`** (off) -- open a merchant's shop and their Bell
   Bearing goes to the Twin Maiden Husks, making that merchant's wares available
   at Roundtable Hold. You do not receive the bell itself; it remains a real

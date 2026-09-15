@@ -35,9 +35,11 @@ class ItemShuffleOn(WorldTestBase):
         from worlds.eldenring.features.lot_stacks import MINTED
         from worlds.eldenring.features.scadu_supply import FRAGMENT_X2
         from worlds.eldenring.tables.item_ids import ARMOR_BUNDLES
+        from worlds.eldenring.features.armor_bundles import MIXED_ARMOR_SETS
 
         self.assertTrue(ITEM_CATALOG, "item_ids.py must be generated")
-        _not_vanilla = {"Rune", PROG_FLASK, FRAGMENT_X2} | set(MINTED) | set(ARMOR_BUNDLES)
+        _not_vanilla = ({"Rune", PROG_FLASK, FRAGMENT_X2} | set(MINTED)
+                        | set(ARMOR_BUNDLES) | set(MIXED_ARMOR_SETS))
         names = [i.name for i in self.multiworld.itempool
                  if not i.name.endswith(" Lock") and i.name not in _not_vanilla]
         self.assertTrue(names, "item shuffle should place real vanilla items")
