@@ -304,10 +304,12 @@ def _attune_split(world, region, bundle):
     a wall that returns.
 
     THE ANCHOR is the region's own front door by default: REGION_OPEN_FLAGS[region], which is a
-    member of the region's grace points for all 29 bundled regions (the three where it is not are
-    exactly the gated children, which return above). `random_grace` picks any of them -- safe
-    because REGION_GRACE_POINTS already excludes boss-gated and arena graces, so every candidate is
-    a real, physically-present warp point.
+    member of the region's grace points for every ungated region. A gated child's open flag is
+    SYNTHETIC (#278) -- a kick latch, never a member of its bundle -- so there the anchor is the
+    derived front door instead (entrance_grace over the bundle: East Capital Rampart for
+    Leyndell), which is the same grace the `entrance` tier hands out. `random_grace` picks any of
+    them -- safe because REGION_GRACE_POINTS already excludes boss-gated and arena graces, so
+    every candidate is a real, physically-present warp point.
     """
     threshold = int(getattr(world.options, "grace_attunement", None).value
                     if getattr(world.options, "grace_attunement", None) is not None else 0)
@@ -321,7 +323,7 @@ def _attune_split(world, region, bundle):
     # 🛑 THE DRAW ONLY HAPPENS WHEN THE OPTION IS ON. Pulling from world.random on a default seed
     # would move the rng stream and change every rolled seed in existence -- the same rule
     # region_spine.compute_kept's comment enforces about its rng.sample.
-    if use_random or front not in bundle:
+    if use_random:
         # 🛑🛑 MEMOISED, because fill_slot_data() IS CALLED MORE THAN ONCE. Drawing here
         # directly makes slot_data non-idempotent: the second call rolls a DIFFERENT anchor, so the
         # bundle from one call and the gate from another disagree about which grace is the anchor
@@ -335,8 +337,17 @@ def _attune_split(world, region, bundle):
         if region not in cache:
             cache[region] = world.random.choice(sorted(bundle))
         anchor = cache[region]
-    else:
+    elif front in bundle:
         anchor = front
+    else:
+        # A gated child's open flag is SYNTHETIC (#278) -- a kick latch, not a grace -- so it is
+        # never in the bundle and cannot be the anchor. Fall back to the region's derived front
+        # door (the same entrance_grace the `entrance` tier hands out), NOT to a random draw: a
+        # deterministic anchor keeps the "front door" promise below for every region, and draws
+        # nothing from world.random. (Before the 2026-09-14 Leyndell retirement this branch was
+        # unreachable -- withheld bundles return above -- which is why the front-door test never
+        # saw it.)
+        anchor = entrance_grace(bundle, region)
     rest = [f for f in bundle if f != anchor]
     return [anchor], {"threshold": threshold, "members": rest, "bloom": rest}
 
