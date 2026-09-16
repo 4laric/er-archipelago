@@ -5,6 +5,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.12 — 2026-09-14
 
+- **Mountaintops entry graces (new seeds):** limited grace unlocks now retain Forbidden Lands
+  and Zamor Ruins, providing outdoor entry below and above Rold. Grace attunement preserves
+  component entrances in Mountaintops and Ainsel instead of reducing them to one potentially
+  stranded warp. This does not alter grace bundles already stored in existing seeds. (#1568)
+
 ### What you need to update
 
 - **Client:** Optional. This window's client half is a version stamp only (clients #688): `CONTRACT_HASH` is unmoved, so a v0.6.0.11 client plays every v0.6.0.12 seed and the v0.6.0.12 client plays every 0.5.x and 0.6.0.x seed through the audited legacy-contract bridge. Standing exceptions carry over: Elden Ring 2.7.1.0 needs v0.6.0.6 or newer, Respec needs v0.6.0.7 or newer, the trap-replay and main-menu delivery fixes need v0.6.0.8 or newer, and a seed generated on v0.6.0.11 or newer needs a v0.6.0.11-or-newer client.

@@ -21,6 +21,39 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 
 
+@pytest.mark.parametrize("tier", ["all", "landmarks", "entrance"])
+@pytest.mark.parametrize("threshold", [0, 1, 4, 10])
+@pytest.mark.parametrize("anchor", ["front_door", "random_grace"])
+def test_mountaintops_unlock_reaches_both_sides_of_rold(tier, threshold, anchor):
+    """#1568: an interior Hero's Grave warp cannot replace upper outdoor access."""
+    from worlds.eldenring import contract
+
+    class _T(WorldTestBase):
+        game = GAME
+        run_default_tests = False
+        options = {"num_regions": 0, "region_grace_unlock": tier,
+                   "grace_attunement": threshold, "grace_attunement_anchor": anchor}
+
+    t = _T()
+    t.setUp()
+    try:
+        first = t.world.fill_slot_data()
+        second = t.world.fill_slot_data()
+        key = "Mountaintops of the Giants Lock"
+        lit = first[contract.REGION_GRACES][key]
+        # grace_names.tsv: Forbidden Lands BELOW Rold; Zamor Ruins ABOVE it.
+        assert {76500, 76501} <= set(lit)
+        assert first[contract.REGION_GRACES] == second[contract.REGION_GRACES]
+        gates = first.get(contract.GRACE_ATTUNEMENT, {})
+        assert gates == second.get(contract.GRACE_ATTUNEMENT, {})
+        if key in gates:
+            gate = gates[key]
+            assert not set(lit) & set(gate["members"])
+            assert len(gate["members"]) > gate["threshold"]
+    finally:
+        t.tearDown()
+
+
 class OptionsDescriptionGate(WorldTestBase):
     game = GAME
 

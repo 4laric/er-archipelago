@@ -17,8 +17,10 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened 1 commit(s) PAST the v0.6.0.11 tag, so this file exists before its first entry does,
-which is the point of it.
+Mountaintops unlocks give you a way onto the mountain. With limited graces, new seeds now
+retain both Forbidden Lands and Zamor Ruins instead of leaving upper access dependent on
+Rold or a closed Hero's Grave door. Attunement keeps the separate entry points in both
+Mountaintops and Ainsel available while you explore. Existing seeds retain their original bundles.
 
 ## What carried over from v0.6.0.11
 
