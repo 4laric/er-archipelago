@@ -59,19 +59,26 @@ def test_ainsel_entrance_covers_both_disconnected_halves():
     entrance tier therefore needs one anchor per disconnected component: Well Depths for lower
     Ainsel and Grand Cloister beside the coffin route into Astel. Lake of Rot Shoreside (71216) was
     proposed first and rejected by the live map witness: it is not the requested Astel handoff.
-    This is deliberately the only multi-grace entrance until another region has equivalent
-    traversal evidence."""
+    Mountaintops has a separate lower/upper traversal witness in #1568."""
     ainsel = _bundle_for("Ainsel River", REGION_GRACE_POINTS["Ainsel River"], "entrance")
     assert ainsel == [71211, 71218]
     multi = {region: _bundle_for(region, flags, "entrance")
              for region, flags in REGION_GRACE_POINTS.items() if flags
              if len(_bundle_for(region, flags, "entrance")) > 1}
-    assert multi == {"Ainsel River": [71211, 71218]}
+    assert multi == {"Ainsel River": [71211, 71218],
+                     "Mountaintops of the Giants": [76500, 76501]}
 
 
 def test_component_entrance_override_fails_if_generated_data_loses_an_anchor():
     with pytest.raises(ValueError, match="component entrance grace"):
         _bundle_for("Ainsel River", [71211], "entrance")
+
+
+def test_mountaintops_reported_graces_do_not_substitute_for_upper_outdoor_entry():
+    # #1568's actual pair: Forbidden Lands + Giant-Conquering Hero's Grave.
+    # The latter is behind a door that cannot be opened from inside.
+    with pytest.raises(ValueError, match="component entrance grace"):
+        _bundle_for("Mountaintops of the Giants", [76500, 73017], "entrance")
 
 
 def test_the_named_exemplars_are_still_what_the_pipeline_picks():

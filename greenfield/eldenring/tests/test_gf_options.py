@@ -21,6 +21,39 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 
 
+@pytest.mark.parametrize("tier", ["all", "landmarks", "entrance"])
+@pytest.mark.parametrize("threshold", [0, 1, 4, 10])
+@pytest.mark.parametrize("anchor", ["front_door", "random_grace"])
+def test_mountaintops_unlock_reaches_both_sides_of_rold(tier, threshold, anchor):
+    """#1568: an interior Hero's Grave warp cannot replace upper outdoor access."""
+    from worlds.eldenring import contract
+
+    class _T(WorldTestBase):
+        game = GAME
+        run_default_tests = False
+        options = {"num_regions": 0, "region_grace_unlock": tier,
+                   "grace_attunement": threshold, "grace_attunement_anchor": anchor}
+
+    t = _T()
+    t.setUp()
+    try:
+        first = t.world.fill_slot_data()
+        second = t.world.fill_slot_data()
+        key = "Mountaintops of the Giants Lock"
+        lit = first[contract.REGION_GRACES][key]
+        # grace_names.tsv: Forbidden Lands BELOW Rold; Zamor Ruins ABOVE it.
+        assert {76500, 76501} <= set(lit)
+        assert first[contract.REGION_GRACES] == second[contract.REGION_GRACES]
+        gates = first.get(contract.GRACE_ATTUNEMENT, {})
+        assert gates == second.get(contract.GRACE_ATTUNEMENT, {})
+        if key in gates:
+            gate = gates[key]
+            assert not set(lit) & set(gate["members"])
+            assert len(gate["members"]) > gate["threshold"]
+    finally:
+        t.tearDown()
+
+
 class OptionsDescriptionGate(WorldTestBase):
     game = GAME
 
@@ -194,11 +227,12 @@ def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
         assert rg, "%s: no regionGraces emitted at all" % label
         if mode == "entrance":
             over = {k: len(v) for k, v in rg.items() if len(v) > 1}
-            expected = ({"Ainsel River Lock": 2} if "Ainsel River Lock" in rg else {})
+            expected = {key: 2 for key in ("Ainsel River Lock", "Mountaintops of the Giants Lock")
+                        if key in rg}
             assert over == expected, (
                 "%s: multi-component entrance bundles changed: got %s, expected %s. Entrance "
-                "normally means one front door, but #806 requires two for Ainsel's disconnected "
-                "lower-well and Lake of Rot/Astel halves." % (label, over, expected))
+                "normally means one front door; #806 requires two for Ainsel and #1568 requires "
+                "outdoor entries below and above Rold." % (label, over, expected))
         elif mode == "landmarks":
             from worlds.eldenring.tables.region_graces import (
                 REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS)
@@ -208,10 +242,14 @@ def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
                 region = k[: -len(" Lock")]
                 want = sorted(f for f in REGION_GRACE_LANDMARKS.get(region, ())
                               if f in REGION_GRACE_POINTS.get(region, ()))
+                # Explicit traversal witnesses (#806/#1568) supplement the warp-menu groups.
+                # Keep this fixture independent of the production component table.
+                component_entries = {"Ainsel River": [71211, 71218],
+                                     "Mountaintops of the Giants": [76500, 76501]}
+                want = sorted(set(want) | set(component_entries.get(region, ())))
                 assert got == (want or [min(got)]), (
-                    "%s: %s got %s, expected the generated landmarks set %s. The tier must come "
-                    "from REGION_GRACE_LANDMARKS, not be recomputed at runtime -- a second "
-                    "derivation is a second thing to drift." % (label, region, got, want))
+                    "%s: %s got %s, expected generated landmarks plus required component "
+                    "entrances %s." % (label, region, got, want))
         else:
             assert sum(len(v) for v in rg.values()) > len(rg), (
                 "%s: `all` should grant many graces per region; the default changed" % label)

@@ -427,7 +427,7 @@ Elden Ring:
   region_grace_unlock: all
 
   # Warp points arrive by EXPLORING rather than all at once. Unlocking a region
-  # lights ONE of its graces; touch this many more and the rest light. 0
+  # lights one grace per connected component; touch this many more and the rest light. 0
   # (default) keeps the behaviour above -- a Lock lights every grace it has.
   # Regions with too few graces to reach the number are left alone entirely.
   # Requires a client that supports it; a seed using it refuses an older one
@@ -449,6 +449,7 @@ Elden Ring:
   #                    deeper in and cuts more traversal. Every candidate is a
   #                    real warp point, so it cannot strand you in a sealed
   #                    arena.
+  # Mountaintops and Ainsel retain their fixed component entrances with either anchor setting.
   grace_attunement_anchor: front_door
 
   # How good a piece of gear has to be to count as `juice`.

@@ -5,6 +5,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.0.12 — 2026-09-14
 
+- **Mountaintops entry graces (new seeds):** limited grace unlocks now retain Forbidden Lands
+  and Zamor Ruins, providing outdoor entry below and above Rold. Grace attunement preserves
+  component entrances in Mountaintops and Ainsel instead of reducing them to one potentially
+  stranded warp. This does not alter grace bundles already stored in existing seeds. (#1568)
+  
 - **Margit region lock (existing and new seeds):** distinguish the exact arena play-region ID
   from surrounding Stormhill before bucket lookup. Stormveil access now permits the arena
   without Limgrave; Limgrave alone does not unlock Margit. The seam ledger generates tests
