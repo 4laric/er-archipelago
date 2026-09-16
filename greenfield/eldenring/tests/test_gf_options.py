@@ -227,11 +227,12 @@ def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
         assert rg, "%s: no regionGraces emitted at all" % label
         if mode == "entrance":
             over = {k: len(v) for k, v in rg.items() if len(v) > 1}
-            expected = ({"Ainsel River Lock": 2} if "Ainsel River Lock" in rg else {})
+            expected = {key: 2 for key in ("Ainsel River Lock", "Mountaintops of the Giants Lock")
+                        if key in rg}
             assert over == expected, (
                 "%s: multi-component entrance bundles changed: got %s, expected %s. Entrance "
-                "normally means one front door, but #806 requires two for Ainsel's disconnected "
-                "lower-well and Lake of Rot/Astel halves." % (label, over, expected))
+                "normally means one front door; #806 requires two for Ainsel and #1568 requires "
+                "outdoor entries below and above Rold." % (label, over, expected))
         elif mode == "landmarks":
             from worlds.eldenring.tables.region_graces import (
                 REGION_GRACE_LANDMARKS, REGION_GRACE_POINTS)
@@ -241,10 +242,14 @@ def test_region_grace_unlock_combinations_generate_clean(label, mode, extra):
                 region = k[: -len(" Lock")]
                 want = sorted(f for f in REGION_GRACE_LANDMARKS.get(region, ())
                               if f in REGION_GRACE_POINTS.get(region, ()))
+                # Explicit traversal witnesses (#806/#1568) supplement the warp-menu groups.
+                # Keep this fixture independent of the production component table.
+                component_entries = {"Ainsel River": [71211, 71218],
+                                     "Mountaintops of the Giants": [76500, 76501]}
+                want = sorted(set(want) | set(component_entries.get(region, ())))
                 assert got == (want or [min(got)]), (
-                    "%s: %s got %s, expected the generated landmarks set %s. The tier must come "
-                    "from REGION_GRACE_LANDMARKS, not be recomputed at runtime -- a second "
-                    "derivation is a second thing to drift." % (label, region, got, want))
+                    "%s: %s got %s, expected generated landmarks plus required component "
+                    "entrances %s." % (label, region, got, want))
         else:
             assert sum(len(v) for v in rg.values()) > len(rg), (
                 "%s: `all` should grant many graces per region; the default changed" % label)
