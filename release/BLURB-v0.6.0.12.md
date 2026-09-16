@@ -9,7 +9,7 @@ only moment anyone remembers why it mattered._
 
 ## What you need to update
 
-- **Client:** Update for the Margit region-lock fix, including existing runs. The contract is unchanged; no seed reroll is needed. Existing minimum-version requirements still apply.
+- **Client:** Optional for seed compatibility; update to get the Margit region-lock fix, including existing runs. The contract is unchanged; no seed reroll is needed. Existing minimum-version requirements still apply.
 - **APWorld:** Host-only, for newly generated rooms after this version ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible; no regeneration or save migration required.
