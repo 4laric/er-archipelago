@@ -485,18 +485,14 @@ class JsGravesiteSeed(unittest.TestCase):
 
 
 class MargitArenaAndTunnelAreStormveil(unittest.TestCase):
-    """#523: Margit is a Stormveil boss, and the region ID already agrees with that -- his arena
-    grace (71001) and the Castleward Tunnel (grace 71002) are map m10_00, whose play-region bucket
-    10000 belongs to Stormveil. This pins the natural model Alaric ruled to (2026-08-21): "the region
-    ID maps onto Margit-as-Stormveil; the earlier 'Margit is outside' call on #202 was the exception,
-    now reversed."
+    """#523: the tunnel/grace bucket is Stormveil; surrounding Stormhill stays Limgrave.
 
-    The Stormhill CLIFF you physically stand on to swing at him is a DIFFERENT bucket -- 61010 =
-    tile m60_41_38 -- and it stays Limgrave, because it shares the tile with 8 early Limgrave
-    overworld checks (Stormhill Shack: Deathbird / Bell Bearing Hunter / Crucible Knight / Roderika's
-    Golden Seed / the Warmaster's Shack approach). The kick is tile-bucket-coarse, so that ground
-    cannot move without stranding them -- documented here so a future 'make Margit's ground Stormveil'
-    change sees the cost before paying it."""
+    Raw arena row 6101010 also belongs to Stormveil. It shares /100 bucket 61010
+    with ordinary Stormhill row 6101000, so a bucket-only witness misses the live
+    discrepancy. seam_landmarks.tsv generates an asymmetric-lock Rust witness
+    against the production kick decision; test_gf_seam_landmarks joins the exact
+    row to Margit's defeat flag in the committed PlayRegionParam corpus.
+    """
 
     @classmethod
     def setUpClass(cls):
@@ -522,8 +518,8 @@ class MargitArenaAndTunnelAreStormveil(unittest.TestCase):
             "Stormveil for the Margit-as-Stormveil model.")
 
     def test_the_stormhill_cliff_stays_limgrave(self):
-        # 61010 = m60_41_38: the ground you stand on to fight Margit AND 8 early Limgrave overworld
-        # checks. Moving it to Stormveil would strand those, so it stays Limgrave by design.
+        # Ordinary Stormhill remains Limgrave. Only the distinct raw arena row is remapped;
+        # moving the whole bucket would strand its early overworld checks.
         owners = self._owners(61010)
         self.assertIn(
             "Limgrave", owners,

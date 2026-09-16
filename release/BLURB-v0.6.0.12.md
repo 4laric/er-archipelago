@@ -9,7 +9,7 @@ only moment anyone remembers why it mattered._
 
 ## What you need to update
 
-- **Client:** Optional. This window's client half is a version stamp only (clients #688): `CONTRACT_HASH` is unmoved, so a v0.6.0.11 client plays every v0.6.0.12 seed and the v0.6.0.12 client plays every 0.5.x and 0.6.0.x seed through the audited legacy-contract bridge. Standing exceptions carry over: Elden Ring 2.7.1.0 needs v0.6.0.6 or newer, Respec needs v0.6.0.7 or newer, the trap-replay and main-menu delivery fixes need v0.6.0.8 or newer, and a seed generated on v0.6.0.11 or newer needs a v0.6.0.11-or-newer client.
+- **Client:** Optional for seed compatibility; update to get the Margit region-lock fix, including existing runs. The contract is unchanged; no seed reroll is needed. Existing minimum-version requirements still apply.
 - **APWorld:** Host-only, for newly generated rooms after this version ships.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible; no regeneration or save migration required.
@@ -21,6 +21,12 @@ Mountaintops unlocks give you a way onto the mountain. With limited graces, new 
 retain both Forbidden Lands and Zamor Ruins instead of leaving upper access dependent on
 Rold or a closed Hero's Grave door. Attunement keeps the separate entry points in both
 Mountaintops and Ainsel available while you explore. Existing seeds retain their original bundles.
+
+
+Margit's arena follows the Stormveil lock. Its raw game region previously got collapsed into
+Stormhill, so starting in Stormveil could eject you to Roundtable during the fight intro.
+The client now preserves that distinction while keeping surrounding Stormhill in Limgrave.
+Existing seeds benefit from updating the client; no regeneration is needed.
 
 ## What carried over from v0.6.0.11
 

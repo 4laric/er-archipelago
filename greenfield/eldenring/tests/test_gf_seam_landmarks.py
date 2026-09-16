@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import csv
+import io
 import os
+import sqlite3
 import unittest
+import zlib
 
 try:
     from ._util import find_repo_root, REPO_ONLY_REASON
@@ -73,6 +76,34 @@ class SeamLandmarkLedgerTest(unittest.TestCase):
             self.assertNotEqual(region, row["expected_region"])
             self.assertNotIn(bucket,
                              self.region_play_ids.REGION_PLAY_IDS[row["expected_region"]])
+
+    def test_raw_arena_witnesses_match_the_bundled_game_params(self):
+        # Read the committed bundle, not optional local artifacts. A mistyped raw ID must
+        # fail CI even when its /100 bucket looks plausible. The save-limit flag joins the
+        # exact arena row to the independently witnessed boss defeat/sweep trigger.
+        with sqlite3.connect(os.path.join(REPO, "gen_inputs.db")) as db:
+            (blob,) = db.execute(
+                "SELECT blob FROM files WHERE path = ?",
+                ("vanilla_er/vanilla_er/PlayRegionParam.csv",)).fetchone()
+        params = {int(r["ID"]): r for r in csv.DictReader(
+            io.StringIO(zlib.decompress(blob).decode("utf-8-sig")))}
+        margit = next(r for r in self.rows if int(r["check_id"]) == 7770046)
+        self.assertTrue(margit["raw_play_region"], "Margit's raw runtime witness was removed")
+        for row in self.rows:
+            if not row["raw_play_region"]:
+                continue  # A bucket-only witness is not a claim of measured raw geometry.
+            raw = int(row["raw_play_region"])
+            neighbor = int(row["neighbor_raw_play_region"])
+            self.assertTrue(row["runtime_source"])
+            self.assertIn(raw, params)
+            self.assertIn(neighbor, params)
+            self.assertEqual(int(params[raw]["pcPositionSaveLimitEventFlagId"]),
+                             int(row["sweep_trigger"]))
+            self.assertNotEqual(params[neighbor]["pcPositionSaveLimitEventFlagId"],
+                                params[raw]["pcPositionSaveLimitEventFlagId"])
+            self.assertEqual(raw // 100, neighbor // 100)
+            self.assertNotEqual(raw // 100, int(row["kick_bucket"]),
+                                "raw exceptions must witness an actual ownership split")
 
 
 if __name__ == "__main__":

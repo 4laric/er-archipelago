@@ -219,6 +219,11 @@ central seam-landmark ledger, but issue prose alone is not durable evidence. Rul
   witness both sides so a future cleanup cannot "fix" the exception.
 - **Witness the configuration that exposes the seam:** each side locked alone, rather than only
   the everything-open configuration used by most playtests.
+  For kick boundaries, exercise the production `kick_decision` with the **raw runtime ID**.
+  Table membership or a pre-folded `/100` value is insufficient: it hides distinct arena rows.
+  `greenfield/seam_landmarks.tsv` feeds generated Rust enforcement witnesses through
+  `tools/gen_region_locks.py`; raw exceptions also require a game-param and runtime source.
+  Diagnostics and lock naming must use the same resolver as enforcement.
 - **"Closes #N" on a multi-case seam issue requires every named case witnessed**, or the issue is
   split before closure.
 - **Region-lock reports should include the kick-watch line** (`play_region <raw> -> <folded>;
