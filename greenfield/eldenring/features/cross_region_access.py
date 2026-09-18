@@ -12,6 +12,13 @@ ALTERNATE_ACCESS: Dict[int, str] = {
     # Listed under Belurat, but physically accessible only from Enir-Ilim. Divine Beast
     # Dancing Lion's sweep is the independent Belurat-side route.
     7771809: "Enir Ilim",
+    # Dark Moon Greatsword (f400393) is filed under Liurnia (Manus Celes), but Ranni hands it over
+    # only at the end of her quest, which needs Astel, Naturalborn of the Void -- Ainsel River
+    # content (features/unobtainable_locations.py REVIEWED_QUEST_ROUTES has the same station).
+    # Reported by Pacificator66 (Discord): a six-region seed with Liurnia kept and Ainsel River
+    # not asked for a pickup the seed could never reach. Omenkiller's sweep is the independent
+    # Liurnia-side route, so the check survives when that sweep is on.
+    7770616: "Ainsel River",
     # The seven Divine Tower of East Altus checks lived here from 2026-08 until 2026-09-07 (#324):
     # they were filed under Altus and this table bolted a Leyndell requirement onto them. The tower
     # is now Leyndell's outright -- its checks, its Fell Twin sweep and its runtime bucket 34140 all
@@ -22,13 +29,14 @@ ALTERNATE_ACCESS: Dict[int, str] = {
 }
 
 # Only these checks have a boss-sweep route that genuinely avoids their physical route.
-SWEEP_INDEPENDENT = frozenset({7771809})
+SWEEP_INDEPENDENT = frozenset({7771809, 7770616})
 
 # Static census ownership is separate from physical access. Keep it explicit so tests and future
 # generated summaries only subtract a conditionally omitted check when its owning region was part
 # of the seed's static count in the first place.
 OWNING_REGION: Dict[int, str] = {
     7771809: "Belurat",
+    7770616: "Liurnia",
 }
 
 
