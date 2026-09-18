@@ -25,18 +25,13 @@
 #  client warps you back out. You start at Roundtable Hold with one region
 #  already open; the default goal is to hold every Lock in play.
 #
-#  TWO regions are different, and this is the most-reported non-bug in the
-#  mod. Raya Lucaria Academy (the seal) and Leyndell (the main gate) sit
-#  behind a wall the GAME enforces, so receiving their Lock LIGHTS NOTHING --
-#  the Lock arrives and nothing visibly happens. You open them the vanilla
-#  way and touch the graces yourself: the Academy with its Glintstone Key
-#  (shuffled into the pool), the capital by walking in from Altus holding
-#  leyndell_runes_required Great Runes. The Shunning-Grounds sewer is part of
-#  Leyndell (v0.4.10 merged them): once the capital opens, the well is yours,
-#  and its graces ride the Leyndell Lock's bundle.
-#
-#  leyndell_runes_required: 0 is the only setting that changes this, and only
-#  for the capital.
+#  TWO regions used to be different, and this was the most-reported non-bug
+#  in the mod. Raya Lucaria Academy (the seal) and Leyndell (the main gate)
+#  sat behind a wall the GAME enforced, so receiving their Lock LIT NOTHING.
+#  Both walls are retired now: every Lock lights its region's graces,
+#  including the capital's. The Shunning-Grounds sewer is part of Leyndell (v0.4.10 merged them): once the
+#  capital opens, the well is yours, and its graces ride the Leyndell Lock's
+#  bundle.
 # ============================================================================
 
 name: Player1
@@ -212,8 +207,8 @@ Elden Ring:
   # ONE WART, unavoidable: the burn is the game's own event and it switches off
   # Leyndell's grace warp points, so straight after burning you cannot fast-
   # travel into the capital even with the Leyndell Lock. Walk in from Altus
-  # through the main gate -- the rune wall is unchanged -- and touch a grace to
-  # get the warp back. See KNOWN-ISSUES.md.
+  # through the main gate -- the Lock opens the seal on receipt -- and touch a
+  # grace to get the warp back. See KNOWN-ISSUES.md.
   capital_reconciler: true
 
   # MERCHANT SHOPS OPEN AT THE ROUNDTABLE WHEN YOU TALK TO THEIR OWNER.
@@ -233,9 +228,12 @@ Elden Ring:
   #   region_locks  -- compatibility spelling for no Great Rune requirement (default).
   #   great_runes   -- collect goal_great_runes Great Runes. You must HOLD the
   #                    runes; killing the boss that vanilla-drops one is NOT enough
-  #                    (they are shuffled -- the rune is not at its boss).
+  #                    (they are shuffled -- the rune is not at its boss), and
+  #                    activating one at a Divine Tower never counts either.
   #                    Any distinct Great Runes count. By default this means any
   #                    four of all seven; no particular named rune is mandatory.
+  #                    Outside this goal, Great Runes gate nothing -- Leyndell
+  #                    opens on its Lock, runes or no runes.
   ending_condition: region_locks
 
   # Only used when ending_condition is great_runes. Clamped down to the
@@ -252,22 +250,6 @@ Elden Ring:
   #                        Progress is restored when reconnecting.
   # This is independent of ending_condition, giving six possible combinations.
   goal_region_unlock_policy: items_held
-
-  # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
-  # echoing the vanilla "two Great Runes to enter the capital".
-  #
-  # This does NOT light the capital's graces. Leyndell sits behind a wall the
-  # game itself enforces, so its grace bundle is withheld while this gate is
-  # armed: the Lock arrives and nothing visibly happens. You walk in from Altus
-  # through the game's own main gate holding this many Great Runes, and touch
-  # the graces yourself. 0 disables the gate, and is the one setting that hands
-  # you the capital's grace bundle on the Leyndell Lock instead.
-  #
-  # FLOORED at the vanilla 2, not clamped down: the game's gate is a fixed
-  # two-rune wall that does not clamp with us, so a lower number would seal the
-  # capital behind a door logic thinks is open. When the seed cannot supply
-  # that many, the pool is topped up rather than the gate disarmed.
-  leyndell_runes_required: 2
 
   # ---- DLC ------------------------------------------------------------------
 

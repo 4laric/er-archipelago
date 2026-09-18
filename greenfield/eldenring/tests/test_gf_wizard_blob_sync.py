@@ -67,7 +67,7 @@ class TestWizardBlobSync(unittest.TestCase):
         meta = json.loads(_read("wizard", "options-metadata.json"))
         by_key = {o["key"]: o for o in meta["options"]}
         for key in ("flask_upgrades_on_progression_surface", "global_scadutree_blessing",
-                    "merchant_bell_logic"):
+                    "merchant_bell_logic", "leyndell_runes_required"):
             self.assertIn(key, by_key, "old YAML imports still need their option types")
             self.assertTrue(by_key[key].get("compatibility_only"), key)
         self.assertFalse(by_key["enable_dlc"].get("compatibility_only"))

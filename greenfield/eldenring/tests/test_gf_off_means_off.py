@@ -346,10 +346,10 @@ OFF_LEDGER = {
                            _CHECK_LOT_REASON),
     # --- declared, never emitted ---
     "runeGatedGraces": ("absent_test",
-                        "test_gf_grace_gates.py::GatesArmed::test_rune_gate_keys_retired",
+                        "test_gf_grace_gates.py::BundlesRideTheirLocks::test_rune_gate_keys_retired",
                         "CONTRACT: DEAD since 2026-07-14; the client half never existed"),
     "greatRuneItemIds": ("absent_test",
-                         "test_gf_grace_gates.py::GatesArmed::test_rune_gate_keys_retired",
+                         "test_gf_grace_gates.py::BundlesRideTheirLocks::test_rune_gate_keys_retired",
                          "CONTRACT: DEAD since 2026-07-14; the client half never existed"),
     "enable_dlc": ("not_emitted",
                    "top-level copy retired; the client reads options/enable_dlc, echoed "

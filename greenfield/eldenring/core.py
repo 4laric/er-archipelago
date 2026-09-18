@@ -272,9 +272,10 @@ class GreatRunesRequired(Range):
     great_runes -- core._resolve_required_runes returns before this value is ever read.
 
     RENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,
-    which is a completely different thing (the Great Runes needed to ENTER Leyndell, live in every
-    seed), and the pair read as two settings for one mechanic. One was a no-op in the default config
-    and nothing said so.
+    which was a completely different thing (the Great Runes once needed to ENTER Leyndell, live in
+    every seed -- retired 2026-09-14, when Leyndell became an ordinary Lock region; the name survives
+    only as a deprecated no-op), and the pair read as two settings for one mechanic. One was a no-op
+    in the default config and nothing said so.
 
     The effective requirement is clamped down to the Great Runes reachable in the kept regions, so
     sealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.
@@ -1218,10 +1219,12 @@ class GreenfieldEldenRingWorld(World):
         """Classification for an item, upgrading a required Great Rune to progression so AP fill
         guarantees it lands in a reachable location (Great Runes are GOODS -> filler by default)."""
         base = _item_class.get(name, ItemClassification.filler)
-        # A required Great Rune (great_runes ending), a Leyndell-gate rune (features/leyndell_gate.py),
+        # A required Great Rune (great_runes ending), a capital-wall rune in natural_progression
+        # mode (features/natural_progression.py publishes world.gf_capital_runes -- the only mode
+        # left with a rune wall since the 2026-09-14 Leyndell retirement),
         # or a legacy-dungeon key (features/legacy_key_gates.py, e.g. Academy Glintstone Key) must be
         # progression so AP fill guarantees it reachable (all are GOODS -> filler by default).
-        if (name in self._required_runes() or name in getattr(self, "gf_leyndell_runes", [])
+        if (name in self._required_runes() or name in getattr(self, "gf_capital_runes", [])
                 or name in getattr(self, "gf_legacy_keys", [])
                 or name in getattr(self, "gf_questline_gate_items", [])
                 or name in getattr(self, "gf_natural_keys", [])
@@ -1351,8 +1354,9 @@ class GreenfieldEldenRingWorld(World):
                 #
                 # 🛑 THE CLAIM THAT USED TO SIT HERE WAS TRUE OF ONE REGION ONLY, AND IT READ AS
                 # GENERAL. It said the goal region "cannot anchor at all, by the gated rule": that
-                # holds for GOAL_REGION, which is Leyndell, a REGION_PARENT child behind a vanilla
-                # wall. It does NOT hold for a goal the player NAMES. `goal: promised_consort` on a
+                # holds for GOAL_REGION, which is Leyndell, a REGION_PARENT child (still barred from
+                # the anchor by the gated rule, though no vanilla wall stands behind it any more --
+                # the capital opens on its Lock since 2026-09-14). It does NOT hold for a goal the player NAMES. `goal: promised_consort` on a
                 # dlc_only seed force-keeps Enir Ilim, which is not a gated child and is not
                 # GOAL_REGION -- so it fell through both bars into the dlc-fallback draw and could
                 # open the run it was supposed to end. MEASURED over 20k draws before the fix:
@@ -1991,9 +1995,11 @@ class GreenfieldEldenRingWorld(World):
             self._add_locations(reg, r)
             created[r] = reg
         # A gated child (REGION_PARENT) hangs off its PARENT region, not the hub: its entrance is
-        # only traversable once the whole ancestor Lock chain is held, which is the walk-in truth
-        # (its grace bundle is withheld -- features/graces.py -- so the hub warp does not exist).
-        # This is what lets fill never strand progression in a child whose parent is sealed/unfound.
+        # only traversable once the whole ancestor Lock chain is held, which is the walk-in truth.
+        # (Its grace bundle used to be withheld past an armed wall too -- features/graces.py -- so
+        # no hub warp existed; since the Raya (2026-08-16) and Leyndell (2026-09-14) retirements no
+        # wall is armed and every bundle rides its Lock. The parenting above is what remains, and
+        # it is what lets fill never strand progression in a child whose parent is sealed/unfound.)
         # compute_kept guarantees a kept child's parent is kept; a miss here is corrupt state.
         _natural = _np.is_on(self)
         # vanilla_placement: the base game gates this seed, so AP gates nothing -- every region
@@ -2069,8 +2075,9 @@ class GreenfieldEldenRingWorld(World):
         region_requirement = policy != _ps.GoalRegionUnlockPolicy.option_none
         if _np.is_on(self) or _vp.is_on(self):
             # natural_progression mints NO region locks, so has_all([]) would be vacuously true: the
-            # goal is instead REACHING the goal region (Leyndell), whose entrance requires 2 Great
-            # Runes (features/leyndell_gate) reached through the real-key gate graph -> a genuine spine.
+            # goal is instead REACHING the goal region (Leyndell -- whose entrance carries the
+            # 2-Great-Rune wall in this mode, owned by features/natural_progression, not by a
+            # Lock -- reached through the real-key gate graph -> a genuine spine.
             #
             # ...unless Leyndell is not in this seed. Under `dlc_only` every BASE region is dropped,
             # Leyndell is never created, and `can_reach("Leyndell")` raised KeyError out of AP's
