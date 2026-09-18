@@ -515,7 +515,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900250	unique_field_pickup	Altus	Noble's Traveling Garb	1041557020	m60_42_55	remaining_unreviewed	0		first_independent_identity_region_source
 7900252	unique_field_pickup	Altus	Noble's Trousers	1041557020	m60_42_55	remaining_unreviewed	0		first_independent_identity_region_source
 7773775	unique_field_pickup	Altus	Nomadic Merchant's Bell Bearing [7]	400910	m60_40_52	remaining_unreviewed	0		first_independent_identity_region_source
-7772687	unique_field_pickup	Altus	Pearldrake Talisman +1	1038527000	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
 7770122	unique_field_pickup	Altus	Perfumer's Cookbook [2]	67850	m60_39_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7770761	unique_field_pickup	Altus	Protection of the Erdtree	540312	m60_41_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770039	unique_field_pickup	Altus	Purifying Crystal Tear	65270	m60_40_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
@@ -899,6 +898,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900243	unique_field_pickup	Mt. Gelmir	Marais Robe	1038547100	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
 7772751	unique_field_pickup	Mt. Gelmir	Mirage Riddle	1039537080	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
 7773776	unique_field_pickup	Mt. Gelmir	Nomadic Merchant's Bell Bearing [8]	400911	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
+7772687	unique_field_pickup	Mt. Gelmir	Pearldrake Talisman +1	1038527000	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7772585	unique_field_pickup	Mt. Gelmir	Perfumer's Talisman	1036527010	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7772638	unique_field_pickup	Mt. Gelmir	"Prattling Pate ""You're beautiful"""	1037527070	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7774181	unique_field_pickup	Mt. Gelmir	Prelate's Inferno Crozier	1035547700	m60_36_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted

@@ -1020,13 +1020,14 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (f34117010, f34117060, f34117080, f34117200, f34117700) follow the same anchor to the same boss.
     # ZERO region crossings -- SWEEP_REGION is 'Liurnia' for 34110800 and for 1037460800 alike, so
     # every one of these fifteen stays inside its own region and #1059 holds.
-    # ALARIC'S RULING, 2026-09-18: the Seethewater Tibia Mariner 1038520800 is an Altus boss, so the
-    # #1076/#1124 Gelmir re-home is reversed (arena curation + the 13 FLAG_REGION_OVERRIDE rows).
-    # Measured by (trigger, flag) against origin/main 5b9fe48c: digest ae600a3cfe980be8 ->
-    # f7ef0707e4146ec2, n 4134 UNCHANGED. 26 removed / 27 added / 25 flags re-owned, none lost or
-    # gained. The Gelmir-region members it used to hold go to the Gelmir field bosses
-    # (1037530800, 1037540810, 1039540800) and the Altus flags the Campsite/Seethewater rows had
-    # moved out come back to it -- SWEEP_REGION is 'Altus' for 1038520800, so #1059 holds.
-    assert (digest, n) == ("f7ef0707e4146ec2", 4134), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (f7ef0707e4146ec2, 4134). The total alone will "
+    # ALARIC'S RULING, 2026-09-18: the Seethewater Tibia Mariner 1038520800 is an Altus boss whose
+    # Gelmir grace-cluster checks (#1124) stay in Mt. Gelmir. Ruled through
+    # _FIELD_SWEEP_REGION_CURATED. Measured by (trigger, flag) against origin/main 5b9fe48c: digest
+    # ae600a3cfe980be8 -> 7a811b40adcdc70b, n 4134 UNCHANGED. 30 removed / 31 added / 29 flags
+    # re-owned, none lost or gained. The Gelmir members leave the Mariner for Demi-Human Queen
+    # Maggie 1037530800 (15) and the Ulcerated Tree Spirit 1037540810 (5); the Mariner takes four
+    # Altus flags from Gilika 1038510800; the rest is the Altus round-robin re-phase. ZERO region
+    # crossings -- #1059 holds member by member.
+    assert (digest, n) == ("7a811b40adcdc70b", 4134), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (7a811b40adcdc70b, 4134). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

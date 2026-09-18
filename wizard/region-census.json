@@ -145,7 +145,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Altus": {
-   "checks": 364,
+   "checks": 350,
    "combos": {
     "Basin|Boss|FieldBoss": 1,
     "Boss|FieldBoss": 8,
@@ -185,13 +185,13 @@
    },
    "sweep_slots_max": {
     "all": 74,
-    "bosses": 138,
+    "bosses": 135,
     "minidungeons": 74
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 74,
-     "bosses": 138,
+     "bosses": 135,
      "minidungeons": 74
     },
     "SweepSlotMajor": {
@@ -199,7 +199,7 @@
     },
     "SweepSlotMinor": {
      "all": 74,
-     "bosses": 130,
+     "bosses": 127,
      "minidungeons": 74
     }
    },
@@ -1174,7 +1174,7 @@
    "tarnished_pack_shop_checks": 0
   },
   "Mt. Gelmir": {
-   "checks": 239,
+   "checks": 253,
    "combos": {
     "Boss": 1,
     "Boss|FieldBoss": 4,
@@ -1633,5 +1633,5 @@
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "5c6d10ec7d07b2e06a2d3d37bafe8d2047d99e87c9708f0b549aaa61d7fc9c1f"
+ "source_sha256": "a51df3b4643c87f4ae96595ff105bce6af3d3d2a0576a20ae9bb54b08732d8ac"
 }

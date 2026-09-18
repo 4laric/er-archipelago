@@ -254,7 +254,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7774266	smithing_stone	repeated_material_row	Altus	Smithing Stone [4]	1039547260	m60_39_54	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772082	smithing_stone	repeated_material_row	Altus	Smithing Stone [5]	30137030	m30_13	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
 7772630	smithing_stone	repeated_material_row	Altus	Smithing Stone [5]	1037517000	m60_38_51	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
-7772688	smithing_stone	repeated_material_row	Altus	Smithing Stone [5]	1038527010	m60_38_52	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772754	smithing_stone	repeated_material_row	Altus	Smithing Stone [5]	1039547230	m60_39_54	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772947	smithing_stone	repeated_material_row	Altus	Smithing Stone [5]	1045527030	m60_45_52	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774247	smithing_stone	repeated_material_row	Altus	Smithing Stone [5]	1039547020	m60_39_54	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -269,7 +268,6 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7770765	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	540320	m60_40_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774252	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	1039547080	m60_39_54	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774319	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [5]	1042537010	m60_43_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
-7774232	smithing_stone	repeated_material_row	Altus	Somber Smithing Stone [6]	1038537050	m60_38_52	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7774548	smithing_stone	repeated_material_row	Ancient Ruins	Smithing Stone [7]	2047477050	m61_46_46	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773216	smithing_stone	repeated_material_row	Ancient Ruins	Smithing Stone [8]	2044467060	m61_44_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7773337	smithing_stone	repeated_material_row	Ancient Ruins	Smithing Stone [8]	2046467020	m61_46_46	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -655,6 +653,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7771711	smithing_stone	repeated_material_row	Mt. Gelmir	Smithing Stone [4]	16007560	m16_00	audited_one_family	1	gameplay-wiki:eldenpedia	unresolved	second_independent_exact_landmark_source
 7771696	smithing_stone	repeated_material_row	Mt. Gelmir	Smithing Stone [5]	16007380	m16_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772644	smithing_stone	repeated_material_row	Mt. Gelmir	Smithing Stone [5]	1037537020	m60_37_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7772688	smithing_stone	repeated_material_row	Mt. Gelmir	Smithing Stone [5]	1038527010	m60_37_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7772704	smithing_stone	repeated_material_row	Mt. Gelmir	Smithing Stone [5]	1038547090	m60_37_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771665	smithing_stone	repeated_material_row	Mt. Gelmir	Smithing Stone [6]	16007000	m16_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771675	smithing_stone	repeated_material_row	Mt. Gelmir	Smithing Stone [6]	16007120	m16_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
@@ -671,6 +670,7 @@ check_id	category	acquisition_class	region	item_name	flag	map_id	review_status	e
 7770711	smithing_stone	repeated_material_row	Mt. Gelmir	Somber Smithing Stone [6]	530375	m60_36_54	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771683	smithing_stone	repeated_material_row	Mt. Gelmir	Somber Smithing Stone [6]	16007210	m16_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771708	smithing_stone	repeated_material_row	Mt. Gelmir	Somber Smithing Stone [6]	16007530	m16_00	remaining_unreviewed	0		unresolved	first_exact_landmark_source
+7774232	smithing_stone	repeated_material_row	Mt. Gelmir	Somber Smithing Stone [6]	1038537050	m60_37_53	remaining_unreviewed	0		unresolved	first_exact_landmark_source
 7771674	smithing_stone	repeated_material_row	Mt. Gelmir	Somber Smithing Stone [7]	16007100	m16_00	audited_one_family	1	gameplay-guide:redmaw	unresolved	second_independent_exact_landmark_source
 7772454	smithing_stone	repeated_material_row	Rauh Base	Ancient Dragon Smithing Stone	42037110	m61_46_45	trusted	3	gameplay-guide:game8;gameplay-guide:redmaw;gameplay-wiki:eldenpedia	unresolved	none_identity_region_trusted
 7773331	smithing_stone	repeated_material_row	Rauh Base	Smithing Stone [5]	2046457070	m61_46_45	remaining_unreviewed	0		unresolved	first_exact_landmark_source

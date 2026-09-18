@@ -585,10 +585,6 @@ if os.path.isfile(_bar_path):
 #   so the fight and the death-recovery route back into it stay reachable before Stormveil opens.
 _ARENA_REGION_CURATED = {
     10000850: "Stormveil",
-    # Seethewater River Tibia Mariner. Its reward is anchored to grace 76354 on Mt. Gelmir ground
-    # (#1076), but Alaric ruled 2026-09-18 that the boss itself is an Altus boss: it hosts Altus's
-    # sweep. The Gelmir grace-cluster CHECKS stay in Mt. Gelmir (#1124); only the host moves.
-    1038520800: "Altus",
     # 34140850 Fell Twin (Divine Tower of East Altus, #324). There is NO measured row for this
     # trigger, so its arena label came from the THIRD source below -- the arena map's first-hand
     # dungeon_regions.tsv row, which reads 'Altus' off the tower graces' warp group 63003. That
@@ -3647,6 +3643,22 @@ FLAG_REGION_OVERRIDE = {
     # per flag because play-region 63003 is reused by unrelated East Altus and Hidden Path graces.
     1047517010: "Mountaintops of the Giants",   # Golden Rune [7] -- Forbidden Lands grace
     1047517300: "Mountaintops of the Giants",   # Dragonwound Grease -- Forbidden Lands grace
+    # Mt. Gelmir grace-anchor cluster (#1076). These checks are all anchored to grace ground 63001,
+    # which region_groups assigns to Mt. Gelmir. The PlayArea scan only returns the ambiguous
+    # 32040 tile default here, so the player's actual warp anchor is the stronger evidence.
+    530385: "Mt. Gelmir",       # Deathroot / Tibia's Summons -- Seethewater River
+    1038527000: "Mt. Gelmir",   # Pearldrake Talisman +1 -- Seethewater River
+    1038527010: "Mt. Gelmir",   # Smithing Stone [5] -- Seethewater River
+    1038527020: "Mt. Gelmir",   # Golden Rune [3] -- Seethewater River
+    1038527040: "Mt. Gelmir",   # Dappled White Cured Meat -- Seethewater River
+    1038527060: "Mt. Gelmir",   # Golden Rune [4] -- Seethewater River
+    1038527070: "Mt. Gelmir",   # Human Bone Shard -- Seethewater River
+    1038537000: "Mt. Gelmir",   # Golden Rune [2] -- First Mt. Gelmir Campsite
+    1038537010: "Mt. Gelmir",   # Golden Rune [3] (1) -- First Mt. Gelmir Campsite
+    1038537020: "Mt. Gelmir",   # Golden Rune [4] -- First Mt. Gelmir Campsite
+    1038537030: "Mt. Gelmir",   # Golden Rune [7] -- First Mt. Gelmir Campsite
+    1038537040: "Mt. Gelmir",   # Golden Rune [3] (2) -- First Mt. Gelmir Campsite
+    1038537050: "Mt. Gelmir",   # Somber Smithing Stone [6] -- First Mt. Gelmir Campsite
     # South Raya Lucaria Gate: the gate ground is the Academy's, not Liurnia's.
     1035457000: "Raya Lucaria Academy",   # Celestial Dew -- volume: 14000
     1035457030: "Raya Lucaria Academy",   # Strip of White Flesh -- volume: 14000
@@ -11634,6 +11646,13 @@ if BOSS_HEALTHBARS:
     _FIELD_SWEEP_REGION_CURATED = {
         1050570850: "Consecrated Snowfield",
         1050560800: "Consecrated Snowfield",
+        # Seethewater River Tibia Mariner (#1076). Alaric ruled 2026-09-18 that the BOSS is an Altus
+        # boss (boss_arena_rulings.tsv and BOSS_AREA_REGION already say Altus), while the Seethewater
+        # and First Mt. Gelmir Campsite CHECKS stay in Mt. Gelmir (#1124, FLAG_REGION_OVERRIDE). Its
+        # ring vote is Mt. Gelmir because m60_38_52/53 hold those checks, so this rules the BOSS, not
+        # the tile: the local-member filter below keeps only the Altus pickups on the Mariner and
+        # re-deals the Gelmir ones to the Gelmir field bosses beside them (#1059).
+        1038520800: "Altus",
     }
     for _trig, _reg in _FIELD_SWEEP_REGION_CURATED.items():
         if _trig not in dict(_field_bosses):
