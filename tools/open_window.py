@@ -172,15 +172,59 @@ def tag_position():
 
 # ---- the notes -----------------------------------------------------------------------------
 
-def append_channels(prev_tag, today, new_version):
+# The update-block field bullets ("- **Client:** ...") are rulings, not changes.
+_FIELD_LEADS = ("client", "apworld", "yaml", "existing seed/save", "profile/assets")
+
+
+def stable_sentence(prev_tag, changelog_text=None):
+    """The `stable` row's sentence, drafted from the shipped tag's own CHANGELOG section.
+
+    WHY THIS IS NOT A `TODO(open)` (Alaric, 2026-09-18). The promotion rides the window-open PR, and
+    that PR sits as a draft until a person writes the window's prose. A marker in THIS row therefore
+    held `stable` and `latest.json` hostage to sentences about a window that has not started, while
+    the release they describe was already out. The sentence is a fact about the release that
+    shipped, and the release already documented it: the bold lead-in of each bullet in its own
+    changelog section. So we quote those, and say so, and a person can still sharpen the row in
+    the same PR -- but nothing waits on it.
+
+    Never raises and never returns a marker: a missing section degrades to a pointer at the
+    changelog, which is still true.
+    """
+    version = prev_tag.lstrip("vV")
+    if changelog_text is None:
+        try:
+            with open(os.path.join(REPO, "release", "CHANGELOG.md"), encoding="utf-8") as fh:
+                changelog_text = fh.read()
+        except OSError:
+            changelog_text = ""
+    m = re.search(r"(?m)^##\s+v%s(?=\s).*$" % re.escape(version), changelog_text)
+    leads = []
+    if m:
+        rest = changelog_text[m.end():]
+        end = re.search(r"(?m)^##\s", rest)
+        for lead in re.findall(r"(?m)^- \*\*(.+?)\*\*", rest[:end.start()] if end else rest):
+            lead = re.sub(r"\s+", " ", lead)           # one line, no tabs: this lands in a TSV
+            lead = re.sub(r"\s*\([^)]*\)\s*$", "", lead).strip().rstrip(".:").strip()
+            if lead and lead.lower().rstrip(":") not in _FIELD_LEADS:
+                leads.append(lead)
+    # A long release would make a paragraph, not a channel row: cap the count and each lead.
+    shown = [l if len(l) <= 100 else l[:97].rstrip() + "..." for l in leads[:8]]
+    if len(leads) > len(shown):
+        shown.append("and %d more" % (len(leads) - len(shown)))
+    what = "; ".join(shown) if shown else "see its CHANGELOG section"
+    return ("the v%s release: %s. Drafted from that release's CHANGELOG section by open_window.py, "
+            "so the promotion does not wait on the next window's prose; sharpen it in this PR if it "
+            "misses the point." % (version, what))
+
+
+def append_channels(prev_tag, today, new_version, changelog_text=None):
     path = os.path.join(REPO, "release", "CHANNELS.tsv")
     with open(path, encoding="utf-8") as fh:
         text = fh.read()
     if not text.endswith("\n"):
         text += "\n"
     rows = (
-        "stable\t%s\t%s\t%s -- what this window shipped, and why the promotion is paid HERE rather "
-        "than tomorrow morning\n" % (prev_tag, today, TODO)
+        "stable\t%s\t%s\t%s\n" % (prev_tag, today, stable_sentence(prev_tag, changelog_text))
         + "beta\tmain\t%s\tthe open v%s window\n" % (today, new_version)
     )
     return path, rows
