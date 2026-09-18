@@ -20,7 +20,6 @@ The narrative — what this project is and what v0.2 brings — lives in
 - `CONTRACT_HASH` is unmoved at `2aa64f43` since v0.6.0.11, so seeds from v0.6.0.11 and v0.6.0.12 match the v0.6.1 client directly (`VERSION: OK`). Every older seed -- 0.4.13, all of 0.5.x, and v0.6.0 through v0.6.0.10 -- still goes through the client's audited legacy-contract bridge, which v0.6.1 leaves untouched.
 - The minor-version bump is about what *new* rooms roll (a new default goal), not about the wire. A client is not tied to one apworld version: swapping the `.dll` mid-run on any earlier seed is safe.
 - The reverse is unchanged: a seed rolled on v0.6.1 (or v0.6.0.11+) needs a v0.6.0.11-or-newer client. Existing minimum-version gates still apply (Elden Ring 2.7.1.0 needs v0.6.0.6+, Respec v0.6.0.7+, trap-replay and main-menu delivery fixes v0.6.0.8+).
-- **Bloodborne client (no Elden Ring effect):** the binding now follows the loaded save instead of refusing a save-identity mismatch, which stranded players on a stale slot under shadPS4. (clients #696)
 
 ### What changed
 
@@ -68,6 +67,7 @@ The narrative — what this project is and what v0.2 brings — lives in
   the sweep stretches its repeat interval up to about 4s instead of re-walking every enemy every
   0.5s, and snaps back the instant the population or region changes. Aimed at stutter in
   enemy-dense areas. (clients #694)
+- **Bloodborne client (no Elden Ring effect):** the binding now follows the loaded save instead of refusing a save-identity mismatch, which stranded players on a stale slot under shadPS4. (clients #696)
 
 ### Window notes
 
