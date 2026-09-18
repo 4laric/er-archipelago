@@ -2,6 +2,34 @@
 
 This postmortem was prompted on 2026-09-01 by Lew's report: the Castleward Tunnel grace was granted with Stormveil, but warping to it or entering Margit's fight could trigger a region kick. The repository evidence below was rechecked against `09882a06` and current main. Player testimony is identified as testimony rather than treated as a measured bucket.
 
+## Follow-up: the ledger still missed the raw runtime ID (2026-09-15)
+
+Pacificator66 reported another instant Roundtable ejection on entering Margit's intro with
+Stormveil as the starting region. The ledger introduced after this postmortem checked all five
+ownership tables, but did not execute the kick decision with asymmetric locks.
+
+The earlier claim that Margit's fighting ground could not be separated from Stormhill was wrong.
+The committed `gen_inputs.db` → `PlayRegionParam.csv` has distinct rows: `6101000` is ordinary
+Stormhill (`pcPositionSaveLimitEventFlagId = 6001`), while `6101010` names Margit's defeat flag
+`10000850`. An [August 11 kick-watch witness](https://github.com/4laric/er-archipelago/issues/523#issuecomment-5258517666)
+already recorded `6101010 -> 1000001` after Margit's death. That session also loaded Matt's
+randomizer, so it is historical runtime evidence, not a fresh vanilla reproduction.
+
+The client discarded the distinction with integer `/100`: both raw rows became Limgrave bucket
+`61010`. The ledger's Stormveil bucket `10000` therefore passed without testing the actual arena
+input. Exact raw-ID adjudications now feed the shared runtime resolver, before coarse folding;
+ordinary Stormhill keeps its original owner. The generated Rust witness calls the real kick and
+lock-name functions with the owner alone open and alone closed. A separate Python witness joins
+the arena raw ID to the boss flag in the committed game params, so a typo cannot pass merely by
+landing in the right coarse bucket. The new Rust test failed on the old resolver for
+`6101010: owner alone open` before the fix and passes with it.
+
+This fixes the demonstrated arena classification error. The current report has no kick-watch
+line, and this change has not been playtested in a live game. Castleward Tunnel's exact runtime
+transition and the separate Tower Bridge case remain distinct from that evidence; #202 must not
+be closed on this fix alone. The [actual superseding ruling](https://github.com/4laric/er-archipelago/issues/523#issuecomment-5317407211)
+is dated August 17; the ledger previously linked a different comment ID and date.
+
 ## The one-sentence version
 
 "Where is Margit?" was answered independently by check ownership, sweep ownership, kick geometry, grace bundles, and boss/arena tables; the project first recorded one ruling only in issue prose, later reversed it in a focused kick-geometry test, but never required all affected representations to agree with the active ruling.

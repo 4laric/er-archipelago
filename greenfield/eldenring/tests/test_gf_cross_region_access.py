@@ -20,6 +20,27 @@ def test_unavailable_when_neither_route_exists(monkeypatch):
     assert not cross_access.location_available(World(), STAGEFRONT_FRAGMENT_AP)
 
 
+DARK_MOON_GREATSWORD_AP = 7770616
+
+
+def test_dark_moon_greatsword_needs_ainsel_river_or_its_sweep(monkeypatch):
+    """Pacificator66: Liurnia kept, Ainsel River (Astel) not -- Ranni's last step is unreachable."""
+    class World:
+        def __init__(self, kept):
+            self._k = kept
+
+        def _kept(self):
+            return self._k
+
+    assert cross_access.ALTERNATE_ACCESS[DARK_MOON_GREATSWORD_AP] == "Ainsel River"
+    assert cross_access.OWNING_REGION[DARK_MOON_GREATSWORD_AP] == "Liurnia"
+    monkeypatch.setattr(cross_access, "_swept_members", lambda _world: set())
+    assert not cross_access.location_available(World({"Liurnia"}), DARK_MOON_GREATSWORD_AP)
+    assert cross_access.location_available(World({"Liurnia", "Ainsel River"}), DARK_MOON_GREATSWORD_AP)
+    monkeypatch.setattr(cross_access, "_swept_members", lambda _world: {DARK_MOON_GREATSWORD_AP})
+    assert cross_access.location_available(World({"Liurnia"}), DARK_MOON_GREATSWORD_AP)
+
+
 class _StagefrontMixin:
     game = "Elden Ring"
     options = {"enable_dlc": True, "num_regions": 0}

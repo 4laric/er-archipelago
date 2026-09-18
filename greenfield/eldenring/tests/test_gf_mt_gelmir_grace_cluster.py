@@ -22,5 +22,13 @@ def test_mt_gelmir_grace_cluster_is_not_filed_under_altus():
     assert set(found.values()) == {"Mt. Gelmir"}
 
 
-def test_seethewater_tibia_mariner_sweeps_only_mt_gelmir_members():
-    assert SWEEP_REGION[1038520800] == "Mt. Gelmir"
+def test_seethewater_tibia_mariner_hosts_an_altus_sweep_of_altus_checks_only():
+    # Ruled 2026-09-18: the boss is an Altus boss, the grace-cluster checks stay Gelmir's, so the
+    # Gelmir ones are dealt to the Gelmir field bosses beside them (#1059), never to the Mariner.
+    from ..tables.boss_sweeps import DUNGEON_SWEEPS
+    assert SWEEP_REGION[1038520800] == "Altus"
+    flag_of = {ap: fl for rows in LOCATIONS.values() for (_n, ap, fl) in rows}
+    region_of = {ap: r for r, rows in LOCATIONS.items() for (_n, ap, _f) in rows}
+    members = DUNGEON_SWEEPS[1038520800]
+    assert {region_of[ap] for ap in members} == {"Altus"}
+    assert not FLAGS & {flag_of[ap] for ap in members}

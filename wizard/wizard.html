@@ -199,7 +199,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.6.0.12",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "8fd4aeb24455c7cf157f4a45a52e85b87e32bd5c47e9ecf71f8057c34377837e",
+ "source_sha256": "d0be8200b81e493bfa7ff08330152336f3bf975abab2e43ea9795d664ecda1e1",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -737,11 +737,24 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "class": "ArmorBundles",
    "compatibility_only": false,
    "display_name": "Armor Bundles",
-   "description": "on (default): each complete armor set compacts into one '... Set' item that grants every\npiece on receipt -- one pool slot per set, and no orphaned second helmets. off: every armor\npiece is its own item, the pre-#849 pool.",
-   "kind": "toggle",
-   "base": "Toggle",
-   "default": true,
-   "choices": null,
+   "description": "How complete armor sets arrive.\n\nsets (default): each complete armor set compacts into one '... Set' item that grants every\npiece on receipt -- one pool slot per set, and no orphaned second helmets. off: every armor\npiece is its own item, the pre-#849 pool. mixed: one shuffled 'Mixed Armor Set' item per\nset -- the same pool shape as sets, but the pieces inside are drawn from every set at\nrandom, per seed. A mixed set grants a full kit (head, body, arms, legs where the set it\nreplaces had them), just not a matching one.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "sets",
+   "choices": [
+    {
+     "name": "off",
+     "value": 0
+    },
+    {
+     "name": "sets",
+     "value": 1
+    },
+    {
+     "name": "mixed",
+     "value": 2
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,
@@ -3780,13 +3793,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "shop_checks": 21,
    "sweep_slots": {
     "all": 11,
-    "bosses": 21,
+    "bosses": 22,
     "minidungeons": 11
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 11,
-     "bosses": 21,
+     "bosses": 22,
      "minidungeons": 11
     },
     "SweepSlotMajor": {
@@ -3794,19 +3807,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 11,
-     "bosses": 20,
+     "bosses": 21,
      "minidungeons": 11
     }
    },
    "sweep_slots_max": {
     "all": 74,
-    "bosses": 131,
+    "bosses": 135,
     "minidungeons": 74
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 74,
-     "bosses": 131,
+     "bosses": 135,
      "minidungeons": 74
     },
     "SweepSlotMajor": {
@@ -3814,7 +3827,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 74,
-     "bosses": 123,
+     "bosses": 127,
      "minidungeons": 74
     }
    },
@@ -4810,13 +4823,13 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "shop_checks": 7,
    "sweep_slots": {
     "all": 6,
-    "bosses": 10,
+    "bosses": 9,
     "minidungeons": 3
    },
    "sweep_slots_by_class": {
     "SweepSlot": {
      "all": 6,
-     "bosses": 10,
+     "bosses": 9,
      "minidungeons": 3
     },
     "SweepSlotMajor": {
@@ -4825,19 +4838,19 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 4,
-     "bosses": 8,
+     "bosses": 7,
      "minidungeons": 3
     }
    },
    "sweep_slots_max": {
     "all": 45,
-    "bosses": 77,
+    "bosses": 69,
     "minidungeons": 21
    },
    "sweep_slots_max_by_class": {
     "SweepSlot": {
      "all": 45,
-     "bosses": 77,
+     "bosses": 69,
      "minidungeons": 21
     },
     "SweepSlotMajor": {
@@ -4846,7 +4859,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     },
     "SweepSlotMinor": {
      "all": 29,
-     "bosses": 61,
+     "bosses": 53,
      "minidungeons": 21
     }
    },
@@ -5248,7 +5261,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  },
  "schema": 2,
  "source": "greenfield/eldenring {data,location_tags,missable_locations,contract,region_spine}.py",
- "source_sha256": "6e5a79f7f2e8848d8c4e6870e367cf17c91e03025d80cf5945e1bb27ebdb23d3"
+ "source_sha256": "a51df3b4643c87f4ae96595ff105bce6af3d3d2a0576a20ae9bb54b08732d8ac"
 }
 </script>
 <div class="wrap">
