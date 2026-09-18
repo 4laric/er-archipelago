@@ -530,12 +530,9 @@ _OPTION_GROUPS = [
         "pool_builder_pct_ashes_of_war"]),
     ("Multiworld & Placement", [
         "death_link", "death_link_amnesty_inbound", "death_link_amnesty_outbound",
-        "trap_link", "region_sync", "filler_foreign_pct", "progression_surface", "progression_bias",
-        # cross_game_progression reads directly after progression_bias because it only has meaning
-        # once that one has released something: bias decides HOW MANY Locks travel, this decides how
-        # many of the travellers may leave Elden Ring entirely. Reversed, the second is unanswerable.
-        "cross_game_progression",
-        "confine_foreign_progression",
+        "trap_link", "region_sync", "filler_foreign_pct", "progression_surface", "progression_sharing",
+        # progression_bias / cross_game_progression / confine_foreign_progression are hidden
+        # (Visibility.none) and governed by progression_sharing -- deliberately not listed here.
         "keep_local", "keep_local_rune_cap"]),
     ("Shops & Merchants", [
         "shop_checks", "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
@@ -868,6 +865,8 @@ class GreenfieldEldenRingWorld(World):
     def generate_early(self) -> None:
         # Frozen behaviour first: features read the removed knobs exactly as before (defaults.py).
         apply_frozen(self.options)
+        # progression_sharing resolves onto the two hidden knobs it governs before anything reads them.
+        _ps.apply_progression_sharing(self.options)
         # ...then vanilla_placement takes the start loadout back off, and it has to happen HERE:
         # between apply_frozen (which installs the frozen ON values) and the feature loop at the end
         # of this method (where start_items/start_grace first read them). A guard inside those

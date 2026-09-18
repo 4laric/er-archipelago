@@ -3,6 +3,15 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## Unreleased
+
+- **One switch for progression sharing:** new `progression_sharing: balanced | open`. `balanced` is
+  today's behaviour (the 1/N per-game share, foreign progression held to your surface); `open` is
+  ordinary Archipelago -- it skips the 1/N reservation and lifts the foreign-progression bar.
+  `cross_game_progression` and `confine_foreign_progression` (and `progression_bias`) are now
+  hidden from the wizard and template but still honoured in existing yamls; `open` sets the first
+  two for you.
+
 ## v0.6.0.12 — 2026-09-14
 
 - **Margit region lock (existing and new seeds):** distinguish the exact arena play-region ID

@@ -371,16 +371,23 @@ run rather than tune it.
 - **`filler_foreign_pct`** -- how much of your filler other worlds may draw
   from. It picks *which* filler at random per seed, so it can't be aimed;
   `keep_local` is the aimable version and they compose.
-- **`confine_foreign_progression`** -- how much of *other* players' progression
-  is held to your progression surface. At 100 (default) a foreign key can only
-  sit on a starred check; lower it to spread foreign keys across more of your
-  world. This setting changes placement only. A separate reservation pass sends
-  partner worlds their share of useful Elden Ring gear regardless of this value.
+- **`progression_sharing`** -- one switch for how progression moves between
+  you and the other players. `balanced` (default): every other game gets about
+  1/N of your travelling progression, your world reserves the same share of
+  each partner's in return, and other players' progression that lands on you is
+  held to your progression surface (a starred check, never random filler).
+  `open`: ordinary Archipelago -- no per-game share either way, nothing is
+  placed into another game's locations early, and foreign progression may land
+  on any reachable check of yours. Reach for `open` if a partner game generates
+  badly beside Elden Ring. A separate reservation pass sends partner worlds
+  their share of useful Elden Ring gear in either mode. (`progression_bias`,
+  `cross_game_progression` and `confine_foreign_progression` still work in an
+  existing yaml but are hidden from the wizard; `open` sets the last two for you.)
 
 > **The "anything anywhere" recipe.** If you come from classic ER item rando and
 > want the old feel -- any check can matter, no curation steering keys onto
 > bosses -- three settings do it: widen **`progression_surface`** to every
-> category, set **`confine_foreign_progression: 0`** so other players' keys can
+> category, set **`progression_sharing: open`** so other players' keys can
 > land on any of your checks, and leave **`progression_bias`** at 0 so your own
 > Region Locks travel freely. (Asked for on Discord, 2026-08-20 -- the builder's
 > defaults are curated on purpose, but nothing about the old style is

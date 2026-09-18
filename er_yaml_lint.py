@@ -141,6 +141,13 @@ DEFAULT = {
     "location_pool":"all","excluded_location_behavior":"forbid_useful",
     "missable_location_behavior":"forbid_useful",
 }
+# Hidden (Visibility.none) since 2026-09-18: still ACCEPTED and still honoured by the world, so they
+# are not "unknown" -- but the wizard/template no longer offer them; `progression_sharing` replaced them.
+HIDDEN_ADVANCED = {
+    "progression_bias": "hidden -- still honoured, but no longer in the wizard; `progression_sharing` is the switch that replaced the sharing trio",
+    "cross_game_progression": "hidden -- still honoured, but `progression_sharing: open` sets it to `never` for you",
+    "confine_foreign_progression": "hidden -- still honoured, but `progression_sharing: open` sets it to 0 for you",
+}
 # options removed in a hard merge -> give a migration hint instead of a bare "unknown"
 REMOVED = {
     "region_count": "merged into num_regions -- use `num_regions: N` + `num_regions_order: spine`",
@@ -161,7 +168,7 @@ REMOVED = {
     "completion_scaling_ramp": "retired -- use difficulty_ramp_speed",
     "local_item_only": "retired 2026-08-14 -- use `keep_local: [everything]`, which is the identical sweep under the name that survived",
     "exclude_local_item_only": "retired 2026-08-14 with local_item_only -- name what you KEEP in `keep_local` instead of what you release",
-    "progression_surface_mode": "retired 2026-08-14 -- strict was the only reachable value and is now the only behaviour; use `progression_surface` to choose the classes and `confine_foreign_progression` for the foreign half",
+    "progression_surface_mode": "retired 2026-08-14 -- strict was the only reachable value and is now the only behaviour; use `progression_surface` to choose the classes and `progression_sharing` for where other players' progression goes",
 }
 
 # ---- QUARANTINE THE v0.1 ROT ------------------------------------------------------------------
@@ -309,7 +316,9 @@ def lint_block(block: dict) -> list[Finding]:
     if VALID_KEYS:
         for k in c.b:
             if k not in VALID_KEYS:
-                if k in REMOVED:
+                if k in HIDDEN_ADVANCED:
+                    info(k, HIDDEN_ADVANCED[k])
+                elif k in REMOVED:
                     err(k, f"REMOVED -- {REMOVED[k]}")
                 else:
                     sugg = get_close_matches(k, VALID_KEYS, n=3, cutoff=0.6)
