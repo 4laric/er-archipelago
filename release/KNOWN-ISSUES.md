@@ -35,13 +35,6 @@ players, one section per fix, and it is the honest record.
 
 ## Region locks and reachability
 
-- **Leyndell can open on one Great Rune** (#427). The capital's wall counts the
-  **Great Rune of the Unborn** toward its total and we do not, so the gate can
-  open one rune earlier than your `leyndell_runes_required` says -- typically
-  once Rennala is dead and you hold one other rune. The gate is *more* generous
-  than intended, never less, so it cannot lock you out. What to do: nothing. If
-  you want the stricter gate, set the requirement one higher.
-
 - **The Mountaintops can be entered early, through two graces inside Leyndell**
   (#323). Two of Leyndell's graces lead into Mountaintops territory without
   passing the Lock check, so a region you do not hold can be reached mid-run.

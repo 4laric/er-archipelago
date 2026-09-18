@@ -166,8 +166,8 @@ class RuneClassificationInARealMultiworld(unittest.TestCase):
     """🛑 THE ORDERING QUESTION, POSED WHERE IT CAN ACTUALLY GO WRONG (Alaric, 2026-08-16).
 
     A Great Rune is `filler` in the catalog and is PROMOTED to progression per seed, by name, in
-    `core._class_for` -- from `gf_required_runes`, `gf_leyndell_runes`, `gf_legacy_keys` and
-    `gf_natural_keys`. All four are resolved in `generate_early`, and `create_items` runs after it,
+    `core._class_for` -- from `gf_required_runes`, `gf_capital_runes` (natural_progression mode),
+    `gf_legacy_keys` and `gf_natural_keys`. All four are resolved in `generate_early`, and `create_items` runs after it,
     so the promotion is decided before any rune item exists.
 
     That is a claim about the AP LIFECYCLE ACROSS WORLDS -- "every world's generate_early runs before
@@ -185,22 +185,23 @@ class RuneClassificationInARealMultiworld(unittest.TestCase):
     with real foreign partners.
     """
 
-    # 🛑 `leyndell_runes_required: 0` IS THE WHOLE POINT OF THIS FIXTURE, and I wrote it without and
-    # shipped a vacuous test for ten minutes. `_class_for` promotes on
-    # `_required_runes() or gf_leyndell_runes or ...`, and BOTH sets are `sorted(avail)[:n]` -- the
-    # same alphabetical draw. At the shipped `leyndell_runes_required: 2` they are IDENTICAL
+    # 🛑 THE MASKING CONFIGURATION IS GONE (2026-09-14). This fixture used to carry
+    # `leyndell_runes_required: 0` for a reason: `_class_for` promoted on
+    # `_required_runes() or gf_leyndell_runes or ...`, and BOTH sets were `sorted(avail)[:n]` --
+    # the same alphabetical draw. At the shipped `leyndell_runes_required: 2` they were IDENTICAL
     # (measured: both ["Godrick's Great Rune", "Great Rune of the Unborn"]), so the Leyndell arm
-    # promotes the runes and the GOAL arm is masked. Disabling the goal arm entirely still left the
-    # test green.
+    # promoted the runes and the GOAL arm was masked. Disarming the wall made the goal the ONLY
+    # promoter, which is the arm this class exists to cover.
     #
-    # Disarming the wall makes the goal the ONLY promoter, which is the arm this class exists to
-    # cover -- and it is a configuration a player can set.
+    # The wall is retired now -- features/leyndell_gate.py is a deprecated-option shim and nothing
+    # publishes gf_leyndell_runes -- so the goal arm is the only promoter by construction and the
+    # disarming line is deleted, not kept as scenery. If a second promoter ever returns, this
+    # comment is where its masking story goes.
     OPTS = {
         "num_regions": 0,
         "item_shuffle": True,
         "ending_condition": "great_runes",
         "goal_great_runes": 4,
-        "leyndell_runes_required": 0,
     }
 
     @classmethod
@@ -258,8 +259,11 @@ class RuneClassificationInARealMultiworld(unittest.TestCase):
         """Any four can satisfy the goal, so no eligible rune may be treated as junk."""
         for player in (1, 2):
             world = self.mw.worlds[player]
-            self.assertFalse(getattr(world, "gf_leyndell_runes", []),
-                             "fixture drifted: the Leyndell wall would mask the goal classification")
+            # No second promoter exists any more (the Leyndell wall retired 2026-09-14), so the
+            # advancement below is the goal arm's alone -- which is what this class is for.
+            assert not hasattr(world, "gf_leyndell_runes"), (
+                "gf_leyndell_runes is back: a second progression promoter returned, and the "
+                "goal-arm coverage below may be masked again -- see the OPTS comment")
             runes = [i for i in self._items_of(player) if i.name in set(GREAT_RUNES)]
             self.assertEqual({i.name for i in runes}, set(GREAT_RUNES))
             for item in runes:
@@ -270,16 +274,15 @@ class RuneClassificationInARealMultiworld(unittest.TestCase):
 
 def _rune_sets():
     """The Great Rune set as each consumer sees it. One entry per module that used to carry its own
-    `endswith("Great Rune")` copy."""
+    `endswith("Great Rune")` copy (features/leyndell_gate.py was a fourth until its 2026-09-14
+    retirement)."""
     from worlds.eldenring import item_categories
     from worlds.eldenring.core import GREAT_RUNES as core_runes
-    from worlds.eldenring.features.leyndell_gate import GREAT_RUNES as gate_runes
     from worlds.eldenring.features.natural_progression import GREAT_RUNES as np_runes
     from worlds.eldenring.features.legacy_key_gates import _GREAT_RUNES as key_runes
     return {
         "item_categories": frozenset(item_categories.GREAT_RUNES),
         "core": frozenset(core_runes),
-        "features/leyndell_gate": frozenset(gate_runes),
         "features/natural_progression": frozenset(np_runes),
         "features/legacy_key_gates": frozenset(key_runes),
     }
@@ -309,11 +312,11 @@ def test_there_are_seven_great_runes_and_every_goods_id_resolves():
 def test_every_consumer_sees_the_same_seven():
     """THE ANTI-DRIFT GUARD, and the one this bug actually needed.
 
-    Four modules each carried their own `endswith("Great Rune")` over ITEM_CATALOG. They AGREED, so
-    no drift gate could see anything wrong -- they were four copies of one predicate that was wrong
-    in one place. Pinning them to each other is not enough on its own; pinning them to
-    item_categories, which is now the only definition, is what makes a fifth copy impossible to add
-    quietly.
+    Three modules each carried their own `endswith("Great Rune")` over ITEM_CATALOG (four with
+    the retired features/leyndell_gate.py). They AGREED, so no drift gate could see anything
+    wrong -- they were copies of one predicate that was wrong in one place. Pinning them to each
+    other is not enough on its own; pinning them to item_categories, which is now the only
+    definition, is what makes a new copy impossible to add quietly.
     """
     sets = _rune_sets()
     canonical = sets["item_categories"]

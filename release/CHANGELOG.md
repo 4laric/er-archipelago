@@ -11,6 +11,12 @@ The narrative — what this project is and what v0.2 brings — lives in
   region_locks` and `goal_region_unlock_policy: items_held`. Yamls that already set either key are
   unaffected; a yaml that set only `ending_condition: great_runes` used to require Locks too and no
   longer does -- add `goal_region_unlock_policy: items_held` to keep that.
+- **One switch for progression sharing:** new `progression_sharing: balanced | open`. `balanced` is
+  today's behaviour (the 1/N per-game share, foreign progression held to your surface); `open` is
+  ordinary Archipelago -- it skips the 1/N reservation and lifts the foreign-progression bar.
+  `cross_game_progression` and `confine_foreign_progression` (and `progression_bias`) are now
+  hidden from the wizard and template but still honoured in existing yamls; `open` sets the first
+  two for you.
 
 ## v0.6.0.12 — 2026-09-14
 
@@ -36,6 +42,18 @@ At window opening the version string moved 0.6.0.11 → 0.6.0.12; that opening c
 The one commit past the tag is the reason this window was opened by hand: the open-window workflow's run on the v0.6.0.11 tag wrote a `dev` stable row into `CHANNELS.tsv`, because v0.6.0.11 was the first release cut as a lightweight tag and CI's moving `dev` prerelease tag sits on the same commit, so a bare `git describe --tags` answered `dev`. `tools/open_window.py` now matches release tags only (`v[0-9]*`), the way `check_release_notes.py` already did; that fix rides in this window-open commit because rule 14 refuses any other commit on main between a tag and its window.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Leyndell opens on its Lock, like every other region (apworld):** the capital's Great-Rune
+  wall is retired. Receiving the Leyndell Lock lights the full capital bundle -- including the
+  Shunning-Grounds graces -- and the physical two-rune seal opens on the same receipt (the
+  world sends the seal flags through the existing `lockRevealFlags` wire, so no contract change
+  and no client update is required: the shipped client already parses that wire generically,
+  and its old rune-count seal logic is unmanaged when no rune trigger is emitted). Great Runes stay in the pool and still count for the `great_runes` ending, but
+  they gate nothing in Leyndell any more: a Leyndell-kept seed with zero runes reachable is
+  winnable, by construction. Old YAMLs carrying `leyndell_runes_required` still generate -- the
+  setting is accepted and ignored. The one exception is `natural_progression` mode, which mints
+  no Locks: there the game's own two-rune wall is still the wall, unchanged.
+  `CONTRACT_HASH` is unmoved (`2aa64f43`), so no version bump rides with this.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.0.11 in this same commit.
 

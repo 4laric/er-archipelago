@@ -32,7 +32,7 @@ region Lock) counts as available, and a Boss-Key-gated boss check doesn't look f
 Placed locks are collected (lock=True) so multiworld progression-balancing can't later move them off the
 surface. Runs from core.pre_fill; supersedes curated_fill when the mode is soft/strict.
 """
-from Options import Choice, NamedRange, OptionError, OptionSet, Range, Removed
+from Options import Choice, NamedRange, OptionError, OptionSet, Range, Removed, Visibility
 import hashlib
 
 from ..registry import Feature, register
@@ -183,6 +183,50 @@ class ProgressionSurfaceMode(Removed):
     ships an empty progressionSurfaceLocations to a client that reads it."""
 
 
+class ProgressionSharing(Choice):
+    """How your progression is shared with the other players at the table. One switch.
+
+    ``balanced`` (the default): every other game receives its own near 1 / number-of-games share
+    of your travelling progression, and your world reserves the same share of each partner game's
+    progression in return. Other players' progression that lands in your world is confined to
+    your Progression Surface (major bosses, key items, churches...), never on a random filler
+    pickup. Your Region Locks are ordinary multiworld items.
+
+    ``open``: ordinary Archipelago. No per-game share is reserved in either direction, and other
+    players' progression may land on any reachable check of yours. Nothing is placed into another
+    game's locations ahead of the general fill, which also makes this the setting to reach for if
+    a partner game will not tolerate being filled early.
+
+    No effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock
+    items."""
+    display_name = "Progression Sharing"
+    option_balanced = 0
+    option_open = 1
+    default = 0
+
+
+# Why ONE option (Alaric 2026-09-18: "i'm having trouble tracking what's going on"). Three knobs
+# answered one question -- where does progression go -- and the useful combinations were two:
+# `progression_bias` (0), `cross_game_progression` (auto) and `confine_foreign_progression` (100)
+# at their shipped values is `balanced`; `cross_game_progression: never` +
+# `confine_foreign_progression: 0` is `open`. The three still EXIST, hidden (Visibility.none, so
+# no template or wizard entry) and still accepted in a yaml, because dozens of shipped yamls and
+# the measurement tooling set them by name. `open` overrides the latter two in
+# `apply_progression_sharing`; `balanced` leaves them exactly as written. `progression_bias`
+# is never overridden -- neither mode has an opinion about how many of your own Locks stay home.
+
+
+def apply_progression_sharing(options) -> None:
+    """Resolve `progression_sharing` onto the two hidden knobs it governs. Called once, first thing
+    in generate_early, so every reader (item_rule install, incoming reservation, pre_fill) sees
+    the resolved values."""
+    mode = getattr(options, "progression_sharing", None)
+    if mode is None or int(mode.value) != ProgressionSharing.option_open:
+        return
+    options.cross_game_progression.value = 0
+    options.confine_foreign_progression.value = 0
+
+
 class ProgressionBias(Range):
     """How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is no pull at all --
     every Lock is an ordinary multiworld item and can end up in another player's game, so you may
@@ -208,6 +252,7 @@ class ProgressionBias(Range):
     No effect in a solo seed (there is nowhere else for a Lock to go), nor in the modes that mint no
     Lock items at all (natural progression, vanilla placement)."""
     display_name = "Progression Bias"
+    visibility = Visibility.none  # governed by `progression_sharing`; still accepted in a yaml
     range_start = 0
     range_end = 100
     default = 0
@@ -237,6 +282,7 @@ class CrossGameProgression(NamedRange):
     No effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock
     items."""
     display_name = "Cross Game Progression"
+    visibility = Visibility.none  # governed by `progression_sharing`; still accepted in a yaml
     range_start = 0
     range_end = 100
     default = -1
@@ -288,6 +334,7 @@ class ConfineForeignProgression(NamedRange):
     progression that will not fit your surface simply lands in its own world instead (only YOUR
     filler checks are barred to it -- other worlds are untouched)."""
     display_name = "Confine Foreign Progression"
+    visibility = Visibility.none  # governed by `progression_sharing`; still accepted in a yaml
     range_start = 0
     range_end = 100
     default = 100
@@ -1838,6 +1885,7 @@ class ProgressionSurfaceFeature(Feature):
     name = "progression_surface"
     OPTIONS = {"progression_surface": ProgressionSurface,
                "progression_surface_mode": ProgressionSurfaceMode,
+               "progression_sharing": ProgressionSharing,
                "progression_bias": ProgressionBias,
                "confine_foreign_progression": ConfineForeignProgression,
                "cross_game_progression": CrossGameProgression,

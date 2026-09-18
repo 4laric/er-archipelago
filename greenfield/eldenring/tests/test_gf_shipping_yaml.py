@@ -76,7 +76,10 @@ _TEMPLATE_DEBT = set()
 # Deliberate product policy, not documentation debt: compatibility-only settings and the
 # exceptional vanilla-placement mode are imported from old YAML, never suggested in templates.
 _TEMPLATE_EXCLUDED = {"vanilla_placement", "flask_upgrades_on_progression_surface",
-                      "global_scadutree_blessing", "merchant_bell_logic"}
+                      "global_scadutree_blessing", "merchant_bell_logic",
+                      # 2026-09-14: the capital opens on its Lock; the count gates nothing and the
+                      # option is a deprecated no-op kept so old YAMLs still parse.
+                      "leyndell_runes_required"}
 
 
 class TestShippingYaml(unittest.TestCase):
