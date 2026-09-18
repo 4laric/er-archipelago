@@ -646,58 +646,19 @@ Elden Ring:
   # and keep more runes; set it to 0 to send every rune you find.
   keep_local_rune_cap: 12500
 
-  # How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is
-  # no pull at all -- every Lock is an ordinary multiworld item and can end up
-  # in someone else's game, so you may be waiting on another player to find
-  # your way into Liurnia. That is Archipelago working as intended, and it is
-  # the default on purpose. 100 pins every Lock at home.
-  #
-  # It is a share, not a mood: at 40, about 40% of your Locks are reserved for
-  # your own progression surface and the other 60% go into the pool.
-  #
-  # 🛑 A LOCK IN THE POOL IS STILL CURATED -- it is held to the same surface
-  # everyone else's progression is, it just lands on SOMEBODY'S boss rather
-  # than necessarily yours. The knob that trades curation itself is
-  # confine_foreign_progression, deliberately separate.
-  #
-  # Measured at 0 over 740 generations: in a two-slot Elden Ring multiworld
-  # about 45% of Locks leave their own world and ~90% of placed Locks sit on a
-  # surface check; four slots pushes travel to 60-70%. No effect in a solo
-  # seed, nor in the modes that mint no Locks.
-  progression_bias: 0
-
-  # HOW YOUR PROGRESSION IS SHARED WITH THE OTHER GAMES AT THE TABLE.
-  # `auto`, the default, BALANCES it per game: every partner game receives its
-  # own near 1-per-number-of-games share of your travelling progression, and
-  # your world reserves the same share of each partner game's progression in
-  # return. Eleven items at a three-game table means roughly four to each
-  # partner and three at home -- not one batch split however fill lands (the
-  # motivating seed split 11 items 2/2/7). Two slots of one game count as one
-  # game, sampled fairly across their players; items a player keeps local are
-  # never taken; shares a partner or your own world cannot host are capped at
-  # what fits, with requested-vs-reserved counts in the generation log.
-  #
-  # `aggregate` is the older shape: ONE combined foreign batch sized at 1/N,
-  # divided between partners by ordinary fill, no incoming reservation. A
-  # number from 1 to 100 is that aggregate share set by hand. `never` (or 0)
-  # keeps every travelling progression item inside Elden Ring worlds.
-  #
-  # This exists because the answer used to be ZERO, always, and not on purpose.
-  # Locks were offered to Elden Ring surfaces only; our surfaces have about 170
-  # checks for at most ~36 Locks, so nothing was ever left over. Measured:
-  # 0 Locks reached a Hollow Knight slot across four configurations, including
-  # a two-Elden-Ring-plus-Hollow-Knight seed where 15 of 28 Locks travelled and
-  # every one went to the OTHER Elden Ring world.
-  #
-  # 🛑 THIS PLACES ITEMS IN ANOTHER GAME'S LOCATIONS. Only empty, non-excluded,
-  # unlocked ones, never forced, and anything refused falls back to Elden Ring
-  # surfaces rather than failing your seed. But an apworld is within its rights
-  # to object to being filled during pre_fill -- TUNIC says so outright. If a
-  # partner game generates badly beside Elden Ring, set this to `never` first.
-  #
-  # No effect in a solo seed, in a seed with only Elden Ring players, or in the
-  # modes that mint no Locks.
-  cross_game_progression: auto
+  # HOW YOUR PROGRESSION IS SHARED WITH THE OTHER PLAYERS AT THE TABLE. One switch.
+  #   balanced -- (the default) every other game receives its own near 1-per-number-of-games
+  #               share of your travelling progression (eleven items at a three-game table is
+  #               roughly four to each partner, three at home), and your world reserves the same
+  #               share of each partner game's progression in return. Other players' progression
+  #               that lands in YOUR world is kept to your progression_surface below (bosses, key
+  #               items...), never a random filler pickup.
+  #   open     -- ordinary Archipelago. No per-game share is reserved either way, nothing is placed
+  #               into another game's locations ahead of the general fill, and other players'
+  #               progression may land on any reachable check of yours. Use this if a partner game
+  #               generates badly beside Elden Ring.
+  # No effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Locks.
+  progression_sharing: balanced
 
   # ---- Where progression may hide -------------------------------------------
 
@@ -708,7 +669,7 @@ Elden Ring:
   # it adds ONE member of every dungeon sweep your seed runs, so clearing an area
   # can pay out progression. It needs Dungeon Sweep on (it is, by default), and it
   # is ON by default because the rest of this list is SMALL -- about 30 checks on a
-  # four-region seed -- and at the shipped `confine_foreign_progression: 100` it is
+  # four-region seed -- and in `balanced` sharing it is
   # the only place another player's key items may land. Without it a slot receives
   # roughly a tenth of the foreign progression it otherwise would. Remove it if you
   # would rather a sweep never hand you a key.
@@ -726,25 +687,6 @@ Elden Ring:
     - Revered
     - ShopSlot
     - SweepSlot
-
-  # In a MULTIWORLD, what PERCENT of other players' progression is confined to your
-  # progression_surface, the way your own is. 100 confines all of it, so a foreign
-  # key item lands on one of your major-boss / key-item / etc. checks and never on a
-  # random filler pickup. 0 confines none and it scatters across any reachable check
-  # of yours (standard AP). `true` and `false` still work and still mean 100 and 0.
-  #
-  # 🛑 IT ALSO DECIDES WHETHER YOUR GEAR IS WORTH RECEIVING. The rule is about YOUR
-  # locations, but it pushes your NEIGHBOUR's progression back into the neighbour's
-  # own slots, which fills them before Archipelago places the `useful` tier -- so at
-  # 100 a non-Elden-Ring partner gets nothing from you but filler. Measured on a
-  # two-slot seed beside Hollow Knight: 0.0% of what the partner received from us was
-  # useful at 100, 5.2% at 90, 23.2% at 75, 38.3% at 50. Lower it if you want your
-  # weapons, armour and talismans to show up in your friends' games; the price is
-  # that their keys stop being curated onto your interesting checks. See the
-  # per-value table in the option's own help text.
-  #
-  # No effect in a solo seed. Never blocks generation.
-  confine_foreign_progression: 100
 
 
   # ---- Runtime rerolls ------------------------------------------------------

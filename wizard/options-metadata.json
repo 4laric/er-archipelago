@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.6.0.12",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d0be8200b81e493bfa7ff08330152336f3bf975abab2e43ea9795d664ecda1e1",
+ "source_sha256": "1c0aab4c59fc4c2dfb2b80a07cd192d5e6519bf1694c612a885f8e153c9a5a19",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -54,9 +54,7 @@
   "protect_missable_locations",
   "no_runes_in_shops",
   "progression_surface",
-  "progression_bias",
-  "confine_foreign_progression",
-  "cross_game_progression",
+  "progression_sharing",
   "goal_region_unlock_policy",
   "region_sync",
   "enemy_scaling",
@@ -165,9 +163,7 @@
     "region_sync",
     "filler_foreign_pct",
     "progression_surface",
-    "progression_bias",
-    "cross_game_progression",
-    "confine_foreign_progression",
+    "progression_sharing",
     "keep_local",
     "keep_local_rune_cap"
    ]
@@ -1636,96 +1632,30 @@
    "essential": true
   },
   {
-   "key": "progression_bias",
-   "class": "ProgressionBias",
+   "key": "progression_sharing",
+   "class": "ProgressionSharing",
    "compatibility_only": false,
-   "display_name": "Progression Bias",
-   "description": "How hard your Region Locks are pulled toward YOUR OWN world. 0 (default) is no pull at all --\nevery Lock is an ordinary multiworld item and can end up in another player's game, so you may\nwell be waiting on somebody else to find your way into Liurnia. That is Archipelago working as\nintended, and it is the default on purpose. 100 pins every Lock at home.\n\nIt is a share, not a mood: at 40, about 40% of your Locks are reserved for your own Progression\nSurface and the other 60% go into the multiworld pool.\n\n🛑 A LOCK IN THE POOL IS STILL CURATED. It is held to the same Progression Surface every other\nplayer's progression is held to -- it just lands on SOMEBODY'S boss or remembrance rather than\nnecessarily yours. Lowering this trades away where your keys are, not whether they sit on\nchecks worth finding. The knob that trades the curation itself is Confine Foreign Progression,\nand it is deliberately a separate one.\n\nMEASURED at 0, over 740 generations: in a two-slot Elden Ring multiworld about 45% of Locks\nleave their own world and ~90% of all placed Locks sit on a surface check; four slots pushes\ntravel to 60-70%. That says how many leave, not WHICH other world receives them: ordinary fill\nfollows the available locations, so a smaller non-Elden-Ring partner may receive none at all.\n`cross_game_progression` is the separate share that deliberately sends travelling Locks to\nnon-Elden-Ring worlds.\n\nNo effect in a solo seed (there is nowhere else for a Lock to go), nor in the modes that mint no\nLock items at all (natural progression, vanilla placement).",
-   "kind": "range",
-   "base": "Range",
-   "default": 0,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 100
-   },
+   "display_name": "Progression Sharing",
+   "description": "How your progression is shared with the other players at the table. One switch.\n\n``balanced`` (the default): every other game receives its own near 1 / number-of-games share\nof your travelling progression, and your world reserves the same share of each partner game's\nprogression in return. Other players' progression that lands in your world is confined to\nyour Progression Surface (major bosses, key items, churches...), never on a random filler\npickup. Your Region Locks are ordinary multiworld items.\n\n``open``: ordinary Archipelago. No per-game share is reserved in either direction, and other\nplayers' progression may land on any reachable check of yours. Nothing is placed into another\ngame's locations ahead of the general fill, which also makes this the setting to reach for if\na partner game will not tolerate being filled early.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock\nitems.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "balanced",
+   "choices": [
+    {
+     "name": "balanced",
+     "value": 0
+    },
+    {
+     "name": "open",
+     "value": 1
+    }
+   ],
+   "range": null,
    "valid_keys": null,
    "casefold": false,
    "group": null,
    "group_collapsed": false,
    "special_values": null,
-   "essential": false
-  },
-  {
-   "key": "confine_foreign_progression",
-   "class": "ConfineForeignProgression",
-   "compatibility_only": false,
-   "display_name": "Confine Foreign Progression",
-   "description": "What share of OTHER players' progression is confined to your Progression Surface, the way\nyour own is. A percentage, not a switch.\n\n100 (`true`) confines all of it: another world's advancement may only be placed on your surface\nlocations -- the same high-confidence checks your own progression is curated onto -- never on\nyour filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check\nof yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign\nprogression scatters across any reachable location of yours, which is standard Archipelago\nbehaviour. In between, that share of the foreign advancement you see is held to the surface and\nthe rest is free.\n\nThis is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect\n-- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear\nentirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its\nown layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful\nitems into partner worlds before the general fill, whatever this option is set to. Re-measured\nwith the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every\nconfine value. Lower this only if you want foreign keys spread beyond your starred checks.\n\nIt is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item\nname is fixed for the whole seed, so a name is either surface-only or free, never both.\n\nNo effect in a solo seed, because there is no foreign progression to confine. It never blocks\ngeneration: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign\nprogression that will not fit your surface simply lands in its own world instead (only YOUR\nfiller checks are barred to it -- other worlds are untouched).",
-   "kind": "range",
-   "base": "NamedRange",
-   "default": 100,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 100
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": [
-    {
-     "name": "all",
-     "value": 100
-    },
-    {
-     "name": "false",
-     "value": 0
-    },
-    {
-     "name": "none",
-     "value": 0
-    },
-    {
-     "name": "true",
-     "value": 100
-    }
-   ],
-   "essential": false
-  },
-  {
-   "key": "cross_game_progression",
-   "class": "CrossGameProgression",
-   "compatibility_only": false,
-   "display_name": "Cross Game Progression",
-   "description": "How your progression is shared with the other games at the table.\n\n``auto`` (the default) balances it: every other game receives its own near **1 / number of\ngames** share of your travelling progression, and your world reserves the same share of every\npartner game's progression in return. Eleven items at a three-game table means roughly four to\neach partner and three staying home -- not one aggregate batch split however fill happens to\nland. Two slots of one game count as a single game, sampled fairly across their players, and\nitems a player keeps local are never taken.\n\n``aggregate`` is the older shape: one combined foreign batch sized at 1/N, divided between the\npartners by ordinary fill, with no incoming reservation. A number from 1 to 100 is that\naggregate share set by hand. ``never`` (0) keeps every travelling progression item inside\nElden Ring -- the escape hatch if a partner game will not tolerate being filled and a seed\nrefuses to generate.\n\nShares are capacity-aware: a partner game with fewer open locations than its share, or a world\nwithout room for the full incoming reservation, caps the share at what fits, and the\ngeneration log states requested-versus-reserved per game. Only a placement the rules refuse\noutright is a failure.\n\nNo effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock\nitems.",
-   "kind": "range",
-   "base": "NamedRange",
-   "default": -1,
-   "choices": null,
-   "range": {
-    "start": 0,
-    "end": 100
-   },
-   "valid_keys": null,
-   "casefold": false,
-   "group": null,
-   "group_collapsed": false,
-   "special_values": [
-    {
-     "name": "aggregate",
-     "value": -2
-    },
-    {
-     "name": "auto",
-     "value": -1
-    },
-    {
-     "name": "never",
-     "value": 0
-    }
-   ],
    "essential": false
   },
   {

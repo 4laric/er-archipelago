@@ -60,6 +60,8 @@ _GETTING_UNSTUCK = next((p for p in (os.path.join(_GF_PKG, "release", "GETTING-U
 # Backticked snake_case words that are ENGLISH, not options. Keep this list SHORT and justified --
 # every entry is a place the gate cannot help, so a long list means the gate is decorative.
 _NOT_OPTIONS = {
+    "balanced",     # VALUES of progression_sharing ("`balanced` (default)", "`open`"), not keys
+    "open",         # ditto
     "spine",        # a VALUE of num_regions_order ("`spine` order"), not a key
     "rolled",       # ditto
     # `vanilla_order` is the CURRENT second value of num_regions_order (#563 brought the fixed
