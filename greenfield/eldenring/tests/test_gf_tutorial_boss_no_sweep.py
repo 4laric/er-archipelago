@@ -1020,6 +1020,13 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # (f34117010, f34117060, f34117080, f34117200, f34117700) follow the same anchor to the same boss.
     # ZERO region crossings -- SWEEP_REGION is 'Liurnia' for 34110800 and for 1037460800 alike, so
     # every one of these fifteen stays inside its own region and #1059 holds.
-    assert (digest, n) == ("ae600a3cfe980be8", 4134), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (ae600a3cfe980be8, 4134). The total alone will "
+    # ALARIC'S RULING, 2026-09-18: the Seethewater Tibia Mariner 1038520800 is an Altus boss, so the
+    # #1076/#1124 Gelmir re-home is reversed (arena curation + the 13 FLAG_REGION_OVERRIDE rows).
+    # Measured by (trigger, flag) against origin/main 5b9fe48c: digest ae600a3cfe980be8 ->
+    # f7ef0707e4146ec2, n 4134 UNCHANGED. 26 removed / 27 added / 25 flags re-owned, none lost or
+    # gained. The Gelmir-region members it used to hold go to the Gelmir field bosses
+    # (1037530800, 1037540810, 1039540800) and the Altus flags the Campsite/Seethewater rows had
+    # moved out come back to it -- SWEEP_REGION is 'Altus' for 1038520800, so #1059 holds.
+    assert (digest, n) == ("f7ef0707e4146ec2", 4134), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (f7ef0707e4146ec2, 4134). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

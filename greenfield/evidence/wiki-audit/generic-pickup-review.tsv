@@ -41,6 +41,8 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7770058	Altus	Cracked Pot	66150	ItemLotParam_map.getItemFlagId		near Auriza Side Tomb	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7770059	Altus	Cracked Pot	66160	ItemLotParam_map.getItemFlagId		near Auriza Side Tomb	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7770060	Altus	Cracked Pot	66170	ItemLotParam_map.getItemFlagId		near Auriza Side Tomb	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7774228	Altus	Golden Rune [3]	1038537010	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
+7774231	Altus	Golden Rune [3]	1038537040	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772792	Altus	Golden Rune [4]	1041527020	ItemLotParam_map.getItemFlagId		near Rampartside Path	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774274	Altus	Golden Rune [4]	1040527030	ItemLotParam_map.getItemFlagId		near Forest-Spanning Greatbridge	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7774276	Altus	Golden Rune [4]	1040527050	ItemLotParam_map.getItemFlagId		near Forest-Spanning Greatbridge	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -561,8 +563,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7773892	Mt. Gelmir	Golden Rune [1]	540570	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772561	Mt. Gelmir	Golden Rune [2]	1035527010	ItemLotParam_map.getItemFlagId		near Craftsman's Shack	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7772563	Mt. Gelmir	Golden Rune [2]	1035527030	ItemLotParam_map.getItemFlagId		near Craftsman's Shack	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7774228	Mt. Gelmir	Golden Rune [3]	1038537010	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7774231	Mt. Gelmir	Golden Rune [3]	1038537040	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771670	Mt. Gelmir	Golden Rune [9]	16007050	ItemLotParam_map.getItemFlagId		near Prison Town Church	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771680	Mt. Gelmir	Golden Rune [9]	16007170	ItemLotParam_map.getItemFlagId		near Guest Hall	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771682	Mt. Gelmir	Golden Rune [9]	16007200	ItemLotParam_map.getItemFlagId		near Guest Hall	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
@@ -858,6 +858,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7774256	Altus	Beast Blood	1039547120	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774299	Altus	Beast Blood	1041537040	ItemLotParam_map.getItemFlagId		near Forest-Spanning Greatbridge	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772760	Altus	Celestial Dew	1040517000	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7772691	Altus	Dappled White Cured Meat	1038527040	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772207	Altus	Dragonwound Grease	31197090	ItemLotParam_map.getItemFlagId		near Sage's Cave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7774278	Altus	Dragonwound Grease	1040547050	ItemLotParam_map.getItemFlagId		near Road of Iniquity Side Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774254	Altus	Drawstring Fire Grease	1039547100	ItemLotParam_map.getItemFlagId		near Shaded Castle Ramparts	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
@@ -881,14 +882,18 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772328	Altus	Golden Rune [1]	34127080	ItemLotParam_map.getItemFlagId		near Divine Tower of West Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772794	Altus	Golden Rune [1]	1041527040	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773954	Altus	Golden Rune [1]	30077900	ItemLotParam_map.getItemFlagId		around Wyndham Catacombs	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7772695	Altus	Golden Rune [2]	1038537000	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7772940	Altus	Golden Rune [2]	1044527020	ItemLotParam_map.getItemFlagId		near Hermit Merchant's Shack	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
+7772689	Altus	Golden Rune [3]	1038527020	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772786	Altus	Golden Rune [3]	1041517000	ItemLotParam_map.getItemFlagId		near Outer Wall Phantom Tree	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772793	Altus	Golden Rune [3]	1041527030	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774226	Altus	Golden Rune [3]	1038517080	ItemLotParam_map.getItemFlagId		near Erdtree-Gazing Hill	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774246	Altus	Golden Rune [3]	1039547010	ItemLotParam_map.getItemFlagId		near Shaded Castle Ramparts	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774275	Altus	Golden Rune [3]	1040527040	ItemLotParam_map.getItemFlagId		near Forest-Spanning Greatbridge	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7772693	Altus	Golden Rune [4]	1038527060	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772755	Altus	Golden Rune [4]	1039547250	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772941	Altus	Golden Rune [4]	1044537010	ItemLotParam_map.getItemFlagId		near Hermit Merchant's Shack	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7774229	Altus	Golden Rune [4]	1038537020	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774241	Altus	Golden Rune [4]	1039507020	ItemLotParam_map.getItemFlagId		near Altus Highway Junction	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772766	Altus	Golden Rune [5]	1040537000	ItemLotParam_map.getItemFlagId		near Bower of Bounty	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772894	Altus	Golden Rune [5]	1043527030	ItemLotParam_map.getItemFlagId		near Outer Wall Battleground	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -902,6 +907,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772081	Altus	Golden Rune [7]	30137020	ItemLotParam_map.getItemFlagId		near Auriza Side Tomb	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772272	Altus	Golden Rune [7]	32057020	ItemLotParam_map.getItemFlagId		near Altus Tunnel	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7772690	Altus	Golden Rune [7]	1038527030	ItemLotParam_map.getItemFlagId		near Old Altus Tunnel	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7774230	Altus	Golden Rune [7]	1038537030	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7774352	Altus	Golden Rune [7]	1043537060	ItemLotParam_map.getItemFlagId		near Outer Wall Battleground	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772790	Altus	Golden Rune [8]	1041527000	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772335	Altus	Golden Rune [9]	34127160	ItemLotParam_map.getItemFlagId		near Divine Tower of West Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -925,6 +931,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772844	Altus	Holy Grease	1042517000	ItemLotParam_map.getItemFlagId		near Outer Wall Phantom Tree	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7774322	Altus	Holyproof Dried Liver	1042547020	ItemLotParam_map.getItemFlagId		near Windmill Heights	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772056	Altus	Human Bone Shard	30087060	ItemLotParam_map.getItemFlagId		near Sainted Hero's Grave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
+7772694	Altus	Human Bone Shard	1038527070	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774242	Altus	Human Bone Shard	1039527000	ItemLotParam_map.getItemFlagId		near Old Altus Tunnel	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774298	Altus	Invigorating White Cured Meat	1041537030	ItemLotParam_map.getItemFlagId		near Forest-Spanning Greatbridge	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772796	Altus	Land Octopus Ovary	1041527080	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
@@ -968,6 +975,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7774266	Altus	Smithing Stone [4]	1039547260	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772082	Altus	Smithing Stone [5]	30137030	ItemLotParam_map.getItemFlagId		near Auriza Side Tomb	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772630	Altus	Smithing Stone [5]	1037517000	ItemLotParam_map.getItemFlagId		near Abandoned Coffin	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
+7772688	Altus	Smithing Stone [5]	1038527010	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772947	Altus	Smithing Stone [5]	1045527030	ItemLotParam_map.getItemFlagId		near Capital Rampart	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774263	Altus	Smithing Stone [5]	1039547200	ItemLotParam_map.getItemFlagId		near Castellan's Hall	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774350	Altus	Smithing Stone [5]	1043537040	ItemLotParam_map.getItemFlagId		near Hermit Merchant's Shack	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -977,6 +985,7 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7770765	Altus	Somber Smithing Stone [5]	540320	ItemLotParam_map.getItemFlagId		around Bower of Bounty	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774252	Altus	Somber Smithing Stone [5]	1039547080	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7774319	Altus	Somber Smithing Stone [5]	1042537010	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
+7774232	Altus	Somber Smithing Stone [6]	1038537050	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772774	Altus	Stimulating Boluses	1040547030	ItemLotParam_map.getItemFlagId		near Road of Iniquity Side Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772326	Altus	Stonesword Key	34127060	ItemLotParam_map.getItemFlagId		near Divine Tower of West Altus: Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772797	Altus	Stonesword Key	1041527090	ItemLotParam_map.getItemFlagId		near Rampartside Path	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2055,7 +2064,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772744	Mt. Gelmir	Blood Grease	1039537010	ItemLotParam_map.getItemFlagId		near Bridge of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772696	Mt. Gelmir	Bloodrose	1038547000	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771668	Mt. Gelmir	Budding Horn	16007030	ItemLotParam_map.getItemFlagId		near Volcano Manor	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772691	Mt. Gelmir	Dappled White Cured Meat	1038527040	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772060	Mt. Gelmir	Deathroot	30097000	ItemLotParam_map.getItemFlagId		near Gelmir Hero's Grave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772570	Mt. Gelmir	Dragonwound Grease	1035547000	ItemLotParam_map.getItemFlagId		near Road of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771677	Mt. Gelmir	Drawstring Fire Grease	16007140	ItemLotParam_map.getItemFlagId		near Prison Town Church	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2077,18 +2085,14 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772636	Mt. Gelmir	Gold-Tinged Excrement	1037527050	ItemLotParam_map.getItemFlagId		near Primeval Sorcerer Azur	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772651	Mt. Gelmir	Golden Arrow	1037547050	ItemLotParam_map.getItemFlagId		near Primeval Sorcerer Azur	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7771693	Mt. Gelmir	Golden Rune [10]	16007330	ItemLotParam_map.getItemFlagId		near Guest Hall	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772695	Mt. Gelmir	Golden Rune [2]	1038537000	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7772566	Mt. Gelmir	Golden Rune [3]	1035537010	ItemLotParam_map.getItemFlagId		near Seethewater Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772571	Mt. Gelmir	Golden Rune [3]	1035547010	ItemLotParam_map.getItemFlagId		near Road of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772592	Mt. Gelmir	Golden Rune [3]	1036547000	ItemLotParam_map.getItemFlagId		near Ninth Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772689	Mt. Gelmir	Golden Rune [3]	1038527020	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772745	Mt. Gelmir	Golden Rune [3]	1039537020	ItemLotParam_map.getItemFlagId		near Old Altus Tunnel	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772750	Mt. Gelmir	Golden Rune [3]	1039537070	ItemLotParam_map.getItemFlagId		near Bower of Bounty	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772562	Mt. Gelmir	Golden Rune [4]	1035527020	ItemLotParam_map.getItemFlagId		near Craftsman's Shack	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772660	Mt. Gelmir	Golden Rune [4]	1037547140	ItemLotParam_map.getItemFlagId		near Ninth Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772693	Mt. Gelmir	Golden Rune [4]	1038527060	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772743	Mt. Gelmir	Golden Rune [4]	1039537000	ItemLotParam_map.getItemFlagId		near Bridge of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7774229	Mt. Gelmir	Golden Rune [4]	1038537020	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771671	Mt. Gelmir	Golden Rune [5]	16007060	ItemLotParam_map.getItemFlagId		near Prison Town Church	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772569	Mt. Gelmir	Golden Rune [5]	1035537050	ItemLotParam_map.getItemFlagId		near Seethewater Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771678	Mt. Gelmir	Golden Rune [6]	16007150	ItemLotParam_map.getItemFlagId		near Prison Town Church	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2097,14 +2101,12 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7772656	Mt. Gelmir	Golden Rune [6]	1037547100	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7773983	Mt. Gelmir	Golden Rune [6]	31077050	ItemLotParam_map.getItemFlagId		near Seethewater Cave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772594	Mt. Gelmir	Golden Rune [7]	1036547020	ItemLotParam_map.getItemFlagId		near Road of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7774230	Mt. Gelmir	Golden Rune [7]	1038537030	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
 7772574	Mt. Gelmir	Golden Rune [8]	1035547060	ItemLotParam_map.getItemFlagId		near Seethewater Terminus	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772698	Mt. Gelmir	Golden Rune [8]	1038547020	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771692	Mt. Gelmir	Golden Rune [9]	16007320	ItemLotParam_map.getItemFlagId		near Temple of Eiglay	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772588	Mt. Gelmir	Gravel Stone	1036527040	ItemLotParam_map.getItemFlagId		near Craftsman's Shack	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772657	Mt. Gelmir	Great Arrow	1037547110	ItemLotParam_map.getItemFlagId		near Ninth Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772655	Mt. Gelmir	Hefty Beast Bone	1037547090	ItemLotParam_map.getItemFlagId		near Primeval Sorcerer Azur	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772694	Mt. Gelmir	Human Bone Shard	1038527070	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772145	Mt. Gelmir	Lump of Flesh	31077010	ItemLotParam_map.getItemFlagId		near Seethewater Cave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772154	Mt. Gelmir	Lump of Flesh	31097030	ItemLotParam_map.getItemFlagId		near Volcano Cave	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7772746	Mt. Gelmir	Miquella's Lily	1039537030	ItemLotParam_map.getItemFlagId		near Bridge of Iniquity	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2127,7 +2129,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771711	Mt. Gelmir	Smithing Stone [4]	16007560	ItemLotParam_map.getItemFlagId		near Subterranean Inquisition Chamber	exact_route_anchor	hold	1	gameplay-wiki:eldenpedia	seek an independent source naming this exact route anchor and item
 7771696	Mt. Gelmir	Smithing Stone [5]	16007380	ItemLotParam_map.getItemFlagId		near Prison Town Church	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772644	Mt. Gelmir	Smithing Stone [5]	1037537020	ItemLotParam_map.getItemFlagId		near Primeval Sorcerer Azur	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7772688	Mt. Gelmir	Smithing Stone [5]	1038527010	ItemLotParam_map.getItemFlagId		near Seethewater River	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772704	Mt. Gelmir	Smithing Stone [5]	1038547090	ItemLotParam_map.getItemFlagId		near Shaded Castle Inner Gate	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771665	Mt. Gelmir	Smithing Stone [6]	16007000	ItemLotParam_map.getItemFlagId		near Volcano Manor	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771687	Mt. Gelmir	Smithing Stone [6]	16007250	ItemLotParam_map.getItemFlagId		near Guest Hall	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
@@ -2138,7 +2139,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771690	Mt. Gelmir	Somber Smithing Stone [5]	16007290	ItemLotParam_map.getItemFlagId		near Temple of Eiglay	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771683	Mt. Gelmir	Somber Smithing Stone [6]	16007210	ItemLotParam_map.getItemFlagId		near Guest Hall	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771708	Mt. Gelmir	Somber Smithing Stone [6]	16007530	ItemLotParam_map.getItemFlagId		near Volcano Manor	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
-7774232	Mt. Gelmir	Somber Smithing Stone [6]	1038537050	ItemLotParam_map.getItemFlagId		near First Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7771674	Mt. Gelmir	Somber Smithing Stone [7]	16007100	ItemLotParam_map.getItemFlagId		near Prison Town Church	exact_route_anchor	hold	1	gameplay-guide:redmaw	seek an independent source naming this exact route anchor and item
 7772648	Mt. Gelmir	Soporific Grease	1037547020	ItemLotParam_map.getItemFlagId		near Ninth Mt. Gelmir Campsite	exact_route_anchor	hold	0		seek an independent source naming this exact route anchor and item
 7772596	Mt. Gelmir	Starlight Shards	1036547040	ItemLotParam_map.getItemFlagId		near Ninth Mt. Gelmir Campsite	exact_route_anchor	hold	1	gameplay-wiki:fextralife	seek an independent source naming this exact route anchor and item
