@@ -23,6 +23,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What changed
 
+- **Region Locks keep travelling to partner games under the new default goal:** with the four-Great-
+  Runes default the seven runes became advancement and were pooled with the Locks in the balanced 1/N
+  split, diluting the Locks' share (a Wind Waker partner got no Lock in 2 of 11 measured seeds, against
+  0 of 15 before). The runes now take their own 1/N split and the Locks split exactly as before, so
+  the goal you pick no longer changes how many Locks go abroad. New seeds only.
 - **New default goal: four Great Runes, no Region Locks required.** `ending_condition` now defaults
   to `great_runes` and `goal_region_unlock_policy` to `none`, because players kept getting tripped
   up by Region Locks being required to finish. To get the old goal back set `ending_condition:

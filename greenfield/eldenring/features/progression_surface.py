@@ -966,60 +966,74 @@ def place_released_locks(multiworld, worlds) -> None:
     # whenever a rune ending is active; the numerator is those seven PLUS every travelling Lock and
     # other restricted progression item from this source slot.
     if balanced_players and foreign_by_game:
+        rune_names_by_player = {w.player: set(w._required_runes()) for w in participants}
         for player in sorted(balanced_players):
-            source = [item for item in items if item.player == player]
-            if not source:
+            mine = [item for item in items if item.player == player]
+            if not mine:
                 continue
-            source_total = len(source)
-            source_ids = {id(item) for item in source}
-            items = [item for item in items if id(item) not in source_ids]
-            multiworld.random.shuffle(source)
-            quotas = balanced_foreign_quotas(len(source), foreign_by_game, multiworld.random)
-            for game in sorted(quotas):
-                quota = quotas[game]
-                if quota <= 0:
-                    continue
-                locs = foreign_by_game[game]
-                # DERIVED CAP, stated loudly, never a generation failure: a tiny partner game
-                # (Clique ships ONE location) cannot host its arithmetic share, and failing the
-                # whole table because someone brought a small game would make the default
-                # unshippable. The uncapped remainder falls back to the ER surfaces below --
-                # the same place the owner bucket goes. Refused placements still raise.
-                take = min(quota, len(locs))
-                if take < quota:
-                    logging.getLogger("Greenfield").warning(
-                        "[greenfield:%s] balanced progression: %s can host only %d of its %d "
-                        "share (%d open location(s)); the remainder stays on the Elden Ring "
-                        "surfaces.", player, game, take, quota, len(locs))
-                if take <= 0:
-                    continue
-                batch, source = source[:take], source[take:]
-                offered = len(batch)
-                multiworld.random.shuffle(locs)
-                fill_restrictive(
-                    multiworld, multiworld.get_all_state(False), locs, batch,
-                    **kwargs, name=f"Elden Ring Progression Share -> {game}")
-                placed = offered - len(batch)
-                cross_offered += offered
-                cross_placed += placed
-                if batch:
-                    # Refusals DEGRADE LOUDLY, same as the aggregate pass below has always done:
-                    # a partner's own location rules can refuse specific items (the shipped
-                    # two-game smoke measured Hollow Knight refusing 3 of 9 remembrances), and
-                    # killing the whole table for it would make the default unshippable. The
-                    # refused items fall back to the Elden Ring surfaces.
-                    names = ", ".join(item.name for item in batch[:8])
-                    logging.getLogger("Greenfield").warning(
-                        "[greenfield:%s] balanced progression: %s accepted %d/%d; its rules "
-                        "refused %d (falling back to the Elden Ring surfaces): %s",
-                        player, game, placed, offered, len(batch), names)
-                    source.extend(batch)
-                    batch = []
-                logging.getLogger("Greenfield").info(
-                    "[greenfield:%s] balanced progression: %s received %d/%d source item(s) "
-                    "(%d total progression, %d game(s))",
-                    player, game, placed, offered, source_total, n_games)
-            items.extend(source)  # the owner game's bucket goes to ER surfaces below
+            source_total = len(mine)
+            mine_ids = {id(item) for item in mine}
+            items = [item for item in items if id(item) not in mine_ids]
+            # 🛑 GREAT RUNES GET THEIR OWN 1/N SPLIT, NOT A SHARE OF THE LOCKS'. The default goal is
+            # now `great_runes` (v0.6.1), which makes all seven runes advancement. Pooled with the
+            # Locks they drown the Locks' share: the shipped smoke measured Locks reaching The Wind
+            # Waker in 15/15 seeds under the old default and 0 Locks in 2 of 11 under the new one,
+            # with nothing changed but the goal. Locks travelling abroad is a property of the mod,
+            # not of which ending is chosen, so the Locks (and every other non-rune item) split
+            # exactly as they always did, and the runes are split alongside them.
+            runes = rune_names_by_player.get(player, set())
+            buckets = [b for b in ([i for i in mine if i.name not in runes],
+                                   [i for i in mine if i.name in runes]) if b]
+            home = []
+            for source in buckets:
+                multiworld.random.shuffle(source)
+                quotas = balanced_foreign_quotas(len(source), foreign_by_game, multiworld.random)
+                for game in sorted(quotas):
+                    quota = quotas[game]
+                    if quota <= 0:
+                        continue
+                    locs = foreign_by_game[game]
+                    # DERIVED CAP, stated loudly, never a generation failure: a tiny partner game
+                    # (Clique ships ONE location) cannot host its arithmetic share, and failing the
+                    # whole table because someone brought a small game would make the default
+                    # unshippable. The uncapped remainder falls back to the ER surfaces below --
+                    # the same place the owner bucket goes. Refused placements still raise.
+                    take = min(quota, len(locs))
+                    if take < quota:
+                        logging.getLogger("Greenfield").warning(
+                            "[greenfield:%s] balanced progression: %s can host only %d of its %d "
+                            "share (%d open location(s)); the remainder stays on the Elden Ring "
+                            "surfaces.", player, game, take, quota, len(locs))
+                    if take <= 0:
+                        continue
+                    batch, source = source[:take], source[take:]
+                    offered = len(batch)
+                    multiworld.random.shuffle(locs)
+                    fill_restrictive(
+                        multiworld, multiworld.get_all_state(False), locs, batch,
+                        **kwargs, name=f"Elden Ring Progression Share -> {game}")
+                    placed = offered - len(batch)
+                    cross_offered += offered
+                    cross_placed += placed
+                    if batch:
+                        # Refusals DEGRADE LOUDLY, same as the aggregate pass below has always
+                        # done: a partner's own location rules can refuse specific items (the
+                        # shipped two-game smoke measured Hollow Knight refusing 3 of 9
+                        # remembrances), and killing the whole table for it would make the default
+                        # unshippable. The refused items fall back to the Elden Ring surfaces.
+                        names = ", ".join(item.name for item in batch[:8])
+                        logging.getLogger("Greenfield").warning(
+                            "[greenfield:%s] balanced progression: %s accepted %d/%d; its rules "
+                            "refused %d (falling back to the Elden Ring surfaces): %s",
+                            player, game, placed, offered, len(batch), names)
+                        source.extend(batch)
+                        batch = []
+                    logging.getLogger("Greenfield").info(
+                        "[greenfield:%s] balanced progression: %s received %d/%d source item(s) "
+                        "(%d total progression, %d game(s))",
+                        player, game, placed, offered, source_total, n_games)
+                home.extend(source)
+            items.extend(home)  # the owner game's bucket goes to ER surfaces below
 
     # Unbalanced ER slots retain the existing aggregate cross_game_progression behaviour exactly.
     unbalanced = [w for w in participants if w.player not in balanced_players]
