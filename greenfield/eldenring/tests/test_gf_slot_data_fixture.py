@@ -147,6 +147,7 @@ class SlotDataFixtureRich(WorldTestBase):
         "dungeon_sweep": "all",
         "pool_builder_intensity": "max",
         "ending_condition": "great_runes",
+        "goal_region_unlock_policy": "items_held",
         "goal_great_runes": 2,
         # Below 100 so the seed actually CAPS, which is what makes it emit
         # requiresClientFeatures. RICH exists to exercise every key, so the honest fix for a new
@@ -246,7 +247,7 @@ class SlotDataFixtureDefault(WorldTestBase):
     ALWAYS_KEYS (>=), not an exact match -- the exact-keyset contract guard lives in the rich class.
     """
     game = GAME
-    options = {"num_regions": 0, }
+    options = {"num_regions": 0, "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
 
     def test_always_keys_present(self):
         sd = self.world.fill_slot_data()

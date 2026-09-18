@@ -46,7 +46,7 @@ class GoalRequiredItemsFullSeed(WorldTestBase):
     """num_regions 0: every region kept."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 0}
+    options = {"num_regions": 0, "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
 
     def _free(self):
         return {i.name for i in self.multiworld.precollected_items[self.player]}
@@ -87,7 +87,7 @@ class GoalRequiredItemsRolledSeed(WorldTestBase):
     """A rolled sub-draw -- the shape the measurement was taken on."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 6}
+    options = {"num_regions": 6, "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
 
     def test_emitted_and_consistent_on_a_rolled_draw(self):
         sd = self.world.fill_slot_data()
@@ -132,7 +132,7 @@ class GoalRequiredItemsWithAnExplicitGoal(WorldTestBase):
     spelling only checked a name appeared in a list."""
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 6, "goal": "promised_consort"}
+    options = {"num_regions": 6, "goal": "promised_consort", "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
 
     def test_the_goal_regions_own_lock_is_withheld(self):
         sd = self.world.fill_slot_data()

@@ -71,17 +71,19 @@ are gear, consumables, runes. The ones you're really hunting are Region Locks.
 Each one that lands opens a new region -- often somewhere you'd never go "next"
 in a normal playthrough, and that's the fun of it.
 
-**The goal**, by default, is to hold every Region Lock that's in play
-(`ending_condition: region_locks`). Open every kept region and you've won.
+**The goal**, by default, is to collect four of the seven Great Runes
+(`ending_condition: great_runes`, `goal_great_runes: 4`). **Any distinct Great
+Runes count** -- no particular named rune is mandatory. **Holding one is what
+counts** -- killing its boss is not enough (the rune is shuffled elsewhere), and
+activating one at a Divine Tower never counts either. The client reports the
+count and the full eligible set when you connect. Region Locks are *not*
+required to finish. If you want the old rule, where you must also hold every
+Region Lock in play, set `goal_region_unlock_policy` to items_held;
+`ending_condition: region_locks` drops the Great Rune requirement entirely.
 Leyndell is kept only when the draw keeps it (or a goal forces it) -- no region
 is guaranteed a seat -- so a seed is always winnable without any capital visit.
-The alternative, `ending_condition: great_runes`, asks you
-to hold Great Runes as well. **Any distinct Great Runes count**: the default
-is any four of all seven, and no particular named rune is mandatory. **Holding
-one is what counts** -- killing its boss is not enough (the rune is shuffled
-elsewhere), and activating one at a Divine Tower never counts either. Outside
-that goal, Great Runes gate nothing: Leyndell opens on its Lock, runes or no
-runes. The client reports the count and the full eligible set when you connect.
+Outside this goal, Great Runes gate nothing: Leyndell opens on its Lock, runes
+or no runes.
 
 **Which boss actually ends it** is a separate knob, `goal`. Left on `auto` it
 works itself out: if your seed keeps both Farum Azula and Leyndell you finish
@@ -267,10 +269,12 @@ run rather than tune it.
   at Haligtree Canopy, leaving the full Loretta-to-Malenia route to clear. A
   goal your other options make unreachable fails generation instead of silently
   downgrading.
-- **`ending_condition`** -- hold every kept Region Lock (default), or require
-  Great Runes as well. `goal_great_runes` sets how many; the seed chooses which
-  runes count, and the client names them when it connects (see "The goal"
-  above). This combines with `goal`, so you need both the runes and the boss.
+- **`ending_condition`** -- require Great Runes (default), or none at all
+  (`region_locks`). `goal_great_runes` sets how many (default four); the seed
+  chooses which runes count, and the client names them when it connects (see
+  "The goal" above). This combines with `goal`, so you need both the runes and
+  the boss. Whether you must *also* hold your Region Locks is
+  `goal_region_unlock_policy`, which defaults to no.
 - **`progression_surface`** -- which categories of location are allowed to
   hold progression items. Your in-game tracker stars these, and a star means
   "a progression item can be here" -- yours or another player's -- not "your

@@ -5,6 +5,12 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## Unreleased
 
+- **New default goal: four Great Runes, no Region Locks required.** `ending_condition` now defaults
+  to `great_runes` and `goal_region_unlock_policy` to `none`, because players kept getting tripped
+  up by Region Locks being required to finish. To get the old goal back set `ending_condition:
+  region_locks` and `goal_region_unlock_policy: items_held`. Yamls that already set either key are
+  unaffected; a yaml that set only `ending_condition: great_runes` used to require Locks too and no
+  longer does -- add `goal_region_unlock_policy: items_held` to keep that.
 - **One switch for progression sharing:** new `progression_sharing: balanced | open`. `balanced` is
   today's behaviour (the 1/N per-game share, foreign progression held to your surface); `open` is
   ordinary Archipelago -- it skips the 1/N reservation and lifts the foreign-progression bar.

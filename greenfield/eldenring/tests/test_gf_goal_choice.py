@@ -297,6 +297,8 @@ def test_malenia_goal_axis_matrix_fills_clean(runes, policy):
         "num_regions": 4,
         "goal": "malenia",
         "goal_region_unlock_policy": policy,
+        # The default ending is now great_runes; the no_runes arm pins the old region-locks ending.
+        "ending_condition": "region_locks",
     }
     if runes:
         options.update(item_shuffle=True, ending_condition="great_runes", goal_great_runes=4)

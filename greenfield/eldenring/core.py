@@ -245,14 +245,14 @@ class Goal(Choice):
 
 
 class EndingCondition(Choice):
-    """Whether the seed's goal ALSO requires Great Runes, on top of the region-side gate.
+    """Whether the seed's goal requires Great Runes. DEFAULT: ``great_runes`` -- collect four of the
+    seven (Goal Great Runes) and the ending opens; with the default Goal Region Unlock Policy
+    (``none``) no Region Lock is required to finish.
 
     This does NOT decide whether Region Locks are needed to open the Ashen Capital -- Goal Region
-    Unlock Policy does, and its default (items_held) keeps every required Region Lock in the
-    gate. So ``great_runes`` with the default policy means Region Locks AND the rune count; for a
-    runes-only ending set Goal Region Unlock Policy to ``none``. ``region_locks`` is the
-    compatibility spelling for no Great-Rune requirement; ``great_runes`` requires the configured
-    rune count.
+    Unlock Policy does. Set it to ``items_held`` and ``great_runes`` means Region Locks AND the
+    rune count. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;
+    ``great_runes`` requires the configured rune count.
 
     Great Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the
     rune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable
@@ -264,7 +264,7 @@ class EndingCondition(Choice):
     display_name = "Ending Condition"
     option_region_locks = 0
     option_great_runes = 1
-    default = 0
+    default = 1
 
 
 class GreatRunesRequired(Range):
