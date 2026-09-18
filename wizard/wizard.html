@@ -5548,8 +5548,8 @@ const ERW = (() => {
     if (has("progression_surface") && !(v("progression_surface") || []).length){
       warn("progression_surface", "Empty turns the confinement OFF \u2014 progression scatters " +
            "wherever AP's fill puts it, including your filler checks.");
-      if (has("confine_foreign_progression") && v("confine_foreign_progression"))
-        info("confine_foreign_progression", "Nothing to confine other players' progression to " +
+      if (has("progression_sharing") && v("progression_sharing") === "balanced")
+        info("progression_sharing", "Nothing to confine other players' progression to " +
              "while Progression Surface is empty.");
     }
 
@@ -6518,14 +6518,14 @@ if (typeof module !== "undefined") module.exports = ERW;
      those two containers -- which is exactly why the controls sit BETWEEN them rather than in
      them. */
   // ORDER IS THE POINT, not the contents. num_regions and progression_surface are the two knobs
-  // that move the headline figures most, so they come first and adjacent. confine_foreign_progression
+  // that move the headline figures most, so they come first and adjacent. progression_sharing
   // rides directly under progression_surface because it is meaningless apart from it -- it confines
   // OTHER players' progression to that same surface, so a reader who meets it alone has no idea what
   // "the surface" refers to. enable_dlc / dlc_only change which regions are eligible at all, which
   // matters but is usually decided once and left.
   const CHECK_COUNT_OPTIONS = ["num_regions", "start_region_pool", "enable_dlc", "dlc_only",
                                "shop_checks"];
-  const PLACEMENT_OPTIONS = ["progression_surface", "confine_foreign_progression",
+  const PLACEMENT_OPTIONS = ["progression_surface", "progression_sharing",
                              // the locality knobs -- they move the "what you send out" card below
                              "keep_local", "keep_local_rune_cap",
                              // 🛑 NOT item_shuffle: it is frozen ON and off the yaml surface, so it
@@ -6644,17 +6644,13 @@ if (typeof module !== "undefined") module.exports = ERW;
                       other: "other goods", progressive: "progressive upgrades" };
   const catLabel = c => CAT_LABEL[c] || c;
 
-  /* `confine_foreign_progression` as a NUMBER, 0-100. It is a NamedRange whose special names are
-     the old toggle's spellings (true/all = 100, false/none = 0), and a preset or a hand-edited
-     yaml can carry either form, so read the name off the metadata rather than assuming an int.
-     A bare `Number("true")` is NaN, which would render the whole line below as "NaN checks". */
+  /* The share of foreign progression confined to your surface, 0-100, DERIVED from
+     `progression_sharing`: `balanced` is the old confine_foreign_progression default (100), `open`
+     is 0. The old knob is hidden from the yaml surface, so it is not read here -- an absent option
+     means its frozen/derived value, never `off`. */
   function confineShare(){
-    const raw = ERW.getVal(meta, state, "confine_foreign_progression");
-    const num = Number(raw);
-    if (Number.isFinite(num)) return Math.max(0, Math.min(100, num));
-    const o = meta.byKey["confine_foreign_progression"];
-    const hit = ((o && o.special_values) || []).find(sv => sv.name === String(raw));
-    return hit ? hit.value : 100;
+    const o = meta.byKey["progression_sharing"];
+    return (o && ERW.getVal(meta, state, "progression_sharing") === "open") ? 0 : 100;
   }
 
   function renderContribution(cs, size){
@@ -6755,15 +6751,15 @@ if (typeof module !== "undefined") module.exports = ERW;
     html += "<div class='desc' style='margin-top:10px'><b class='fig'>" + n(progMid) + "</b> of your checks " +
       "may hold another player\u2019s <b>progression</b>" +
       (confine >= 100
-        ? " \u2014 your progression surface, and nothing else. That is <code>confine_foreign_" +
-          "progression: 100</code>, the default: another world\u2019s key items can only sit " +
+        ? " \u2014 your progression surface, and nothing else. That is <code>progression_sharing: " +
+          "balanced</code>, the default: another world\u2019s key items can only sit " +
           "where your own Region Locks sit."
         : confine <= 0
-          ? " \u2014 anywhere at all. <code>confine_foreign_progression: 0</code> puts no " +
+          ? " \u2014 anywhere at all. <code>progression_sharing: open</code> puts no " +
             "restriction on where another world\u2019s key items may sit in yours."
           : " \u2014 your progression surface (" + n(surfMid) + "), plus the " + (100 - confine) +
-            "% share of foreign key-item names that <code>confine_foreign_progression: " + confine +
-            "</code> lets out onto the rest.") + "</div>";
+            "% share of foreign key-item names that a hand-set <code>confine_foreign_progression: " +
+            confine + "</code> lets out onto the rest.") + "</div>";
     if (confine >= 100){
       /* MEASURED, which is why it is a warning and not a footnote: 3 real gens, 498 placements
          into a Hollow Knight slot, ZERO useful items. Confining a partner's progression to our
@@ -6818,10 +6814,14 @@ if (typeof module !== "undefined") module.exports = ERW;
        describes now, and check_wizard_renders' reactivity audit (TEXT_MOVES) flips
        progression_bias and demands these words follow -- the fifth "page lied" instance, and the
        first where the prose itself gets a gate. */
-    const lockBias = Number(v("progression_bias") || 0);
-    const lockXg = v("cross_game_progression");
-    const xgNote = (lockXg === 0)
-      ? " (and never into a non-Elden-Ring game: <code>cross_game_progression</code> 0)" : "";
+    /* progression_bias and cross_game_progression are hidden from the yaml surface; the Lock-travel
+       sentence is now driven by `progression_sharing`. Hand-set values in an old yaml are not
+       visible to the wizard, whose defaults are bias 0 and (balanced) auto. */
+    const lockBias = 0;
+    const sharingOpen = !!meta.byKey["progression_sharing"] &&
+                        ERW.getVal(meta, state, "progression_sharing") === "open";
+    const xgNote = sharingOpen
+      ? " (and nothing is reserved for other games: <code>progression_sharing: open</code>)" : "";
     let lockSent;
     if (lockBias >= 100){
       lockSent = "<b>Your Region Locks stay home</b> at this setting: <code>progression_bias" +
@@ -6833,7 +6833,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     } else {
       lockSent = "<b>Your Region Locks travel like any other item</b> at this setting — " +
         "another player can find your way into Liurnia, which is Archipelago working as intended. " +
-        "<code>progression_bias</code> is the knob if you want them kept home" + xgNote + ".";
+        "The advanced <code>progression_bias</code> yaml key keeps them home" + xgNote + ".";
     }
     html += "<div class='desc' style='margin-top:10px'>" + lockSent + "</div>";
     card.insertAdjacentHTML("beforeend", html);
