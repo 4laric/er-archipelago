@@ -120,6 +120,11 @@ def _grace_tier(world):
 # live map witness places the required anchor at Grand Cloister.
 _ENTRANCE_COMPONENT_GRACES = {
     "Ainsel River": [71211, 71218],
+    # #1568: Forbidden Lands is below Rold; the Hero's Grave open-detection
+    # grace cannot provide outdoor access above it. Names/ground: grace_names.tsv
+    # and grace_ground.tsv (76500 -> 65000; 76501 -> 65010). Rold's gate is
+    # recorded in key_item_gates.tsv. Keep an outdoor entry on both sides.
+    "Mountaintops of the Giants": [76500, 76501],
 }
 
 
@@ -138,8 +143,12 @@ def _bundle_for(region, flags, tier):
         # An absent/stale landmarks table must not silently degrade to a thinner OR fatter bundle:
         # fall back to the entrance (the one answer we can always derive here) and say so.
         if not picks:
-            return [entrance_grace(flags, region)]
-        return sorted(picks)
+            return _bundle_for(region, flags, "entrance")
+        components = _ENTRANCE_COMPONENT_GRACES.get(region, ())
+        if components:
+            # The same component entrances must survive the later attunement split.
+            picks.extend(_bundle_for(region, flags, "entrance"))
+        return sorted(set(picks))
     return list(flags)
 
 
@@ -241,7 +250,7 @@ class RegionGraceUnlock(Choice):
 
 class GraceAttunement(Range):
     """Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites
-    of Grace; touch this many more and the rest light. 0 (default) keeps the current behaviour --
+    of Grace per connected component; touch this many more and the rest light. 0 (default) keeps the current behaviour --
     a region Lock lights every grace it has.
 
     Regions with too few graces to reach the number are left alone entirely, so a two-grace region
@@ -265,7 +274,8 @@ class GraceAttunementAnchor(Choice):
     region's own entrance, so you always arrive somewhere sensible. `random_grace` picks one of the
     region's graces instead, which can drop you deeper in and cuts more traversal -- every
     candidate is a real, physically-present warp point, so it can never strand you in a sealed
-    arena. Only used when Grace Attunement is on."""
+    arena. Regions with separate traversal components retain their fixed component entrances
+    with either setting. Only used when Grace Attunement is on."""
     # 🛑 NOT `option_random`. Archipelago RESERVES "random" on every Choice as the built-in
     # meta-value that rolls the option itself, and Options.py asserts at CLASS-CREATION time:
     # "Choice option 'random' cannot be manually assigned." That is an import-time crash for the
@@ -315,6 +325,18 @@ def _attune_split(world, region, bundle):
                     if getattr(world.options, "grace_attunement", None) is not None else 0)
     if threshold <= 0 or not bundle:
         return bundle, None
+    # A single random/interior grace is not an entrance to every disconnected
+    # component (#1568). These entry points must be available BEFORE attunement;
+    # otherwise the player can need inaccessible graces to unlock access to them.
+    components = _ENTRANCE_COMPONENT_GRACES.get(region)
+    if components is not None:
+        missing = [f for f in components if f not in bundle]
+        if missing:
+            raise ValueError(f"{region}: component entrance grace(s) absent from bundle: {missing}")
+        rest = [f for f in bundle if f not in components]
+        if len(rest) <= threshold:
+            return bundle, None
+        return list(components), {"threshold": threshold, "members": rest, "bloom": rest}
     # touchable = everything except the one we are about to hand over
     if len(bundle) - 1 <= threshold:
         return bundle, None

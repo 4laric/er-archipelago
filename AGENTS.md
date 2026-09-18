@@ -5,79 +5,30 @@ reviewable. For the *quality bar* (what a good change looks like) read `CONTRIBU
 
 ---
 
-## 1. There are TWO working copies — know which you're touching
+## 1. Work in the checkout provided by the current environment
 
-| Copy | Where | Reached by | Use for |
-|------|-------|-----------|---------|
-| **Mount** | `…\Documents\er-archipelago` (Alaric's real Windows repo) | the harness **Read / Edit / Write** tools | **nothing — not even reading** (see the ban below). Alaric builds/tests/regens here |
-| **Sandbox clone** | `~/work/er-archipelago` (a fresh clone in the Linux sandbox) | **bash** (`mcp__workspace__bash`) | **all editing, regen, tests, commits, pushes** |
+**Updated by Alaric's authorization, 2026-09-15:** Codex on Windows may read, edit,
+regenerate, test, commit, and push directly from `C:\Users\alari\er-archipelago`.
+This is a native Windows checkout, not the old Cowork filesystem mount. No Linux
+sandbox, separate clone, or additional permission is required for routine work here.
+Use the available native tools (PowerShell, git, Python, Cargo) and verify their
+availability instead of applying historical sandbox limitations to this host.
 
-They are different filesystems. `Edit` writes the mount; `bash` sees the sandbox clone.
+- Inspect `git status`, the current branch, and remote state before editing. Preserve
+  existing user changes; do not reset or overwrite them to make the tree clean.
+- Work in one checkout for a change. Do not leave a draft in one working tree and
+  push a different version from another. Use an isolated worktree when concurrency
+  or conflicting local changes require it.
+- Do not remove an index lock until you have established no live process owns it.
+- If delegating work, identify the exact authorized checkout in each brief and
+  re-verify load-bearing findings against that checkout.
 
-> ### 🛑 NEVER Read/Edit/Write the mount. Not once, not "just to draft a file".
->
-> **Every** file you author goes in the sandbox clone via bash, and reaches Alaric **only** by
-> `git push`. There is no exception for "I'll just drop the first draft there and fix it later" —
-> that is exactly how this goes wrong:
->
-> 1. you Write a draft into the mount (it lands in Alaric's *working tree*, untracked/modified);
-> 2. you iterate on the same file in the sandbox and push the **fixed** version;
-> 3. his tree still holds your **stale draft**, so his next `git pull` collides with it.
->
-> This happened on 2026-07-11 across 4 files (`shop_stock.py`, `enemy_drops.py`,
-> `datamine_shop_rows.py`, `test_gf_arena_graces.py`) and produced a merge conflict whose HEAD side
-> was a pile of bugs the sandbox had already fixed. It cost a session.
->
-> **If you slip and touch the mount anyway: revert that file immediately**, before you do anything
-> else — `git checkout -- <path>` on the mount, or tell Alaric to `git checkout origin/main -- <path>`.
-> Do not leave it for later. Do not assume "it'll get overwritten by the pull" — it won't; it'll
-> conflict.
->
-> Reading is also unsafe: **the mount can serve a TRUNCATED view of a file.** A size/content diff
-> against a mount path will invent corruption that isn't there (see §6). Read git blobs instead:
-> `git show origin/main:<path>`.
->
-> 🛑 **THE TRUNCATION IS A WINDOWS-MOUNT PROPERTY. THE BAN IS NOT** (Alaric, 2026-08-16). The
-> silent-truncation/NUL-pad failure above belongs to the mount of the **Windows** checkout. When the
-> mounted tree is the macOS one, the mount serves whole files and reading it is not the
-> silent-wrong-answer machine §6 describes — so do not go hunting a truncation bug that cannot
-> happen on that host, and do not cite it as evidence in a review of a file that read fine.
->
-> **Reasons 1-3 above are the load-bearing ones and they are host-independent:** anything you author
-> in the mount lands in Alaric's *working tree* and collides with his next pull on any OS. "It's a
-> Windows thing" is not a licence to work in the mount — it is the same ban for the other reason.
->
-> Corollary, same day: **a stale `.git/index.lock` in the mount means a CONCURRENT AGENT, not mount
-> rot.** Two sessions on one checkout is enough; git leaves the lock behind and every later git call
-> in that tree dies with *"remove the file manually to continue"*. Before you clear one, establish
-> that no other session is live — deleting a lock a running process still owns is how an index gets
-> corrupted. (In Cowork the `rm` may itself come back `Operation not permitted` until file deletion
-> is enabled for the folder; that prompt is not a symptom of anything, it is just the permission.)
-
-> ### 🛑 SUBAGENTS DO NOT INHERIT THIS BAN. Restate it in every brief.
->
-> A subagent gets your prompt, not this file. If you do not name the ban, it will find the mount by
-> `find`/`ls` and read it — the mount path is discoverable and looks like a normal checkout.
->
-> **This happened on 2026-07-30.** A survey agent was asked to audit the client for unguarded
-> pointer derefs, read the tree through
-> `/sessions/<session>/mnt/er-archipelago/from-software-archipelago-clients`, and reported it as
-> *"identical tree"* to the sandbox clone. Two of its findings were **false**: it reported the
-> boss-sweep flag flush as having no read-back (it calls `sweep_flush::retire`, which is exactly a
-> read-back) and `marker::commit` as issuing 66 flag writes per frame (it is idempotent once
-> committed). Both were caught only because the findings were re-verified against the clean clone
-> before anything was built on them. Guards against non-problems would otherwise have shipped.
->
-> So, two rules:
->
-> 1. **Put the ban in the brief, with the path**, e.g. *"🛑 Never read `/sessions/*/mnt/er-archipelago`
->    — that is Alaric's live Windows tree and it serves silently TRUNCATED files. Work only in
->    `<your sandbox clone>`."* Also give the agent the clone path it SHOULD use, or it will go
->    looking.
-> 2. **Re-verify anything load-bearing a subagent returns**, against the clone, before you act on
->    it — the same standard §7 sets for your own claims. A subagent's citation is a lead, not a
->    fact; a truncated read produces confident, well-formatted, wrong file:line evidence, which is
->    the exact failure mode CONTRIBUTING's "silent wrong answer" section is about.
+The older Linux/Cowork recipes below apply only when actually running in that
+sandbox. Their mount ban concerns `/sessions/*/mnt/er-archipelago` and similar
+Cowork projections, **not this native Windows checkout**. In a Cowork session,
+keep edits in the sandbox clone and transfer them through git; those mounts had
+both stale-draft conflicts and observed truncated reads. Do not infer truncation
+from ordinary native Windows reads or revert user files based on that old rule.
 
 ## 2. Which branch is live CHANGES — verify it, never trust this line
 
@@ -917,7 +868,7 @@ The sandbox mount can silently truncate/NUL-pad large writes. Tools guard agains
   🛑 The claim goes on the ISSUE. An unpushed branch is invisible and a pushed branch with no PR is
   nearly so; the issue is where everyone already looks. If you stop, unassign — a stale claim blocks
   someone else.
-- Edit in the sandbox clone; regen if you touched a generator; run the tests.
+- Edit in the authorized checkout described in section 1; regen if you touched a generator; run the tests.
 - Stage explicitly — **never `git add -A`** (the repo is public and game-data-purged; don't
   leak the artifacts symlink). `git diff --cached --stat` before committing.
 - The pre-commit hook runs `check_integrity --staged` automatically.

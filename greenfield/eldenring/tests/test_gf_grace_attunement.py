@@ -18,6 +18,7 @@ from worlds.eldenring import contract  # noqa: E402
 from worlds.eldenring.tables.region_graces import REGION_GRACE_POINTS  # noqa: E402
 from worlds.eldenring.tables.region_open_flags import REGION_OPEN_FLAGS  # noqa: E402
 from worlds.eldenring.region_spine import REGION_PARENT  # noqa: E402
+from worlds.eldenring.features.graces import _ENTRANCE_COMPONENT_GRACES  # noqa: E402
 
 GAME = "Elden Ring"
 _THRESHOLD = 4
@@ -81,10 +82,12 @@ class AttunementOn(_Base):
             self.assertEqual(sorted(graces[key] + gate["members"]), sorted(REGION_GRACE_POINTS[region]),
                              f"{region}: anchor + members != the region's grace points")
 
-    def test_exactly_one_grace_is_handed_over_on_unlock(self):
+    def test_one_entry_per_component_is_handed_over_on_unlock(self):
         graces, gates = self._pair()
         for key in gates:
-            self.assertEqual(len(graces[key]), 1, f"{key} must light exactly one grace on unlock")
+            region = key[: -len(" Lock")]
+            expected = len(_ENTRANCE_COMPONENT_GRACES.get(region, [None]))
+            self.assertEqual(len(graces[key]), expected, f"{key} must preserve component entries")
 
     def test_the_anchor_is_the_regions_own_front_door(self):
         # The default anchor is the region's own front door: REGION_OPEN_FLAGS where it is a real
@@ -96,6 +99,9 @@ class AttunementOn(_Base):
         graces, gates = self._pair()
         for key in gates:
             region = key[: -len(" Lock")]
+            if region in _ENTRANCE_COMPONENT_GRACES:
+                self.assertEqual(graces[key], _ENTRANCE_COMPONENT_GRACES[region])
+                continue
             front = REGION_OPEN_FLAGS.get(region)
             want = front if front in REGION_GRACE_POINTS[region] else entrance_grace(
                 list(REGION_GRACE_POINTS[region]), region)

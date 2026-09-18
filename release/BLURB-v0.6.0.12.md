@@ -17,6 +17,11 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
+Mountaintops unlocks give you a way onto the mountain. With limited graces, new seeds now
+retain both Forbidden Lands and Zamor Ruins instead of leaving upper access dependent on
+Rold or a closed Hero's Grave door. Attunement keeps the separate entry points in both
+Mountaintops and Ainsel available while you explore. Existing seeds retain their original bundles.
+
 Leyndell opens on its Lock now, like everywhere else.
 
 The capital used to sit behind a second gate -- two Great Runes on top of the Leyndell Lock --
