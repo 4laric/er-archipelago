@@ -585,10 +585,6 @@ if os.path.isfile(_bar_path):
 #   so the fight and the death-recovery route back into it stay reachable before Stormveil opens.
 _ARENA_REGION_CURATED = {
     10000850: "Stormveil",
-    # Seethewater River Tibia Mariner (#1076). Its reward is anchored to grace 76354 on Mt. Gelmir
-    # ground, while the coarse m60_38_52 tile straddles Old Altus. This ruling re-homes the host
-    # without moving the tile or the two Old Altus pickups that legitimately share it.
-    1038520800: "Mt. Gelmir",
     # 34140850 Fell Twin (Divine Tower of East Altus, #324). There is NO measured row for this
     # trigger, so its arena label came from the THIRD source below -- the arena map's first-hand
     # dungeon_regions.tsv row, which reads 'Altus' off the tower graces' warp group 63003. That
@@ -11650,6 +11646,13 @@ if BOSS_HEALTHBARS:
     _FIELD_SWEEP_REGION_CURATED = {
         1050570850: "Consecrated Snowfield",
         1050560800: "Consecrated Snowfield",
+        # Seethewater River Tibia Mariner (#1076). Alaric ruled 2026-09-18 that the BOSS is an Altus
+        # boss (boss_arena_rulings.tsv and BOSS_AREA_REGION already say Altus), while the Seethewater
+        # and First Mt. Gelmir Campsite CHECKS stay in Mt. Gelmir (#1124, FLAG_REGION_OVERRIDE). Its
+        # ring vote is Mt. Gelmir because m60_38_52/53 hold those checks, so this rules the BOSS, not
+        # the tile: the local-member filter below keeps only the Altus pickups on the Mariner and
+        # re-deals the Gelmir ones to the Gelmir field bosses beside them (#1059).
+        1038520800: "Altus",
     }
     for _trig, _reg in _FIELD_SWEEP_REGION_CURATED.items():
         if _trig not in dict(_field_bosses):

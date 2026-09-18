@@ -14,12 +14,14 @@ GAME = "Elden Ring"
 
 class AnyFourGreatRunesAreSurfaced(WorldTestBase):
     game = GAME
+    # 🛑 NO leyndell_runes_required HERE SINCE 2026-09-14. This fixture used to disarm the
+    # capital wall so the rune goal stood alone; the wall is retired now, so there is nothing
+    # to disarm and the deprecated no-op is not spelled in a file that is not about it.
     options = {
         "num_regions": 0,
         "item_shuffle": True,
         "ending_condition": "great_runes",
         "goal_great_runes": 4,
-        "leyndell_runes_required": 0,
     }
 
     def _world(self):

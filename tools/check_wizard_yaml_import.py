@@ -78,7 +78,7 @@ function replaceOption(yaml, key, replacement){
 }
 
 const legacy = P.meta.options.filter(o => o.compatibility_only);
-if (legacy.length !== 3) throw new Error("legacy witnesses disappeared");
+if (legacy.length !== 4) throw new Error("legacy witnesses disappeared");
 for (const option of legacy){
   P.state.values[option.key] = option.default;
 }

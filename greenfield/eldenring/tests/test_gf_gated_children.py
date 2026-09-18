@@ -1,4 +1,4 @@
-"""Gated-children fix (2026-07-14): a region behind a vanilla hard wall is entered, not warped past.
+"""Gated children (2026-07-14): a region behind a vanilla hard wall is entered, not warped past.
 
 Playtest bug: an Altus-anchored rolled seed was handed the East Capital Rampart grace (71102) --
 Leyndell's bundle, a warp target on the far side of the capital's 2-Great-Rune gate -- walked
@@ -7,13 +7,12 @@ straight in and ended the run at Morgott. The fix is fourfold, and each fold get
   1. DATA ONCE: region_spine.REGION_PARENT names every gated child and the parent it is entered
      from, and every region-entry gate FEATURE must have an entry there (a future gate cannot land
      without one). features/graces.WALL_ARMED must pair every child with its arming predicate.
-  2. GRACES: a kept gated child's bundle is emitted EMPTY while its wall is armed (never granted);
-     disarming the wall (leyndell_runes_required: 0) reverts to granting, because a fixed in-game
-     wall with no armed logic gate would otherwise be physically unwinnable.
+  2. GRACES: a kept gated child's bundle was emitted EMPTY while its wall was armed (never
+     granted); disarming the wall reverted to granting, because a fixed in-game wall with no
+     armed logic gate would otherwise be physically unwinnable.
   3. KEPT CLOSURE: compute_kept never keeps a child without its whole ancestor chain.
   4. REACHABILITY + ANCHOR: a child's checks require the parent's Lock chain in logic -- and the
-     rune wall rides the "To Leyndell" ENTRANCE, so it is transitive to the Sewer -- and the start
-     anchor is never a gated child.
+     start anchor is never a gated child.
   5. THE OPEN FLAG IS NOT A GRACE (#278, added 2026-08-01). Folds 1-4 shipped in 2026-07 and the
      playtest bug came BACK anyway, through a door none of them watched. `regionGraces` is emptied
      while the wall is armed -- but `regionOpenFlags` shipped the SAME flag, because for every
@@ -23,6 +22,15 @@ straight in and ended the run at Morgott. The fix is fourfold, and each fold get
      fast-travel target past the wall. Folds 1-4 all passed while it did (35 green). One bit cannot
      be both the kick latch and a warp unlock (#240's shape), so gated children now carry a
      SYNTHETIC open flag and this fold is what keeps it synthetic.
+
+🛑 FOLD 2 IS RETIRED ON EVERY SEED SINCE 2026-09-14 (Alaric: Leyndell is an ordinary Lock
+region; Raya since 2026-08-16, #740). No wall is armed in logic anywhere: the capital's
+Great-Rune wall is gone, its bundle rides the Leyndell Lock like any ungated region's, and the
+physical two-rune seal is opened by the client on Lock receipt (lockRevealFlags 105+182). What
+remains is the CONTAINMENT -- the parent chain, the kept-set closure, the anchor bar, the
+synthetic open flag -- which is still the physical truth (the capital is entered from Altus)
+and still what keeps fill honest. The live-seed classes below assert the granted state, not the
+withheld one; a wall that returns must re-arm fold 2's tests with it, not inherit these.
 """
 import random
 
@@ -57,19 +65,39 @@ class TestParentMapInvariants:
 
     def test_every_region_entry_gate_feature_has_a_parent_entry(self):
         # legacy_key_gates: a key with a non-empty MAP RANGE gates region ENTRY (the whole map is
-        # the region); a (0,0) range gates a check, not a door. leyndell_gate gates GOAL_REGION.
+        # the region); a (0,0) range gates a check, not a door.
         for key, (region, (lo, hi)) in _LEGACY_KEYS.items():
             if hi > lo:
                 assert region in REGION_PARENT, (
                     f"{key!r} gates entry to {region!r} but REGION_PARENT has no entry -- "
                     f"a region-entry gate must name the parent it is entered from")
-        assert GOAL_REGION in REGION_PARENT, (
-            "leyndell_gate gates entry to the goal region; REGION_PARENT must name its parent")
+
+    def test_goal_region_keeps_its_geography_parent(self):
+        # 🛑 GEOGRAPHY, NOT A GATE (2026-09-14, Alaric's call). The capital's rune wall is retired;
+        # "Leyndell": "Altus" stays because the capital is physically entered from Altus, and the
+        # Lock chain, the kept-set closure, the anchor bar and the synthetic open flag all still
+        # read it. If a future spine edit drops or re-parents it, that is a deliberate geography
+        # change and it must fail here first, not surface as strandeds.
+        assert REGION_PARENT.get(GOAL_REGION) == "Altus", (
+            f"{GOAL_REGION} must stay parented under Altus for geography -- see the 2026-09-14 "
+            f"note in region_spine.py")
 
     def test_wall_armed_pairs_every_child(self):
         assert set(WALL_ARMED) == set(REGION_PARENT), (
             "features/graces.WALL_ARMED must pair EVERY gated child with its arming predicate "
             "(an unpaired child withholds unconditionally, which is only safe as a stopgap)")
+
+    def test_no_wall_is_armed_on_a_default_seed(self):
+        # The ruling, stated as a pairing property rather than a seed property: both predicates
+        # must read False with no gate state published. A wall that re-arms must do so by
+        # publishing state a predicate reads -- and this names it.
+        class _Empty:
+            pass
+        for child, armed in WALL_ARMED.items():
+            assert armed(_Empty()) is False, (
+                f"{child}'s wall arms with no gate state published -- since 2026-09-14 no wall "
+                f"may arm in any logic mode except natural_progression's own capital wall, which "
+                f"lives outside WALL_ARMED")
 
 
 # ---- 3. compute_kept closure ----------------------------------------------------------------------
@@ -102,8 +130,8 @@ class TestKeptClosure:
         # keep ONE region. So the capital enters the kept set by exactly two routes, and the
         # CLOSURE claim (which is what this test is about) is asserted on both.
         assert parent_chain(GOAL_REGION), (
-            "this test needs the goal region to BE a gated child; if REGION_PARENT ever drops it, "
-            "re-point the test at a child that still has a chain rather than letting it go vacuous")
+            "this test needs the goal region to HAVE a parent chain; if REGION_PARENT ever drops "
+            "it, re-point the test at a child that still has one rather than letting it go vacuous")
         # route 1: an explicit `goal` forces it (features/goal_locations.forced_regions)
         kept = compute_kept(1, random.Random(2), base_regions(), forced=(GOAL_REGION,))
         assert GOAL_REGION in kept
@@ -160,39 +188,34 @@ class TestAnchorNeverGatedChild:
                                gated=frozenset(REGION_PARENT))
 
 
-# ---- 2 + 4b. a live seed: bundles withheld, logic transitive, fill never strands -------------------
+# ---- 2 + 4b. a live seed: bundles granted, logic parented, fill never strands -------------------
 class GatedChildrenLiveSeed(WorldTestBase):
     game = GAME
     run_default_tests = False
-    # all base regions kept (num_regions 0, DLC off default) -> every gated child is present and
-    # armed: item_shuffle + legacy keys are frozen ON; leyndell_runes_required defaults to 2.
+    # all base regions kept (num_regions 0, DLC off default). No wall is armed on any seed now,
+    # so every kept child's bundle rides its Lock.
     options = {"num_regions": 0}
 
     def _sd(self):
         return self.world.fill_slot_data()
 
-    def test_armed_children_bundles_withheld_others_granted(self):
+    def test_no_child_bundle_withheld_others_granted(self):
         rg = self._sd()["regionGraces"]
         kept = set(self.world._kept())
         # Pin the base pair by name so a rename can't quietly empty the loop. (Scaduview folded
         # into Shadow Keep 2026-07-19; the Sewer folded into Leyndell 2026-08-20 -- each has its
         # own FoldedInto seed class below asserting the post-fold state.)
         assert {"Raya Lucaria Academy", "Leyndell"} <= kept & set(REGION_PARENT)
-        # 🛑 RAYA LUCARIA IS A GATED CHILD WITH NO WALL SINCE 2026-08-16. Its Academy Glintstone Key
-        # gate was retired (bobler + Alaric: "have the minted Academy Lock be the thing that grants
-        # all the graces"), so WALL_ARMED's predicate is False in every seed and the bundle SHIPS.
-        # It stays in REGION_PARENT -- the structural containment and the synthetic 7698x open flag
-        # are unchanged -- which is exactly why this loop has to name it rather than iterate blindly.
+        # 🛑 RAYA GRANTS SINCE 2026-08-16 (#740), LEYNDELL SINCE 2026-09-14 (rune-wall
+        # retirement). Both stay in REGION_PARENT -- the structural containment and the synthetic
+        # 7698x open flag are unchanged -- so this loop has to name the granted state per child
+        # rather than iterate blindly: an unpaired child withholds UNCONDITIONALLY, and "the
+        # bundle is empty again" is a real regression either line must catch.
         for child in REGION_PARENT:
             if child not in kept:
                 continue
-            if child == "Raya Lucaria Academy":
-                assert rg.get(f"{child} Lock"), (
-                    "the Academy Lock must GRANT its bundle -- a Lock that lights nothing is "
-                    "bobler's original report (2026-08-16)")
-                continue
-            assert rg.get(f"{child} Lock") == [], (
-                f"{child} bundle must be withheld (armed wall), got {rg.get(f'{child} Lock')}")
+            self.assertEqual(rg.get(f"{child} Lock"), list(REGION_GRACE_POINTS[child]),
+                             f"{child}'s bundle must ride its Lock in full -- no wall is armed")
         # a non-gated region's bundle is untouched -- the fix must not eat normal grants.
         assert rg.get("Altus Lock") == list(REGION_GRACE_POINTS["Altus"])
         assert rg.get("Liurnia Lock") == list(REGION_GRACE_POINTS["Liurnia"])
@@ -232,34 +255,6 @@ class GatedChildrenLiveSeed(WorldTestBase):
                 for l in locs_by_region.get(region, [])[:8]:
                     assert l.can_reach(st), f"{l.name} ({region}) blocked WITH {parent_lock}"
 
-    def test_capital_and_sewer_unreachable_without_the_gate_runes(self):
-        # the rune wall is TRANSITIVE: it guards the "To Leyndell" ENTRANCE (not just the capital's
-        # own checks), so the Sewer -- entered down a well inside the capital -- is runeless-
-        # unreachable too. A full state minus every copy of the gate's chosen runes must reach
-        # neither region; collecting the runes back must open both.
-        runes = set(getattr(self.world, "gf_leyndell_runes", ()))
-        assert runes, "default seed must arm the rune gate (leyndell_runes_required=2)"
-        st = self.multiworld.get_all_state(False)
-        rune_copies = [it for it in world_items(self) if it.name in runes]
-        assert rune_copies, "gate runes missing from the created items"
-        for it in rune_copies:
-            st.remove(it)
-        locs_by_region = {}
-        for l in self.multiworld.get_locations(self.player):
-            locs_by_region.setdefault(l.parent_region.name, []).append(l)
-        # Post-merge the Shunning-Grounds ARE Leyndell rows, so sampling Leyndell covers them --
-        # and the m35 sample below pins that explicitly (the old transitive property, now direct).
-        m35 = [l for l in locs_by_region.get("Leyndell", []) if "(m35" in l.name][:4]
-        assert m35, "no former-Sewer (m35) rows among Leyndell's locations"
-        for l in locs_by_region.get("Leyndell", [])[:8] + m35:
-            assert not l.can_reach(st), (
-                f"{l.name} reachable WITHOUT the gate runes -- the rune wall does not cover "
-                f"the capital (or its merged Shunning-Grounds)")
-        for it in rune_copies:
-            st.collect(it, prevent_sweep=True)
-        for l in locs_by_region.get("Leyndell", [])[:8] + m35:
-            assert l.can_reach(st), f"{l.name} blocked WITH the runes"
-
     def test_fill_never_strands_progression_in_a_sealed_child(self):
         mw = self.multiworld
         distribute_items_restrictive(mw)
@@ -292,7 +287,7 @@ class GatedChildrenLiveSeed(WorldTestBase):
             assert flag not in all_graces, (
                 f"{child}'s open flag {flag} IS a grace flag -- `open_on_received_name` sets it on "
                 f"Lock receipt, so receiving the Lock lights a warp target on the far side of the "
-                f"wall and the withheld bundle is bypassed (#278)")
+                f"wall and the granted bundle is bypassed (#278)")
             checked += 1
         # 3 -> 2 (2026-08-20): the Sewer merged into Leyndell, so the base gated children are a
         # PAIR now (Leyndell + Raya Lucaria Academy). The witness still refuses zero/one.
@@ -396,12 +391,10 @@ class ScaduviewFoldedIntoKeep(WorldTestBase):
 
 class SewerFoldedIntoLeyndell(WorldTestBase):
     """The Sewer (Subterranean Shunning-Grounds, m35) MERGED into Leyndell 2026-08-20 (Alaric's
-    audible on #917/#842). The well is inside the capital walls: one region, one wall, and the
-    rune-gate + #589 supply-repair machinery covers m35 for free -- which also dissolves #842's
-    self-gating hazard (a Great Rune on Mohg the Omen is now just a Leyndell placement the
-    existing bar already refuses). Mirrors ScaduviewFoldedIntoKeep above: (a) Sewer is gone as a
-    region, (b) former-Sewer checks live in Leyndell, (c) the Leyndell Lock gates them
-    (necessary direction), (d) the m35 graces ride Leyndell's bundle."""
+    audible on #917/#842). The well is inside the capital walls: one region, one wall. Mirrors
+    ScaduviewFoldedIntoKeep above: (a) Sewer is gone as a region, (b) former-Sewer checks live in
+    Leyndell, (c) the Leyndell Lock gates them (necessary direction), (d) the m35 graces ride
+    Leyndell's bundle -- granted on the Lock since the 2026-09-14 rune-wall retirement."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0}
@@ -433,122 +426,96 @@ class SewerFoldedIntoLeyndell(WorldTestBase):
                 f"{l.name} reachable WITHOUT the Leyndell Lock -- the merge broke capital gating")
 
 
-class LeyndellWallDisarmed(WorldTestBase):
-    """leyndell_runes_required: 0 disarms the rune gate -> the capital bundle is GRANTED again
-    (the game's own wall stays 2 runes; only the granted warp can honor 'no requirement'), while
-    the Sewer (containment wall, no knob) stays withheld."""
+class TestDeprecatedLeyndellOptionAccepted(WorldTestBase):
+    """`leyndell_runes_required` is a deprecated no-op since 2026-09-14: every value parses, every
+    value is ignored, the capital opens on its Lock regardless. Old YAMLs must still generate --
+    Archipelago warns on an UNKNOWN key and generates without it, but this key is still KNOWN, so
+    a yaml carrying it generates exactly as one without it. Both spellings below must generate
+    clean and grant the capital bundle; the :4 seed is the sharp one (under the old wall it armed
+    a four-rune wall and withheld the bundle)."""
     game = GAME
     run_default_tests = False
     options = {"num_regions": 0, "leyndell_runes_required": 0}
 
-    def test_disarmed_capital_grants_the_bundle(self):
+    def test_zero_still_generates_and_grants(self):
         rg = self.world.fill_slot_data()["regionGraces"]
-        assert rg.get("Leyndell Lock") == list(REGION_GRACE_POINTS["Leyndell"]), (
-            "disarmed rune gate must grant the capital bundle or the capital is unwinnable")
-        # Post-merge that bundle INCLUDES the Shunning-Grounds graces (73501-73504) -- the
-        # separate always-withheld "Sewer Lock" is gone with the region.
-        assert 73501 in REGION_GRACE_POINTS["Leyndell"], "the merged m35 graces left the bundle?!"
-        assert "Sewer Lock" not in rg
-        # Raya's wall is gone entirely (2026-08-16) -- it grants regardless of the capital's state.
-        assert rg.get("Raya Lucaria Academy Lock")
-
-    def test_open_flag_stays_synthetic_even_when_the_wall_is_disarmed(self):
-        """#278 is UNCONDITIONAL. Disarming the wall restores the bundle, so the warp arrives
-        through regionGraces where it belongs -- the open flag's only remaining job is the kick
-        latch, and making it grace-valued again for this one case would put the seam back."""
-        all_graces = {f for fs in REGION_GRACE_POINTS.values() for f in fs}
-        of = self.world.fill_slot_data()["regionOpenFlags"]
-        for child in ("Leyndell", "Raya Lucaria Academy"):
-            assert of[f"{child} Lock"] not in all_graces
+        assert rg.get("Leyndell Lock") == list(REGION_GRACE_POINTS["Leyndell"])
 
 
-class SewerRuneRegressionSeed(WorldTestBase):
-    """Alaric's in-game generation combo, 2026-07-15 ('a great rune was in the sewer on mohg's
-    drop'): num_regions 0 + DLC + region_locks ending + leyndell_runes_required 2 + accessibility
-    MINIMAL. Under minimal, AP's fill_restrictive SKIPS the location reachability check whenever
-    the exploration state can already beat the game (Fill.py perform_access_check) -- and because
-    the region_locks completion never mentions the gate runes, a rune's own placement is exactly
-    when the check is skipped. The strict progression-surface pre-fill (which runs in this
-    fixture: WorldTestBase's gen steps end at pre_fill) then LOCKS the rune wherever item_rule
-    allows. Seed 36 locked Godrick's Great Rune onto Mohg the Omen (Sewer :: [Incantation]
-    Bloodflame Talons, f510250) -- behind the very wall it opens -- an unrescuable strand that
-    post_fill's audit rightly FillErrors. item_rule is the ONE rule can_fill honors even with the
-    access check skipped, so the deterministic guard here is: every location in the walled
-    subtree -- the capital AND everything hanging off it (the Sewer) -- must REJECT every gating
-    item outright. (The Ashen Capital finale used to be named here too; it left the subtree on
-    2026-08-06 when SPEC-ashen-capital-lock re-hosted it on the hub. See the test body.)"""
+class TestDeprecatedLeyndellOptionNonDefaultIgnored(WorldTestBase):
     game = GAME
     run_default_tests = False
-    options = {"num_regions": 0, "enable_dlc": True, "ending_condition": "region_locks",
-               "leyndell_runes_required": 2, "accessibility": "minimal"}
+    options = {"num_regions": 0, "leyndell_runes_required": 4}
 
-    def test_gating_items_barred_from_the_whole_walled_subtree(self):
-        from worlds.eldenring.tables.data import FINALE_REGION
-        from worlds.eldenring.features.leyndell_gate import (
-            _GATING_ITEMS, _gated_region_names)
-        gated = _gated_region_names(self.world)
-        # the derivation must span the KNOWN children -- a rename/reparent that drops one of
-        # these must fail here, not resurface as a 1-in-N FillError in someone's overnight gen.
-        # Post-merge the subtree IS Leyndell (the m35 rows are Leyndell rows); the positive
-        # witness below pins the original offender's row by flag so the merge cannot quietly
-        # drop it from the bar.
-        assert "Leyndell" in set(gated), gated
-        offender = [l for l in self.multiworld.get_locations(self.player)
-                    if "[f510250]" in l.name]
-        assert offender and offender[0].parent_region.name == "Leyndell", (
-            "Mohg the Omen's check (the 2026-07-15 strand) must be a Leyndell row post-merge")
-        # FINALE_REGION was in that set until 2026-08-06, when SPEC-ashen-capital-lock re-hosted
-        # the Ashen Capital from Leyndell to the HUB: you no longer walk to it through the rune
-        # wall, you warp to its own graces once the Ashen Capital Lock arms the burn. It is
-        # therefore genuinely OUTSIDE the walled subtree, and a gating item placed there is
-        # reachable without the gate it opens -- no seed-36 strand. That is a claim about the
-        # region GRAPH, so assert the graph rather than just dropping the name: the finale's only
-        # way in must be the hub. If it is ever re-parented under the capital, this reds and the
-        # bar above has to grow the name back.
-        assert FINALE_REGION not in gated, (
-            f"{FINALE_REGION} is back inside the rune wall -- restore it to the bar above")
-        _fin = self.multiworld.get_region(FINALE_REGION, self.player)
-        assert {e.parent_region.name for e in _fin.entrances} == {HUB}, (
-            f"{FINALE_REGION} must hang off the hub alone; entrances = "
-            f"{[e.parent_region.name for e in _fin.entrances]}")
-        gating = [self.world.create_item(nm) for nm in sorted(_GATING_ITEMS)
-                  if nm in self.world.item_name_to_id]
-        assert gating, "no gating items resolvable from the catalog"
-        checked = 0
-        for loc in self.multiworld.get_locations(self.player):
-            if loc.parent_region is None or loc.parent_region.name not in gated:
-                continue
-            for it in gating:
-                assert not loc.item_rule(it), (
-                    f"{loc.name} ({loc.parent_region.name}) accepts gating item {it.name} -- "
-                    f"inside the rune wall this can deadlock the gate (seed-36 class)")
-            checked += 1
-        assert checked >= 50, f"suspiciously few gated-subtree locations audited ({checked})"
+    def test_four_is_ignored_and_grants(self):
+        # Under the retired wall this armed at four runes and withheld the bundle. Now it must
+        # read exactly like the default: granted, beatable, no OptionError at gen (WorldTestBase
+        # reaching this line IS the no-OptionError proof -- an incompatible combination dies in
+        # generate_early, before any test runs).
+        rg = self.world.fill_slot_data()["regionGraces"]
+        assert rg.get("Leyndell Lock") == list(REGION_GRACE_POINTS["Leyndell"])
+        assert self.multiworld.can_beat_game(), "deprecated-option seed must stay beatable"
 
-    def test_no_gating_item_pre_filled_into_the_walled_subtree(self):
-        # the strict surface pre-fill already ran (gen steps end at pre_fill): whatever it
-        # placed-and-LOCKED must respect the wall.
-        from worlds.eldenring.features.leyndell_gate import (
-            _GATING_ITEMS, _gated_region_names)
-        gated = _gated_region_names(self.world)
-        for loc in self.multiworld.get_locations(self.player):
-            if loc.item is None or loc.parent_region is None:
-                continue
-            if loc.parent_region.name in gated:
-                assert loc.item.name not in _GATING_ITEMS, (
-                    f"pre-fill placed {loc.item.name} at {loc.name} inside the rune wall")
 
-    def test_full_fill_leaves_no_stranded_progression(self):
-        # end-to-end: full fill + the post_fill audit must not FillError, and an empty-state
-        # sweep must reach every own progression item (the audit's own bar).
-        mw = self.multiworld
-        distribute_items_restrictive(mw)
-        from worlds.eldenring.features import progression_surface as _ps
-        _ps.audit_reachable(self.world)  # raises FillError on a locked strand
-        assert mw.can_beat_game()
-        state = CollectionState(mw)
+class TestLeyndellLockOnly(WorldTestBase):
+    """Leyndell is an ordinary Lock region (2026-09-14): the Lock is the ONLY gate, in logic and
+    on the wire. Two halves, both asserted here because they are one ruling:
+
+    (a) the regionGraces bundle is non-empty -- the full capital bundle, m35 graces included;
+    (b) a seed with Leyndell kept and ZERO Great Runes reachable is still beatable under logic --
+        no rune in hand, no rune needed. (Under `ending_condition: great_runes` runes ARE needed,
+        by design: that goal counts them. This class runs the default region_locks ending, where
+        nothing may ask for a rune.)
+    (c) the seal-open rides the Lock on the wire: lockRevealFlags["Leyndell Lock"] carries the
+        measured seal pair 105+182 (the flags m60_45_52_00 $Event(1045522500) reads), so the
+        client opens the physical seal on the same receipt that lights the bundle."""
+    game = GAME
+    run_default_tests = False
+    options = {"num_regions": 0}
+
+    def test_leyndell_lock_bundle_is_the_full_capital_bundle(self):
+        rg = self.world.fill_slot_data()["regionGraces"]
+        bundle = rg.get("Leyndell Lock")
+        assert bundle, "the Leyndell Lock must light its graces -- an empty bundle strands the warp"
+        assert bundle == list(REGION_GRACE_POINTS["Leyndell"]), (
+            "the bundle must be the whole capital bundle (m35 Shunning-Grounds graces included)")
+        assert 73501 in bundle, "the merged m35 graces left the bundle?!"
+
+    def test_seal_flags_ride_the_leyndell_lock(self):
+        reveal = self.world.fill_slot_data().get("lockRevealFlags", {})
+        assert reveal.get("Leyndell Lock") == [105, 182], (
+            f"lockRevealFlags['Leyndell Lock'] must carry the measured seal pair, got "
+            f"{reveal.get('Leyndell Lock')} -- the client opens the physical two-rune seal on "
+            f"this receipt (world half; the client half is a separate PR)")
+
+    def test_zero_runes_reachable_seed_still_beatable(self):
+        # A full state (everything, including the anchor precollect) minus every copy of every
+        # Great Rune: Leyndell's checks must stay reachable -- no rune in hand, no rune needed.
+        # The remove-all-copies pattern (per test_gf_ending) is what makes this seed-robust.
+        from worlds.eldenring.item_categories import GREAT_RUNES as _ALL_RUNES
+        st = self.multiworld.get_all_state(False)
+        rune_names = set(_ALL_RUNES)
+        copies = [it for it in world_items(self) if it.name in rune_names]
+        assert copies, "no Great Rune copies in the created items -- the test would prove nothing"
+        for it in copies:
+            st.remove(it)
+        locs = [l for l in self.multiworld.get_locations(self.player)
+                if getattr(getattr(l, "parent_region", None), "name", None) == "Leyndell"]
+        assert len(locs) >= 8, f"suspiciously few Leyndell locations ({len(locs)})"
+        for l in locs[:8]:
+            assert l.can_reach(st), (
+                f"{l.name} unreachable with zero Great Runes held -- a rune is gating the "
+                f"capital again")
+        # And the whole seed stays beatable on a rune-less sweep: Great Runes are `useful`, never
+        # `advancement`, under the default region_locks ending -- so sweep_for_advancements from
+        # an empty state never collects one, and every progression item it reaches is reached
+        # with zero runes. (Under `ending_condition: great_runes` runes ARE needed, by design:
+        # that goal counts them. This class runs the default ending, where nothing may ask for
+        # a rune.)
+        state = CollectionState(self.multiworld)
         state.sweep_for_advancements()
-        for l in mw.get_locations(self.player):
+        for l in self.multiworld.get_locations(self.player):
             if l.item is not None and l.item.advancement:
                 assert state.can_reach(l), (
-                    f"progression {l.item.name} stranded on unreachable {l.name}")
+                    f"progression {l.item.name} stranded on unreachable {l.name} in a seed "
+                    f"whose sweep never held a Great Rune")

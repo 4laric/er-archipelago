@@ -22,6 +22,16 @@ retain both Forbidden Lands and Zamor Ruins instead of leaving upper access depe
 Rold or a closed Hero's Grave door. Attunement keeps the separate entry points in both
 Mountaintops and Ainsel available while you explore. Existing seeds retain their original bundles.
 
+Leyndell opens on its Lock now, like everywhere else.
+
+The capital used to sit behind a second gate -- two Great Runes on top of the Leyndell Lock --
+and while that wall was armed the Lock lit nothing at all: it arrived and nothing visibly
+happened, the single most-reported "my Lock is broken" in the mod. That wall is gone. The
+Leyndell Lock lights the whole capital bundle, sewer graces included, and the physical seal
+opens on the same receipt. Great Runes are still worth finding -- the `great_runes` ending
+counts them, and holding one is what counts, never activating it -- but they open no doors in
+Leyndell any more. (The one place the two-rune wall still stands is `natural_progression`
+mode, which has no Locks to open anything with: there the game's own gate is still the gate.)
 
 Margit's arena follows the Stormveil lock. Its raw game region previously got collapsed into
 Stormhill, so starting in Stormveil could eject you to Roundtable during the fight intro.

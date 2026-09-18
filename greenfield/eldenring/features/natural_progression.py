@@ -28,9 +28,11 @@ are encoded as COMPOUND key clauses (you must hold the upstream key), not graph 
   * DLC bloc  <- Remembrance of the Blood Lord (Mohg)
   * Gelmir    <- Rya's Necklace  OR  (Rem. of the Grafted AND Academy Glintstone Key)   [Liurnia+Academy]
   * Rauh      <- Shadow Keep's clause (Blood Lord AND Aspects of the Crucible: Thorns)
-  * Capital   <- Altus (graph parent, REGION_PARENT) AND 2 Great Runes (count gate; leyndell_gate owns
-                 the rune half). NB Altus IS a Leyndell prerequisite (Alaric 2026-07-23 -- this
-                 SUPERSEDES the committed spec S2 "Altus prereq DROPPED" line; update the spec).
+  * Capital   <- Altus (graph parent, REGION_PARENT) AND 2 Great Runes (count gate; this
+                 feature owns the rune half -- the AP-logic mirror of the vanilla wall -- since
+                 features/leyndell_gate.py was retired on 2026-09-14). NB Altus IS a Leyndell
+                 prerequisite (Alaric 2026-07-23 -- this SUPERSEDES the committed spec S2
+                 "Altus prereq DROPPED" line; update the spec).
 
 TWO NEW PRIMITIVES (spec S2): the COUNT-gate (open on N-of-a-set) and the COMPOUND-gate (items AND
 world flags). v0.1 DRAFT wired single-item + OR + compound-of-items gates end-to-end; the COUNT-gate
@@ -38,11 +40,13 @@ was LOGIC-ONLY until the client count primitive landed (2026-07-24): a clause ma
 ``{"countItems": [names...], "count": N}`` (region.rs parse_natural_keys / er-logic
 natural_key_fired) and fires when >= N distinct countItems have been received -- so COUNT_GATES
 (Caelid) now emits a real client trigger instead of degrading to always-open. Leyndell's
-N-Great-Rune gate ALSO rides the count primitive now: the vanilla main gate does open in-game on
+2-Great-Rune gate ALSO rides the count primitive now: the vanilla main gate does open in-game on
 held runes, but the client's areaLock seal (open flag 71102, set by nothing in this mode -- no
 "Leyndell Lock" item exists) kept the capital kicked-sealed in the 2026-07-24 playtest, so slot_data
-emits a count trigger on N Great Runes that blooms the capital's open flag (and Sewer's 73501, one
-wall deeper) exactly when the vanilla wall would open. leyndell_gate keeps the AP-logic mirror.
+emits a count trigger on 2 Great Runes that blooms the capital's open flag exactly when the
+vanilla wall would open. This feature keeps the AP-logic mirror (the "To Leyndell" edge rule in
+set_rules below) -- since the 2026-09-14 retirement of features/leyndell_gate.py, which owned it
+before. (The Sewer merged into Leyndell 2026-08-20: one region, one trigger.)
 
 DLC key resolution (Alaric 2026-07-24 -- corrects spec S3/S4/S5):
   * Abyssal Woods -> Barbed Staff-Spear (Jori, Elder Inquisitor, is NOT a remembrance boss; the spec's
@@ -94,6 +98,38 @@ except Exception:
 GREAT_RUNES = frozenset(_ic.GREAT_RUNES)
 REMEMBRANCES = frozenset(n for n in ITEM_CATALOG
                          if n.startswith("Remembrance of") or n.startswith("Remembrance "))
+
+try:
+    from ..region_spine import GOAL_REGION
+except Exception:  # pragma: no cover -- pre-regen data
+    GOAL_REGION = "Leyndell"
+
+# The VANILLA capital main gate is a fixed two-Great-Rune possession wall. It is not ours and it
+# does not scale with our options, so it is the count on any capital rune wall this mode arms.
+# (Moved here 2026-09-14 with the retirement of features/leyndell_gate.py, which owned it before.)
+VANILLA_CAPITAL_GATE_RUNES = 2
+
+# ⭐ ALL SEVEN COUNT AT THE GATE -- and the claim that they do not was never sourced.
+#
+# (Moved here 2026-09-14 from features/leyndell_gate.py, which carried this block until its
+# retirement. In default modes the capital opens on its Lock now and no logic counts runes
+# there; in THIS mode the game's own wall is still the wall, so this is where the reading lives.)
+#
+# `common.emevd $Event(6905)` "救済対応_伍 / Relief response_5" maps every remembrance flag to a
+# CONTIGUOUS held-rune slot -- 510010->171, 510300->172, 510040->173, 510220->174, 510120->175,
+# 510200->176, and 197->177. SEVEN slots, one per Great Rune, the Unborn rune among them.
+#
+# A game that did not count it would not give it a slot in that block. And the count IS decidable
+# from the corpus (2026-08-22, clients#392): common $Event(730) 大ルーン所持数チェック is
+# `CountEventFlags(EventFlag, 170, 179) >= threshold` -- the possession band 6905 writes into --
+# and its threshold-2 slot outputs flag 182, which the 王都の封印 (m60_45_52_00/.10
+# $Event(1045522500)) reads as `EventFlag(182) && EventFlag(105)`. The sibling counter $Event(720)
+# over the RESTORED band 190-199 feeds outputs 160-167 that nothing in the corpus reads. So all
+# seven count, in vanilla, through 171-177 -- and an AP goods grant sets none of them, which is why
+# the client writes 105+182 directly (keyitems.rs LEYNDELL_TWO_RUNES_FLAGS; on Lock receipt since
+# the 2026-09-14 Leyndell ruling, on rune receipt before).
+#
+# So: no exclusion. If the engine ever proves otherwise, the fix is a cited constant, not a docstring.
 
 # ---- the gate table (spec S3 base + S4 DLC) -----------------------------------------------------
 # region -> list of CLAUSES; each clause = a tuple of catalog key names ALL required (AND); the
@@ -163,12 +199,15 @@ COUNT_GATES = {
     "Caelid": (REMEMBRANCES, 2),   # spec S3 "2 remembrances"; 9410 reconciled (see docstring)
 }
 
-# Regions whose opening is the GAME's own native gate -> no ENTRANCE clause of ours (leyndell_gate
-# owns the rune half of the AP logic: Leyndell = N Great Runes on the "To Leyndell" edge; Sewer rides
-# the capital as Leyndell's child). They DO get a client count trigger from slot_data below (N Great
-# Runes) -- the vanilla main gate opens in-game on held runes, but the client's areaLock seal needs
-# the open flag bloomed or the kick keeps the capital shut (2026-07-24 playtest).
-# "Sewer" left 2026-08-20 with the merge into Leyndell -- one region, one native gate.
+# Regions whose opening is the GAME's own native gate -> no ENTRANCE clause of ours. Leyndell
+# reads N Great Runes on its "To Leyndell" edge (this feature's set_rules, the AP-logic mirror of
+# the vanilla wall) and gets a client count trigger from slot_data below -- the vanilla main gate
+# opens in-game on held runes, but the client's areaLock seal needs the open flag bloomed or the
+# kick keeps the capital shut (2026-07-24 playtest).
+# 🛑 THIS MODE ONLY, since 2026-09-14. Everywhere else Leyndell opens on its Lock like any region
+# (features/leyndell_gate.py retired): the seal is opened by the client on Lock receipt, and no
+# logic counts runes at the capital. Here there IS no Lock item, so the game's own two-rune wall
+# is still the wall -- leave this set, and this mode's rune half, exactly as they are.
 GAME_NATIVE_GATE = frozenset({"Leyndell"})
 
 # Graph parents kept in THIS mode (everything else flattens off the hub). Leyndell stays behind Altus
@@ -258,8 +297,8 @@ def natural_parent(region):
 
 def entrance_rule(world, region):
     """The access predicate for `region`'s 'To <region>' edge in this mode, or None = always open
-    (start regions / spokes / degraded gates / the game-native capital, whose rune logic leyndell_gate
-    ANDs onto the edge separately)."""
+    (start regions / spokes / degraded gates / the game-native capital, whose 2-rune rule this
+    feature's set_rules ANDs onto the edge separately)."""
     player = world.player
     if region in GAME_NATIVE_GATE:
         return None
@@ -277,6 +316,98 @@ def entrance_rule(world, region):
         all(state.has(k, p) for k in c) for c in cl)
 
 
+# ---- the capital rune wall (THIS MODE ONLY) ---------------------------------------------------
+# Moved here 2026-09-14 from features/leyndell_gate.py, which is retired. Everywhere else Leyndell
+# opens on its Lock and no logic counts runes; here there is no Lock item, so the game's own
+# fixed two-rune wall is still the wall and logic must mirror it, or fill strands progression
+# behind a door it cannot prove open.
+#
+# Capital map prefixes: m11 = Leyndell Royal + Ashen Capital, m19 = Fractured Marika / final
+# arena. The acquisition flag encodes the map (mAA -> AA......), so an m11/m19 flag in the goal
+# region is a capital check. Restricting to GOAL_REGION keeps HUB-overridden m11_10 Roundtable
+# checks out (they region to the hub).
+_LEYNDELL_PREFIXES = ("11", "19")
+_LEYNDELL_EXTRA_FLAGS = frozenset({173, 510040, 60520})  # Morgott GR + Rem. Omen King, Godfrey pouch
+# Gating items forbidden on capital-walled locs = Great Runes (the wall's own prerequisite) PLUS
+# the folded-dungeon legacy keys (Academy Glintstone Key, Hole-Laden Necklace) -- keeping a key
+# off a rune-walled capital check breaks the Metyr<->Leyndell cross-gate cycle (FillError
+# 2026-07-10). Same membership the retired wall carried; the cycle it breaks is still real here.
+_CAPITAL_GATING_ITEMS = frozenset(GREAT_RUNES) | frozenset(
+    {"Academy Glintstone Key", "Hole-Laden Necklace"})
+
+
+def _gated_region_names(world):
+    """Every region physically behind the 'To <GOAL_REGION>' edge, DERIVED from the live region
+    graph: the goal region plus everything reachable through its exits. A location in this subtree
+    sits behind the rune wall, so a gating item placed there can deadlock the very gate it opens.
+    Empty when the goal region is sealed this seed (dlc_only)."""
+    try:
+        start = world.multiworld.get_region(GOAL_REGION, world.player)
+    except KeyError:
+        return frozenset()
+    seen = {GOAL_REGION}
+    stack = [start]
+    while stack:
+        for exit_ in stack.pop().exits:
+            dst = getattr(exit_, "connected_region", None)
+            if dst is not None and dst.name not in seen:
+                seen.add(dst.name)
+                stack.append(dst)
+    return frozenset(seen)
+
+
+def _leyndell_location_ids():
+    out = set()
+    for reg, locs in LOCATIONS.items():
+        if reg != GOAL_REGION:
+            continue
+        for (_name, ap_id, flag) in locs:
+            if str(flag)[:2] in _LEYNDELL_PREFIXES or int(flag) in _LEYNDELL_EXTRA_FLAGS:
+                out.add(ap_id)
+    return out
+
+
+def _apply_capital_wall(world) -> None:
+    """AND the vanilla 2-rune wall onto the capital in AP logic: the "To Leyndell" entrance, the
+    capital's own checks, and the item_rule cycle-breaker over the whole walled subtree.
+
+    ENTRANCE rule: the rune requirement guards the edge itself, so it is transitive to everything
+    hung under the capital exactly like the physical fogwall (which Alaric confirmed in game,
+    2026-08-01, is the one way in -- the sewer well inside it is not a backdoor).
+    ITEM rule: the _CAPITAL_GATING_ITEMS bar must cover the WHOLE walled subtree, not just the
+    capital's own checks. Under accessibility:minimal AP's fill_restrictive SKIPS the reachability
+    check whenever the exploration state can already beat the game -- and item_rule is the one
+    rule can_fill honors UNCONDITIONALLY, so it, not the (transitive) entrance rule, is the
+    load-bearing guard (seed 36, 2026-07-15: Godrick's Great Rune locked onto Mohg the Omen
+    behind the very wall it opens)."""
+    runes = getattr(world, "gf_capital_runes", [])
+    if not runes:
+        return
+    need = len(runes)
+    player = world.player
+    try:
+        entrance = world.multiworld.get_entrance(f"To {GOAL_REGION}", player)
+    except KeyError:
+        entrance = None  # goal region sealed (dlc_only) -- generate_early already bailed then
+    if entrance is not None:
+        prev_ent = entrance.access_rule
+        entrance.access_rule = (lambda state, p=prev_ent, gr=GREAT_RUNES, k=need:
+                                p(state) and sum(1 for g in gr if state.has(g, player)) >= k)
+    gated_regions = _gated_region_names(world)
+    leyndell = _leyndell_location_ids()
+    for loc in world.multiworld.get_locations(player):
+        region = getattr(getattr(loc, "parent_region", None), "name", None)
+        if region not in gated_regions:
+            continue
+        if getattr(loc, "address", None) in leyndell:
+            prev = loc.access_rule
+            loc.access_rule = (lambda state, p=prev, gr=GREAT_RUNES, k=need:
+                               p(state) and sum(1 for g in gr if state.has(g, player)) >= k)
+        prev_item = loc.item_rule
+        loc.item_rule = (lambda item, pv=prev_item:
+                         pv(item) and item.name not in _CAPITAL_GATING_ITEMS)
+
+
 @register
 class NaturalProgressionFeature(Feature):
     name = "natural_progression"
@@ -285,6 +416,16 @@ class NaturalProgressionFeature(Feature):
     def generate_early(self, world) -> None:
         # Publish the progression key set for core._class_for (empty when the mode is off -> inert).
         world.gf_natural_keys = key_items(world) if is_on(world) else []
+        # THE CAPITAL'S TWO RUNES (this mode only). Everywhere else the capital opens on its Lock;
+        # here there is no Lock, so the game's fixed two-rune wall is still the wall: pick the two
+        # runes core._class_for marks PROGRESSION so fill guarantees them reachable, and record
+        # them for set_rules (the edge mirror) and slot_data (the client count trigger) below.
+        # 🛑 SEEDED SAMPLE, NOT AN ALPHABETICAL PREFIX (#640). `GREAT_RUNES` is unordered and any
+        # fixed pick would arm every capital on the same pair; `world.random` is the seeded
+        # multiworld stream, so this stays reproducible from the seed while being a real choice.
+        # The wall READS the supply it does not CREATE: `features/great_runes` mints every rune
+        # the draw did not supply on every seed, so `_available_runes()` is all seven here.
+        world.gf_capital_runes = []
         if is_on(world):
             import logging
             degraded = sorted(r for r in GATE_CLAUSES
@@ -294,8 +435,21 @@ class NaturalProgressionFeature(Feature):
                 "marked progression%s",
                 world.player, len(active_clauses(world)), len(world.gf_natural_keys),
                 (" -- DEGRADED-to-open (unavailable keys): " + ", ".join(degraded)) if degraded else "")
+            avail = sorted(world._available_runes())
+            if GOAL_REGION in world._kept() and len(avail) >= VANILLA_CAPITAL_GATE_RUNES:
+                world.gf_capital_runes = sorted(
+                    world.random.sample(avail, VANILLA_CAPITAL_GATE_RUNES))
+                logging.getLogger("Greenfield").info(
+                    "[eldenring:%s] natural_progression: capital wall ARMED at %d Great Rune(s) "
+                    "-- %s", world.player, len(world.gf_capital_runes),
+                    ", ".join(world.gf_capital_runes))
 
     def set_rules(self, world) -> None:
+        if not is_on(world):
+            return
+        # THE CAPITAL WALL FIRST: it must not be skippable by the clause-breaker's early return
+        # below (a seed with no live key clauses still has a capital behind two runes).
+        _apply_capital_wall(world)
         # CYCLE-BREAKER (mirrors legacy_key_gates._GATING_ITEMS): a region's gate key must never land
         # inside a region that key gates, or fill can strand it behind its own gate -> the whole
         # region goes unreachable (dead checks; under accessibility:minimal AP allows it, so the guard
@@ -344,19 +498,18 @@ class NaturalProgressionFeature(Feature):
         #   * COUNT_GATES (Caelid: 2 remembrances) -- same availability rule as entrance_rule/
         #     _count_set: emitted only when >= N of the set are pooled, else the region degrades to
         #     open via the always-open fallback below (matching the degraded AP-logic rule).
-        #   * Leyndell + Sewer (the game-native capital): the vanilla main gate opens in-game on N
-        #     held Great Runes (leyndell_gate carries the AP-logic mirror and picks/clamps N ->
-        #     world.gf_leyndell_runes), but the client's areaLock seal on open flags 71102/73501 has
-        #     no "<Region> Lock" item to open it in this mode -- the 2026-07-24 playtest capital
-        #     never opened. Bloom both on the Nth received rune: exactly when the vanilla wall
-        #     would open, so this cannot hand the player anything early, and it cannot strand the
-        #     in-game wall (the runes the client counts are the very key-item grants the game's own
-        #     gate counts). The capital's grace bundle stays WITHHELD while the wall is armed
-        #     (graces.py emits regionGraces["Leyndell Lock"] = []), so the bloom sets the open/
-        #     reveal flags -- unsealing the kick -- without granting a warp past the wall. When the
-        #     rune gate is DISARMED (leyndell_runes_required 0 / no pooled rune), gf_leyndell_runes
-        #     is empty -> no count trigger -> the always-open fallback covers the capital, matching
-        #     graces.py's disarmed-gate reading ("0 disables the gate" = deliberately bypass).
+        #   * Leyndell (the game-native capital): the vanilla main gate opens in-game on 2
+        #     held Great Runes (this feature's generate_early arms world.gf_capital_runes and
+        #     set_rules carries the AP-logic mirror), but the client's areaLock seal on open flag
+        #     71102 has no "<Region> Lock" item to open it in this mode -- the 2026-07-24 playtest
+        #     capital never opened. Bloom it on the 2nd received rune: exactly when the vanilla
+        #     wall would open, so this cannot hand the player anything early, and it cannot strand
+        #     the in-game wall (the runes the client counts are the very key-item grants the
+        #     game's own gate counts). There is no Lock item here, so no grace bundle rides this
+        #     trigger either way -- the player walks in past the game's own wall and touches the
+        #     graces, the same as before the 2026-09-14 retirement. When the capital is not kept
+        #     (dlc_only) gf_capital_runes is empty -> no count trigger -> the always-open fallback
+        #     covers it.
         for region, (names, n) in COUNT_GATES.items():
             if region not in kept or REGION_OPEN_FLAGS.get(region) is None:
                 continue
@@ -364,9 +517,9 @@ class NaturalProgressionFeature(Feature):
             if live is None:
                 continue  # gate can't bind this seed -> degrade to open (fallback below)
             triggers[f"{region} Lock"] = {"anyOf": [{"countItems": sorted(live), "count": n}]}
-        runes = list(getattr(world, "gf_leyndell_runes", []) or [])
+        runes = list(getattr(world, "gf_capital_runes", []) or [])
         if runes:
-            for region in GAME_NATIVE_GATE:  # Leyndell + Sewer, both behind the same rune wall
+            for region in GAME_NATIVE_GATE:  # Leyndell, behind the game-native rune wall
                 if region in kept and REGION_OPEN_FLAGS.get(region) is not None:
                     triggers[f"{region} Lock"] = {
                         "anyOf": [{"countItems": sorted(GREAT_RUNES), "count": len(runes)}]
@@ -378,9 +531,10 @@ class NaturalProgressionFeature(Feature):
         # satisfies vacuously (all() over [] is true) and blooms on the first client tick -- for every
         # KEPT region that HAS an open flag but NO trigger yet. This covers the flattened off-START
         # spokes (Limgrave, Weeping), any degraded gate (all clauses dropped / a count set with
-        # fewer than N pooled members), and the disarmed-rune-gate capital (see above). Regions with
-        # a real clause or count trigger above are skipped by the `name not in triggers` guard --
-        # Caelid and the armed capital no longer fall through to always-open.
+        # fewer than N pooled members), and the capital when it is not kept (dlc_only -- no wall
+        # to bloom). Regions with a real clause or count trigger above are skipped by the
+        # `name not in triggers` guard -- Caelid and the armed capital no longer fall through
+        # to always-open.
         for region in world._kept():
             if REGION_OPEN_FLAGS.get(region) is None:
                 continue

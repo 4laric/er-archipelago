@@ -32,30 +32,19 @@ the Land of Shadow regions unlock exactly like every other region: Lock
 arrives, graces light, warp in. And it cuts both ways: get into a region
 whose Lock you don't hold, by any route, and the client warps you back out.
 
-Two exceptions echo vanilla, both on by default, and both are IN ADDITION to
-the region's own Lock -- never instead of it:
-
-- **Raya Lucaria Academy** also needs the **Academy Glintstone Key**, shuffled
-  into the item pool like everything else.
-- **Leyndell** also needs **Great Runes** -- two by default
-  (`leyndell_runes_required`).
+Two regions used to echo vanilla here, both on by default, and both IN ADDITION to
+the region's own Lock -- never instead of it. Raya Lucaria Academy also needed the
+**Academy Glintstone Key**, and **Leyndell** also needed **Great Runes** -- two by
+default (`leyndell_runes_required`). Both walls are retired now: every Lock lights
+its region's graces, including the capital's -- the physical two-rune seal opens on
+the same receipt, so the Lock arriving IS the way in.
 - **The Shunning-Grounds sewer is part of Leyndell** (merged in v0.4.10): once
   the capital opens, the well is yours, and the sewer's graces arrive with the
   Leyndell bundle.
 
-🛑 **Neither of these lights its graces for you, and this is the single most
-common "my Lock is broken" report.** They sit behind a wall the *game* enforces,
-so their grace bundle is withheld while that wall is armed -- the Lock arrives
-and nothing visibly happens. You open them the vanilla way and touch the graces
-yourself: the Academy seal with the key, the capital's main gate walking in from
-Altus with your Great Runes. A grace you touch is the warp unlock, and it sticks.
-
-`leyndell_runes_required: 0` is the only setting that changes any of this, and
-only for the capital.
-
-None of the three can make a seed unbeatable: the key is always placed somewhere
-you can reach, and the capital's rune requirement is floored at the vanilla two
-with the pool topped up when a seed cannot supply them.
+An old yaml carrying `leyndell_runes_required` still generates -- the setting is accepted
+and ignored. None of the above can make a seed unbeatable: every Lock is placed somewhere
+you can reach.
 
 That second idea is the whole trick: Elden Ring's famously go-anywhere map
 becomes a progression puzzle, one region at a time. The `num_regions` option
@@ -84,11 +73,15 @@ in a normal playthrough, and that's the fun of it.
 
 **The goal**, by default, is to hold every Region Lock that's in play
 (`ending_condition: region_locks`). Open every kept region and you've won.
-The goal region -- Leyndell -- is always among the kept ones, so a seed is
-always winnable. The alternative, `ending_condition: great_runes`, asks you
+Leyndell is kept only when the draw keeps it (or a goal forces it) -- no region
+is guaranteed a seat -- so a seed is always winnable without any capital visit.
+The alternative, `ending_condition: great_runes`, asks you
 to hold Great Runes as well. **Any distinct Great Runes count**: the default
-is any four of all seven, and no particular named rune is mandatory. The
-client reports the count and the full eligible set when you connect.
+is any four of all seven, and no particular named rune is mandatory. **Holding
+one is what counts** -- killing its boss is not enough (the rune is shuffled
+elsewhere), and activating one at a Divine Tower never counts either. Outside
+that goal, Great Runes gate nothing: Leyndell opens on its Lock, runes or no
+runes. The client reports the count and the full eligible set when you connect.
 
 **Which boss actually ends it** is a separate knob, `goal`. Left on `auto` it
 works itself out: if your seed keeps both Farum Azula and Leyndell you finish
@@ -161,8 +154,8 @@ you cannot fast-travel in even holding the Leyndell Lock.
 capital exists from where you WARP to, so warping anywhere that is not the Ashen
 Capital or the Elden Throne is what puts the Royal Capital back -- Roundtable or
 any Altus grace. Standing in Altus is not enough on its own; the switch is only
-reconsidered on a warp. Then walk to the main gate -- the Great Rune wall works
-exactly as before -- and touch a grace to get the warp back. Warping to an Ashen
+reconsidered on a warp. Then walk to the main gate -- the Leyndell Lock opens the
+seal on receipt -- and touch a grace to get the warp back. Warping to an Ashen
 grace returns you to the finale whenever you want it.
 
 🛑 **Known bug: sometimes one warp is not enough.** The switch is written during
@@ -371,16 +364,23 @@ run rather than tune it.
 - **`filler_foreign_pct`** -- how much of your filler other worlds may draw
   from. It picks *which* filler at random per seed, so it can't be aimed;
   `keep_local` is the aimable version and they compose.
-- **`confine_foreign_progression`** -- how much of *other* players' progression
-  is held to your progression surface. At 100 (default) a foreign key can only
-  sit on a starred check; lower it to spread foreign keys across more of your
-  world. This setting changes placement only. A separate reservation pass sends
-  partner worlds their share of useful Elden Ring gear regardless of this value.
+- **`progression_sharing`** -- one switch for how progression moves between
+  you and the other players. `balanced` (default): every other game gets about
+  1/N of your travelling progression, your world reserves the same share of
+  each partner's in return, and other players' progression that lands on you is
+  held to your progression surface (a starred check, never random filler).
+  `open`: ordinary Archipelago -- no per-game share either way, nothing is
+  placed into another game's locations early, and foreign progression may land
+  on any reachable check of yours. Reach for `open` if a partner game generates
+  badly beside Elden Ring. A separate reservation pass sends partner worlds
+  their share of useful Elden Ring gear in either mode. (`progression_bias`,
+  `cross_game_progression` and `confine_foreign_progression` still work in an
+  existing yaml but are hidden from the wizard; `open` sets the last two for you.)
 
 > **The "anything anywhere" recipe.** If you come from classic ER item rando and
 > want the old feel -- any check can matter, no curation steering keys onto
 > bosses -- three settings do it: widen **`progression_surface`** to every
-> category, set **`confine_foreign_progression: 0`** so other players' keys can
+> category, set **`progression_sharing: open`** so other players' keys can
 > land on any of your checks, and leave **`progression_bias`** at 0 so your own
 > Region Locks travel freely. (Asked for on Discord, 2026-08-20 -- the builder's
 > defaults are curated on purpose, but nothing about the old style is
@@ -536,10 +536,7 @@ vanilla way.
 
 This cannot strand you and cannot cost you an item. Region unlocks are still the
 only progression, every check stays exactly where it was, and a grace you have
-not been handed is reachable on foot. It is purely about pacing. Regions that
-sit behind a wall the game itself enforces -- the Academy seal, the capital's
-Great Rune gate, the sewer -- hand out nothing under either setting; you walk in
-the way the game intends.
+not been handed is reachable on foot. It is purely about pacing.
 
 ## What fills your junk checks
 

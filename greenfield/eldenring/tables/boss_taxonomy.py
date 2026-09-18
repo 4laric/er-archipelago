@@ -177,7 +177,7 @@ BOSS_TAXONOMY = {
     1038410800: ('evergaol', 'overworld', 'm60_38', 'Liurnia', 'Adan, Thief of Fire'),
     1038480800: ('overworld_field', 'overworld', 'm60_38', 'Liurnia', 'Erdtree Avatar'),
     1038510800: ('overworld_field', 'overworld', 'm60_38', 'Altus', 'Demi-Human Queen Gilika'),
-    1038520800: ('overworld_field', 'overworld', 'm60_38', 'Mt. Gelmir', 'Tibia Mariner'),
+    1038520800: ('overworld_field', 'overworld', 'm60_38', 'Altus', 'Tibia Mariner'),
     1038540800: ('overworld_field', 'overworld', 'm60_38', '', 'Fallingstar Beast'),
     1039430800: ('overworld_field', 'overworld', 'm60_39', 'Liurnia', "Night's Cavalry"),
     1039440800: ('overworld_field', 'overworld', 'm60_39', 'Liurnia', 'Tibia Mariner'),

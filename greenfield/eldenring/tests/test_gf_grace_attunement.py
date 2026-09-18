@@ -60,10 +60,12 @@ class AttunementOff(_Base):
         self.assertNotIn("grace_attunement", req)
 
     def test_every_bundle_is_the_full_region(self):
+        # Off is a byte-exact no-op: every kept region's bundle is its full grace set -- gated
+        # children included, since no wall is armed anywhere (Raya since 2026-08-16, Leyndell
+        # since the 2026-09-14 rune-wall retirement). The REGION_PARENT skip this test used to
+        # carry died with the last wall it excused.
         graces = self._graces()
         for region, points in REGION_GRACE_POINTS.items():
-            if region in REGION_PARENT:
-                continue  # withheld by the gated-child rule; test_gf_grace_gates.py owns it
             self.assertEqual(sorted(graces.get(f"{region} Lock", [])), sorted(points),
                              f"{region}'s bundle moved with the option OFF")
 
@@ -88,14 +90,22 @@ class AttunementOn(_Base):
             self.assertEqual(len(graces[key]), expected, f"{key} must preserve component entries")
 
     def test_the_anchor_is_the_regions_own_front_door(self):
-        # The default anchor is REGION_OPEN_FLAGS -- the grace the player would actually arrive at.
+        # The default anchor is the region's own front door: REGION_OPEN_FLAGS where it is a real
+        # grace, else the derived entrance (a gated child's open flag is synthetic -- a kick latch,
+        # never a bundle member -- so entrance_grace over the bundle stands in, the same grace the
+        # `entrance` tier hands out). Either way the anchor is somewhere the player arrives, never
+        # a warp past a wall.
+        from worlds.eldenring.features.graces import entrance_grace  # noqa: E402
         graces, gates = self._pair()
         for key in gates:
             region = key[: -len(" Lock")]
             if region in _ENTRANCE_COMPONENT_GRACES:
                 self.assertEqual(graces[key], _ENTRANCE_COMPONENT_GRACES[region])
                 continue
-            self.assertEqual(graces[key][0], REGION_OPEN_FLAGS[region],
+            front = REGION_OPEN_FLAGS.get(region)
+            want = front if front in REGION_GRACE_POINTS[region] else entrance_grace(
+                list(REGION_GRACE_POINTS[region]), region)
+            self.assertEqual(graces[key][0], want,
                              f"{region}'s anchor is not its front door")
 
     def test_no_gate_can_bloom_an_empty_set(self):
@@ -107,11 +117,22 @@ class AttunementOn(_Base):
                                     f"{key} can never reach its own threshold")
 
     def test_withheld_bundles_are_never_gated(self):
-        # 🛑 A gated child emits [] while its vanilla wall is armed. Handing it an anchor would put
-        # a warp target on the far side of a wall the GAME enforces -- the 2026-07-14 bug.
-        gates = self._slot()[contract.GRACE_ATTUNEMENT]
+        # 🛑 THE PREMISE IS VACUOUS ON EVERY CURRENT SEED -- and the test stays, pointed at both
+        # directions, so a returning wall cannot slip back in. A gated child with an EMPTY bundle
+        # (an armed wall withholding it) must never appear in the gates: handing it an anchor would
+        # put a warp target on the far side of a wall the GAME enforces -- the 2026-07-14 bug. A
+        # child WITH a bundle (every child, since the Raya 2026-08-16 and Leyndell 2026-09-14
+        # retirements) gates exactly like an ungated region, and conservation (above) owns it.
+        graces, gates = self._pair()
+        kept = set(self.world._kept())
+        self.assertTrue([c for c in REGION_PARENT if c in kept],
+                        "no gated child is kept this seed -- the conditional below proves nothing")
         for child in REGION_PARENT:
-            self.assertNotIn(f"{child} Lock", gates, f"{child} is withheld and must not be gated")
+            if child not in kept:
+                continue
+            key = f"{child} Lock"
+            if not graces.get(key):
+                self.assertNotIn(key, gates, f"{child} is withheld and must not be gated")
 
     def test_the_client_feature_is_demanded(self):
         self.assertIn("grace_attunement", self._slot()[contract.REQUIRES_CLIENT_FEATURES])
