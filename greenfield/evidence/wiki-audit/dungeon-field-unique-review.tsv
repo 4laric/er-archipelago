@@ -489,7 +489,7 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770760	unique_field_pickup	Altus	Ash of War: Lightning Ram	540310	m60_41_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770764	unique_field_pickup	Altus	Ash of War: Lightning Slash	540318	m60_43_53	trusted	3	gameplay-guide:redmaw;gameplay-wiki:eldenpedia;gameplay-wiki:fextralife	none_identity_region_trusted
 7770762	unique_field_pickup	Altus	Ash of War: Prayerful Strike	540314	m60_45_52	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
-7770755	unique_field_pickup	Altus	Ash of War: Sacred Order	540300	m60_38_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
+7770755	unique_field_pickup	Altus	Ash of War: Sacred Order	540300	m60_38_52	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7770756	unique_field_pickup	Altus	Ash of War: Shield Crash	540302	m60_38_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7900249	unique_field_pickup	Altus	Battlemage Legwraps	1040557700	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
 7900248	unique_field_pickup	Altus	Battlemage Manchettes	1040557700	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
@@ -521,12 +521,12 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7772775	unique_field_pickup	Altus	Radiant Gold Mask	1040547090	m60_39_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
 7774223	unique_field_pickup	Altus	Ritual Sword Talisman	1038517050	m60_38_51	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772632	unique_field_pickup	Altus	Ruler's Mask	1037517020	m60_38_51	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
-7900239	unique_field_pickup	Altus	Ruler's Robe	1037517020	m60_38_51	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
+7900239	unique_field_pickup	Altus	Ruler's Robe	1037517020	m60_38_52	audited_one_family	1	gameplay-wiki:fextralife	second_independent_identity_region_source
 7770563	unique_field_pickup	Altus	Tonic of Forgetfulness	400070	m60_41_53	remaining_unreviewed	0		first_independent_identity_region_source
 7774227	unique_field_pickup	Altus	Troll's Golden Sword	1038517090	m60_38_51	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770036	unique_field_pickup	Altus	Twiggy Cracked Tear	65190	m60_44_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7774305	unique_field_pickup	Altus	Twinned Knight Swords	1041557000	m60_42_55	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
-7772748	unique_field_pickup	Altus	Unseen Blade	1039537050	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
+7772748	unique_field_pickup	Altus	Unseen Blade	1039537050	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
 7900245	unique_field_pickup	Altus	Unseen Form	1039537050	m60_39_54	remaining_unreviewed	0		first_independent_identity_region_source
 7774267	unique_field_pickup	Altus	Valkyrie's Prosthesis	1039547300	m60_39_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772897	unique_field_pickup	Altus	Viridian Amber Medallion +1	1043527500	m60_44_53	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
@@ -887,18 +887,18 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7900053	unique_field_pickup	Mt. Gelmir	Azur's Glintstone Robe	400441	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7900054	unique_field_pickup	Mt. Gelmir	Azur's Manchettes	400441	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7772586	unique_field_pickup	Mt. Gelmir	Budding Cave Moss	1036527020	m60_35_53	remaining_unreviewed	0		first_independent_identity_region_source
-7772752	unique_field_pickup	Mt. Gelmir	Crepus's Vial	1039537700	m60_38_52	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
+7772752	unique_field_pickup	Mt. Gelmir	Crepus's Vial	1039537700	m60_37_53	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7900240	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Boots	1037527100	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
-7772641	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Manchettes	1037527100	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
-7900241	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Robe (Altered)	1037527100	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7772641	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Manchettes	1037527100	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
+7900241	unique_field_pickup	Mt. Gelmir	Errant Sorcerer Robe (Altered)	1037527100	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7772573	unique_field_pickup	Mt. Gelmir	Fire Scorpion Charm	1035547050	m60_36_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7772649	unique_field_pickup	Mt. Gelmir	Herba	1037547030	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
 7772640	unique_field_pickup	Mt. Gelmir	Hierodas Glintstone Crown	1037527090	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7900242	unique_field_pickup	Mt. Gelmir	Marais Mask	1038547100	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7900243	unique_field_pickup	Mt. Gelmir	Marais Robe	1038547100	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
-7772751	unique_field_pickup	Mt. Gelmir	Mirage Riddle	1039537080	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7772751	unique_field_pickup	Mt. Gelmir	Mirage Riddle	1039537080	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
 7773776	unique_field_pickup	Mt. Gelmir	Nomadic Merchant's Bell Bearing [8]	400911	m60_37_54	remaining_unreviewed	0		first_independent_identity_region_source
-7772687	unique_field_pickup	Mt. Gelmir	Pearldrake Talisman +1	1038527000	m60_38_52	remaining_unreviewed	0		first_independent_identity_region_source
+7772687	unique_field_pickup	Mt. Gelmir	Pearldrake Talisman +1	1038527000	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7772585	unique_field_pickup	Mt. Gelmir	Perfumer's Talisman	1036527010	m60_37_53	remaining_unreviewed	0		first_independent_identity_region_source
 7772638	unique_field_pickup	Mt. Gelmir	"Prattling Pate ""You're beautiful"""	1037527070	m60_37_53	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
 7774181	unique_field_pickup	Mt. Gelmir	Prelate's Inferno Crozier	1035547700	m60_36_54	trusted	2	gameplay-guide:redmaw;gameplay-wiki:eldenpedia	none_identity_region_trusted
