@@ -20,6 +20,7 @@ The narrative — what this project is and what v0.2 brings — lives in
 - `CONTRACT_HASH` is unmoved at `2aa64f43` since v0.6.0.11, so seeds from v0.6.0.11 and v0.6.0.12 match the v0.6.1 client directly (`VERSION: OK`). Every older seed -- 0.4.13, all of 0.5.x, and v0.6.0 through v0.6.0.10 -- still goes through the client's audited legacy-contract bridge, which v0.6.1 leaves untouched.
 - The minor-version bump is about what *new* rooms roll (a new default goal), not about the wire. A client is not tied to one apworld version: swapping the `.dll` mid-run on any earlier seed is safe.
 - The reverse is unchanged: a seed rolled on v0.6.1 (or v0.6.0.11+) needs a v0.6.0.11-or-newer client. Existing minimum-version gates still apply (Elden Ring 2.7.1.0 needs v0.6.0.6+, Respec v0.6.0.7+, trap-replay and main-menu delivery fixes v0.6.0.8+).
+- **Bloodborne client (no Elden Ring effect):** the binding now follows the loaded save instead of refusing a save-identity mismatch, which stranded players on a stale slot under shadPS4. (clients #696)
 
 ### What changed
 
@@ -74,7 +75,7 @@ This is the v0.6.0.12 window, renamed. v0.6.0.12 was opened on 2026-09-14 and ne
 there is no v0.6.0.12 release: what it collected ships as v0.6.1, and `release/CONTRACT-VERSIONS.tsv`
 carries the one row. `CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading
 `contract.py`). The client half is a version stamp only (crate `0.6.1`, `contract_gen.rs`
-regenerated value `0.6.1`) plus the three merged client changes above.
+regenerated value `0.6.1`) plus the merged client changes above.
 
 `tools/open_window.py` reads release tags only (`v[0-9]*`), so the moving `dev` tag can no longer
 shadow a lightweight release tag; that fix rode this window's opening commit.
