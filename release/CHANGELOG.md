@@ -3,6 +3,15 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## Unreleased
+
+- **New default goal: four Great Runes, no Region Locks required.** `ending_condition` now defaults
+  to `great_runes` and `goal_region_unlock_policy` to `none`, because players kept getting tripped
+  up by Region Locks being required to finish. To get the old goal back set `ending_condition:
+  region_locks` and `goal_region_unlock_policy: items_held`. Yamls that already set either key are
+  unaffected; a yaml that set only `ending_condition: great_runes` used to require Locks too and no
+  longer does -- add `goal_region_unlock_policy: items_held` to keep that.
+
 ## v0.6.0.12 — 2026-09-14
 
 - **Margit region lock (existing and new seeds):** distinguish the exact arena play-region ID

@@ -32,10 +32,26 @@ def _held_runes(world, itempool):
     return [i for i in itempool if i.name in set(GREAT_RUNES)]
 
 
-class RegionLocksGoalDefault(WorldTestBase):
-    """Default ending goal is unchanged: all kept locks, zero Great Runes required."""
+class GreatRunesGoalDefault(WorldTestBase):
+    """THE DEFAULT ENDING (2026-09-18): four of the seven Great Runes, and NO Region Lock required.
+    Players were tripped up by Region Locks being required to goal, and nobody asks for that."""
     game = GAME
-    options = {"num_regions": 0, }  # ending_condition defaults to region_locks
+    options = {"num_regions": 0}
+
+    def test_default_is_four_great_runes_and_no_locks(self):
+        world = self.multiworld.worlds[self.player]
+        sd = world.fill_slot_data()
+        self.assertEqual(sd["ending_condition"], "great_runes")
+        self.assertEqual(sd["great_runes_required"], 4)
+        self.assertEqual(world.options.goal_region_unlock_policy.current_key, "none")
+        self.assertEqual(list(world.goal_required_lock_names()), [])
+
+
+class RegionLocksGoalDefault(WorldTestBase):
+    """The pre-2026-09-18 default, now spelled out: all kept locks, zero Great Runes required."""
+    game = GAME
+    options = {"num_regions": 0, "ending_condition": "region_locks",
+               "goal_region_unlock_policy": "items_held"}
 
     def test_no_runes_required_by_default(self):
         world = self.multiworld.worlds[self.player]

@@ -148,23 +148,24 @@ class GoalRegionUnlockPolicy(Choice):
     """Whether Region Locks are required to open the Ashen Capital, the synthetic final region.
     This is the region half of the goal gate; Ending Condition adds the Great Rune half.
 
-    ``items_held`` (default) preserves the original rule: receiving every required Region Lock opens
-    the final region -- and it stays required under a ``great_runes`` Ending Condition, which is
-    the pairing players read as "why do I still need all the region unlocks". ``none`` is the
-    runes-only (or nothing-required) ending. ``none`` imposes no region-side requirement. ``regions_completed`` waits until
+    ``none`` (default) imposes no region-side requirement: with the default ``great_runes`` Ending
+    Condition the run ends on the rune count alone. ``items_held`` is the original rule: receiving
+    every required Region Lock opens the final region -- and it stays required under a
+    ``great_runes`` Ending Condition, the pairing players read as "why do I still need all the
+    region unlocks". ``regions_completed`` waits until
     every progression-surface check in every non-final region has been satisfied. A shop check is
     satisfied when its merchant inventory is viewed; buying the ware is not required. Completion
     is reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so
     reconnecting cannot lose progress.
 
     Independent of Ending Condition: any of these three policies can be combined with or without
-    the Great Rune threshold. ``none`` + ``great_runes`` is the runes-alone ending.
+    the Great Rune threshold. ``none`` + ``great_runes`` is the runes-alone ending (the default).
     """
     display_name = "Goal Region Unlock Policy"
     option_items_held = 0
     option_regions_completed = 1
     option_none = 2
-    default = 0
+    default = 2
 
 
 class ProgressionSurfaceMode(Removed):

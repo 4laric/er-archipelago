@@ -205,7 +205,7 @@ class PickAnchorRegionsPure(unittest.TestCase):
 class StartRegionsWired(WorldTestBase):
     """A green predicate with no caller is a spec, not a feature. These build real worlds."""
     game = GAME
-    options = {"num_regions": 6, "start_regions": 3}
+    options = {"num_regions": 6, "start_regions": 3, "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
     SEEDS = (1, 7, 13, 22222, 5551212)
 
     def test_three_regions_open_at_start_and_they_are_kept_and_distinct(self):
@@ -272,7 +272,7 @@ class StartRegionsClampIsLoud(WorldTestBase):
     that is already complete at connect. num_regions is a DRAW SIZE, so the ceiling is the KEPT
     count -- which is why this is checked in core and not in the option's own range."""
     game = GAME
-    options = {"num_regions": 1, "start_regions": 10}
+    options = {"num_regions": 1, "start_regions": 10, "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
     auto_construct = False
 
     def test_more_start_regions_than_kept_is_a_generation_error(self):

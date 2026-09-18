@@ -55,10 +55,10 @@ The options worth knowing about, all documented inline in the shipped
 - `num_regions`: how many regions are in play. `0` is all of them, `N > 0` seals
   the rest off for a shorter run. This is the mode that turns the open world into
   an actual progression graph.
-- `ending_condition`: `region_locks` (hold every Lock in play, and the goal
-  region Leyndell is always kept) or `great_runes` (also collect
-  `goal_great_runes` of them; any distinct Great Runes count, with a default of
-  any four of the seven).
+- `ending_condition`: `great_runes` (the default: collect `goal_great_runes`
+  of them; any distinct Great Runes count, default any four of the seven) or
+  `region_locks` (no Great Rune requirement). Whether Region Locks are also
+  required to finish is `goal_region_unlock_policy` (default: not required).
 - `enable_dlc` / `dlc_only`: bring the 11 Shadow of the Erdtree regions in, or
   play only those.
 - `curated_filler`: the recipe that spends the junk end of the pool. Ships

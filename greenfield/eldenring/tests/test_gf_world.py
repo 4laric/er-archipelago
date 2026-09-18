@@ -30,7 +30,7 @@ class GreenfieldWorldTest(WorldTestBase):
     game = GAME
     # Full map: every assertion here counts the WHOLE location set (4879) and every region
     # lock. num_regions defaults to 6 now, which would seal this into a six-region seed.
-    options = {"num_regions": 0}
+    options = {"num_regions": 0, "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
 
     # --- item pool -----------------------------------------------------------------
     def test_serpent_hunter_is_not_hintable(self):

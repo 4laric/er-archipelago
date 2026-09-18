@@ -229,29 +229,31 @@ Elden Ring:
   merchant_bells_on_talk: false
 
 
-  # Whether the goal also requires Great Runes (independent of the region policy below).
-  #   region_locks  -- compatibility spelling for no Great Rune requirement (default).
-  #   great_runes   -- collect goal_great_runes Great Runes. You must HOLD the
-  #                    runes; killing the boss that vanilla-drops one is NOT enough
-  #                    (they are shuffled -- the rune is not at its boss).
-  #                    Any distinct Great Runes count. By default this means any
-  #                    four of all seven; no particular named rune is mandatory.
-  ending_condition: region_locks
+  # WHAT FINISHES THE RUN. By default: collect FOUR of the seven Great Runes and
+  # the ending opens. No Region Lock is required to finish.
+  #   great_runes   -- (default) collect goal_great_runes Great Runes. You must HOLD
+  #                    the runes; killing the boss that vanilla-drops one is NOT
+  #                    enough (they are shuffled -- the rune is not at its boss).
+  #                    Any distinct Great Runes count; no particular rune is mandatory.
+  #   region_locks  -- compatibility spelling for no Great Rune requirement.
+  ending_condition: great_runes
 
-  # Only used when ending_condition is great_runes. Clamped down to the
-  # Great Runes actually reachable this seed, so it can never make a seed
-  # unbeatable. This is a count over all seven eligible Great Runes.
+  # How many Great Runes the ending needs. Clamped down to the Great Runes
+  # actually reachable this seed, so it can never make a seed unbeatable. This
+  # is a count over all seven eligible Great Runes. Only used when
+  # ending_condition is great_runes.
   goal_great_runes: 4
 
-  # What opens the final goal region (Ashen Capital, or the DLC goal terminus).
-  #   none              -- no region-side requirement; useful for Great Runes-only goals.
-  #   items_held        -- the existing behavior: hold every Region Lock in play.
+  # Do you ALSO need your Region Locks to finish?
+  #   none              -- (default) no. The rune count is the whole goal.
+  #   items_held        -- yes: hold every Region Lock in play, on top of the runes.
+  #                        This is the original rule.
   #   regions_completed -- clear every progression-surface check in each required
   #                        non-goal region. For shop checks, merely viewing the
   #                        merchant's inventory counts; no purchase is required.
   #                        Progress is restored when reconnecting.
   # This is independent of ending_condition, giving six possible combinations.
-  goal_region_unlock_policy: items_held
+  goal_region_unlock_policy: none
 
   # Great Runes needed to get into Leyndell, ON TOP of the Leyndell Lock --
   # echoing the vanilla "two Great Runes to enter the capital".

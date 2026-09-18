@@ -166,7 +166,7 @@ class GatedChildrenLiveSeed(WorldTestBase):
     run_default_tests = False
     # all base regions kept (num_regions 0, DLC off default) -> every gated child is present and
     # armed: item_shuffle + legacy keys are frozen ON; leyndell_runes_required defaults to 2.
-    options = {"num_regions": 0}
+    options = {"num_regions": 0, "ending_condition": "region_locks", "goal_region_unlock_policy": "items_held"}
 
     def _sd(self):
         return self.world.fill_slot_data()
