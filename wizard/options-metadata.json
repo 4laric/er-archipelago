@@ -2021,7 +2021,7 @@
    "class": "StartRegionPool",
    "compatibility_only": false,
    "display_name": "Allowed Starting Regions",
-   "description": "Which regions your run may start in, by name (e.g. Caelid). Empty = any region.\n\nRegions Open at Start says how many it opens, so list at least that many. Every name is\nalso added to the seed. Naming Leyndell, Raya Lucaria Academy, your Final Boss's region\nor a region your DLC setting removes stops generation. Base-game names beat DLC ones\nunless start_region_selection is uniform. Ignored by Natural Progression and Vanilla\nPlacement.",
+   "description": "Which regions your run may start in, by name (e.g. Caelid). Empty = any region.\n\nRegions Open at Start says how many it opens, so list at least that many. Adds regions\nonly if the draw missed. Naming Leyndell, Raya Lucaria Academy, your Final Boss's\nregion or a region your DLC setting removes stops generation. Base-game names beat DLC\nones unless start_region_selection is uniform. Ignored by Natural Progression and\nVanilla Placement.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],

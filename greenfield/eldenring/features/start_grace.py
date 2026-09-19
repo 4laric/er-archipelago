@@ -185,11 +185,11 @@ class StartRegionSelection(Choice):
 class StartRegionPool(OptionSet):
     """Which regions your run may start in, by name (e.g. Caelid). Empty = any region.
 
-    Regions Open at Start says how many it opens, so list at least that many. Every name is
-    also added to the seed. Naming Leyndell, Raya Lucaria Academy, your Final Boss's region
-    or a region your DLC setting removes stops generation. Base-game names beat DLC ones
-    unless start_region_selection is uniform. Ignored by Natural Progression and Vanilla
-    Placement.
+    Regions Open at Start says how many it opens, so list at least that many. Adds regions
+    only if the draw missed. Naming Leyndell, Raya Lucaria Academy, your Final Boss's
+    region or a region your DLC setting removes stops generation. Base-game names beat DLC
+    ones unless start_region_selection is uniform. Ignored by Natural Progression and
+    Vanilla Placement.
     """
     display_name = "Allowed Starting Regions"
     valid_keys = frozenset(REGIONS)
