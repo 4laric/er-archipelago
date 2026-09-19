@@ -63,40 +63,22 @@ _REGION_COMPLETION_FEATURE = "region_completion_goal_gate"
 
 
 class ProgressionSurface(OptionSet):
-    """WHICH LOCATIONS MAY HOLD PROGRESSION. The location classes allowed to host this world's own
-    progression (region Locks, any required/gate Great Runes, legacy keys) -- and, in a multiworld,
-    the classes where OTHER players' progression can land in your world.
+    """Which kinds of check may hold progression items.
 
-    Default: the major bosses and remembrances, the great runes, the key items, and the collectathon
-    lines -- Sacred Tears (Church), Golden Seeds (Seedtree), Scadutree Fragments and Revered Spirit
-    Ashes for the DLC -- plus ShopSlot.
-
-    🛑 NO COUNT HERE ON PURPOSE. This said "193 locations" until 2026-08-02, when the surface that
-    could actually HOST an item was 156. 193 was a TAG count: it never subtracted the checks barred
-    from carrying progression (guessed region, missable, erdtree-burn, surface-excluded, hub
-    merchant). That is the same mistake missable_barred_aps was written to fix for the missable set,
-    and it came back because the number lived in prose. It also MOVES -- every in-game region
-    confirmation changes it (re-anchoring two Liurnia Golden Seeds shifted the default 154 -> 156 in
-    a single commit). So the count lives in ONE place, regenerated and drift-gated:
-
-        greenfield/surface_confidence.tsv   (tools/build_surface_confidence.py)
-
-    which prices every class: tagged, how many each bar costs it, and how many can host. Quote that
-    file, never a number typed into a docstring.
-
-    ShopSlot is AT MOST one slot per merchant, never every shop row: a merchant enters the pool once,
-    so however large their stock they can hold at most one progression item and cannot dominate the
-    surface by breadth. The pinned slot is a ware that merchant ALONE sells (one stock flag game-wide,
-    so the location is unambiguous), stocked from the start and with a resolved region; merchants with
-    no such ware are skipped at regen (location_tags.SHOP_SLOT_SKIPS lists them with reasons). Use
-    `Shop`/`ShopNonSpell` instead if you actually want a merchant-heavy seed -- be aware that is
-    roughly three quarters of the surface (see surface_confidence.tsv) and the game becomes "farm
-    runes, buy your progression".
-
-    Narrowing is safe: the feasibility ladder widens automatically rather than failing to generate, and
-    an EMPTY set turns the confinement off entirely (progression scatters as vanilla AP fill decides).
-    Basin = Crystal Tears; Boss = every boss-healthbar drop; Legendary = the param-rarity legendaries."""
-    display_name = "Progression Surface"
+    Fewer kinds = a tighter hunt; more = wider scatter. A list too small for your
+    progression widens itself; it stops generation only if every safe check is too few.
+    Ability Unlock items ignore this list. Empty = no limit, except unsafe checks (missable
+    ones and similar). With Progression Sharing balanced, other players' progression is
+    limited to it.
+    Default: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest
+    keys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),
+    ShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon
+    Sweep is none).
+    Optional: Basin (Crystal Tears), Legendary (rarest items), Boss (every boss drop, incl.
+    FieldBoss, MinorDungeonBoss), Shop, ShopNonSpell (merchant wares; farm runes, buy your
+    progression).
+    """
+    display_name = "Progression Surface (where progression can land)"
     # The v0.2 default. This was three classes (33 locations) for one reason: the location DATA could
     # not be trusted, so it was held to what a human could hand-verify. The provenance work (MSB/EMEVD
     # ground truth, the region oracle, the phantom-flag guard) removed that constraint, and the category
@@ -145,23 +127,15 @@ class ProgressionSurface(OptionSet):
 
 
 class GoalRegionUnlockPolicy(Choice):
-    """Whether Region Locks are required to open the Ashen Capital, the synthetic final region.
-    This is the region half of the goal gate; Ending Condition adds the Great Rune half.
+    """Whether finishing also needs your seed's other regions unlocked or cleared.
 
-    ``none`` (default) imposes no region-side requirement: with the default ``great_runes`` Ending
-    Condition the run ends on the rune count alone. ``items_held`` is the original rule: receiving
-    every required Region Lock opens the final region -- and it stays required under a
-    ``great_runes`` Ending Condition, the pairing players read as "why do I still need all the
-    region unlocks". ``regions_completed`` waits until
-    every progression-surface check in every non-final region has been satisfied. A shop check is
-    satisfied when its merchant inventory is viewed; buying the ware is not required. Completion
-    is reconstructed from the server's checked locations plus its per-slot viewed-shop ledger, so
-    reconnecting cannot lose progress.
-
-    Independent of Ending Condition: any of these three policies can be combined with or without
-    the Great Rune threshold. ``none`` + ``great_runes`` is the runes-alone ending (the default).
+    regions_completed needs an up-to-date client; older ones refuse the seed. items_held
+    does nothing under Natural Progression or Vanilla Placement (no Region Locks there).
+    none: no region requirement (default)
+    items_held: hold every Region Lock (the item that opens a region)
+    regions_completed: check off every Progression Surface check in each region
     """
-    display_name = "Goal Region Unlock Policy"
+    display_name = "Regions Needed to Finish"
     option_items_held = 0
     option_regions_completed = 1
     option_none = 2
@@ -184,22 +158,15 @@ class ProgressionSurfaceMode(Removed):
 
 
 class ProgressionSharing(Choice):
-    """How your progression is shared with the other players at the table. One switch.
+    """How progression items travel between your world and other players' worlds.
 
-    ``balanced`` (the default): every other game receives its own near 1 / number-of-games share
-    of your travelling progression, and your world reserves the same share of each partner game's
-    progression in return. Other players' progression that lands in your world is confined to
-    your Progression Surface (major bosses, key items, churches...), never on a random filler
-    pickup. Your Region Locks are ordinary multiworld items.
-
-    ``open``: ordinary Archipelago. No per-game share is reserved in either direction, and other
-    players' progression may land on any reachable check of yours. Nothing is placed into another
-    game's locations ahead of the general fill, which also makes this the setting to reach for if
-    a partner game will not tolerate being filled early.
-
-    No effect in a solo seed, in an all-Elden-Ring multiworld, or in the modes that mint no Lock
-    items."""
-    display_name = "Progression Sharing"
+    Progression items unlock other checks; yours are mainly Region Locks (the items that
+    open regions), so at balanced you may wait on another player for one. Pick open if a
+    partner game cannot take early Elden Ring progression.
+    balanced: yours travel; theirs land only on Progression Surface (default)
+    open: Locks and runes stay in Elden Ring worlds; theirs on any safe check
+    """
+    display_name = "Progression Sharing (with other players)"
     option_balanced = 0
     option_open = 1
     default = 0

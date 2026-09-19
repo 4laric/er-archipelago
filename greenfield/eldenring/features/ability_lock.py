@@ -42,33 +42,20 @@ four locked forces nothing: an unlocked attack input is a damage source from the
 different mechanism: the client re-applies the No Flask SpEffect while it is locked (the flask
 heals nothing), since heal owns no action bit.
 """
-from Options import Choice, DefaultOnToggle, OptionSet
+from Options import Choice, DefaultOnToggle, OptionSet, Visibility
 from ..registry import Feature, register
 from .. import contract
 
 
 class LockedAbilities(OptionSet):
-    """ABILITIES THE GAME DISABLES. Each named ability is turned off at the character's logical-action
-    layer, so the lock survives key/pad rebinds, covers keyboard and mouse, and never affects menus.
+    """A challenge: switches off actions such as rolling, jumping, attacking or healing.
 
-    Valid names: jump, crouch, roll, r1, r2, l1, l2, heal. (r1/r2/l1/l2 are the attack inputs; locking
-    one also stops casting through it, since a staff or seal casts on the attack button. `heal` locks
-    the flask -- it heals nothing while locked -- via the No Flask SpEffect, not an action mask.)
-    Empty = nothing locked, the default.
-
-    🛑 crouch is the one UNVERIFIED action: ER has no dedicated crouch action, so the client routes it
-    to the stick-click (l3) as a first guess. If a playtest shows that is wrong, the fix is one line
-    in er-logic, not here.
-
-    Locking ALL FOUR attack inputs (r1, r2, l1, l2) in Progressive mode leaves you unable to damage
-    anything, and a great many checks are kill-gated -- so that seed forces one attack unlock
-    ("Unlock: R1") into an early sphere, wherever in the multiworld it lands. Spells do not count as
-    an attack for this: a staff or seal casts on an attack button, so a caster with all four locked
-    is just as weaponless. Locking three or fewer forces nothing -- you still have an attack.
-
-    Ability Lock Mode decides whether these start off and are unlocked by items you find
-    (Progressive, the default) or stay off for the whole seed (Static, the opt-out).
-    Env-overridable in test builds via ER_ABILITY_LOCK_TEST."""
+    Names: jump, crouch, roll, r1, r2, l1, l2, heal. R1, R2, L1 and L2 are the attack
+    buttons (spells cast on them too), so locking all four leaves no way to attack. Heal
+    stops flasks healing. Crouch is untested and may lock the wrong input. Default: none.
+    Each returns as an Unlock item; Ability Lock Mode and Ability Unlocks Needed to Finish
+    can change that.
+    """
     display_name = "Locked Abilities"
     default = frozenset()
     valid_keys = frozenset(contract.ABILITY_LOCK_KEYS)
@@ -76,22 +63,14 @@ class LockedAbilities(OptionSet):
 
 
 class AbilityLockMode(Choice):
-    """HOW the Locked Abilities behave.
+    """Whether locked abilities come back as items you find, or stay off for good.
 
-    ``progressive`` (DEFAULT) -- they start off, and each locked ability becomes an "Unlock: X"
-    item shuffled into the multiworld. Find it (or receive it from another world) to get that
-    ability back. The items default to `progression` and are REQUIRED to finish (see Ability
-    Unlocks Required) -- so a partner holding your "Unlock: Roll" genuinely blocks your goal, which
-    is the whole point of a multiworld. Turn Ability Unlocks Required off to make them `useful` and
-    never gate completion. Needs a client that understands ability unlocks (declared via
-    requiresClientFeatures); older clients would leave the abilities locked, so they are told to
-    upgrade rather than play it half-supported.
-
-    ``static`` (the opt-out) -- they are off for the entire seed. No item, no check; a pure client
-    restriction, and no client-feature demand.
-
-    No effect when Locked Abilities is empty (the default) -- this option only bites once you have
-    named an ability to lock."""
+    Only matters when Locked Abilities is set. Progressive needs an up-to-date client; older
+    ones refuse the seed. It places Unlock: Roll early (if locked), and Unlock: R1 if all
+    four attacks are locked. Vanilla Placement keeps them permanent.
+    progressive: each locked ability becomes an Unlock item to find (default)
+    static: the abilities stay off for the whole seed; no items
+    """
     display_name = "Ability Lock Mode"
     option_static = 0
     option_progressive = 1
@@ -99,20 +78,15 @@ class AbilityLockMode(Choice):
 
 
 class AbilityUnlocksRequired(DefaultOnToggle):
-    """In PROGRESSIVE mode, must you HOLD your unlock items to finish the seed?
+    """Whether you must find every Unlock item (each gives back a locked ability) to finish.
 
-    On (default): each pooled "Unlock: X" is `progression` and is added to the goal's held-item
-    requirement, exactly like a required Great Rune or Region Lock. Because progression items are
-    distributed across the whole multiworld, your abilities can land in a PARTNER's world -- and then
-    you cannot complete until they send them back. That mutual dependency is the point of playing in
-    an Archipelago rather than solo.
-
-    Off: the unlocks stay `useful` and never gate completion (a seed always finishes even with an
-    ability still out). Choose this if you want the ability item-hunt without your ending held hostage
-    to another player's progress.
-
-    No effect outside progressive mode, or when Locked Abilities is empty."""
-    display_name = "Ability Unlocks Required for Goal"
+    Only matters in progressive mode with Locked Abilities set, and not under Vanilla
+    Placement. On (default): if another player holds your Unlock: Roll, you cannot finish
+    until they send it. Off: finishing never depends on the Unlock items, though you may
+    still want them.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Ability Unlocks Needed to Finish"
 
 
 # The four ATTACK inputs. A seed that locks every one of them leaves the player with no way to

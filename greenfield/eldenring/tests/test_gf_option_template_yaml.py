@@ -163,9 +163,17 @@ def test_generated_template_omits_advanced_and_compatibility_only_controls():
     assert omitted <= classes.keys()
     assert not omitted & block.keys()
     assert "enable_dlc" in block, "normal content options must remain in generated templates"
+    # COMPAT keys (superseded / inert) live ONLY on the weighted-options page and in the spoiler;
+    # vanilla_placement is still a real, listed choice that the template merely omits. Neither is
+    # ever Visibility.none: a hidden key must keep parsing from an existing yaml.
+    compat = {"flask_upgrades_on_progression_surface", "global_scadutree_blessing",
+              "merchant_bell_logic", "leyndell_runes_required"}
     for key in omitted:
         cls = classes[key]
-        assert cls.visibility == Options.Visibility.all & ~Options.Visibility.template, key
+        if key in compat:
+            assert cls.visibility == Options.Visibility.complex_ui | Options.Visibility.spoiler, key
+        else:
+            assert cls.visibility == Options.Visibility.all & ~Options.Visibility.template, key
         # Template visibility must not retire the accepted values in existing YAML files.
         assert cls.from_any(cls.default).value == cls.default, key
     assert classes["vanilla_placement"].from_any("all").value == 1

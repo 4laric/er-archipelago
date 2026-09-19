@@ -86,16 +86,15 @@ def remap_bundle(bundle, mapping):
 
 
 class ArmorBundles(Choice):
-    """How complete armor sets arrive.
+    """How armor sets arrive: as one whole-set item, or piece by piece.
 
-    sets (default): each complete armor set compacts into one '... Set' item that grants every
-    piece on receipt -- one pool slot per set, and no orphaned second helmets. off: every armor
-    piece is its own item, the pre-#849 pool. mixed: one shuffled 'Mixed Armor Set' item per
-    set -- the same pool shape as sets, but the pieces inside are drawn from every set at
-    random, per seed. A mixed set grants a full kit (head, body, arms, legs where the set it
-    replaces had them), just not a matching one.
+    Set items grant every piece; the other pieces' checks pay other items. sets and mixed
+    need an up-to-date client; older ones refuse the seed. Ignored by Vanilla Placement.
+    sets: one item per armor set, holding its matching pieces (default)
+    mixed: one item per set, holding random pieces from any set
+    off: every helm, chest, gauntlet and greave is its own item
     """
-    display_name = "Armor Bundles"
+    display_name = "Armor Set Bundling"
     option_off = 0
     option_sets = 1
     option_mixed = 2

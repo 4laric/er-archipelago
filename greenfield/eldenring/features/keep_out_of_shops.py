@@ -162,28 +162,21 @@ _LOG = logging.getLogger("Greenfield")
 
 
 class KeepOutOfShops(OptionSet):
-    """Categories of YOUR OWN item that your merchants may never stock, listed one per line. The
-    items still exist and are still shuffled -- they just land out in the world instead of behind a
-    purchase menu, so finding them is a matter of going somewhere rather than of having enough
-    runes.
+    """Keeps kinds of your own items, like weapons and talismans, off merchants' shelves.
 
-    Covers both halves of a merchant: the shop checks themselves (bell-bearing shops included) and
-    the rerolled unlimited shelves. Other players' items at your shops are unaffected.
-
-    Example, and the one this was written for:
-        keep_out_of_shops: [weapons, armor]
-
-    Same categories as Keep Local: weapons, armor, talismans, ashes (ashes of WAR), spells,
-    spirit_ashes, consumables, crafting, cookbooks, upgrade_materials, upgrade_bells,
-    merchant_bells, runes, crystal_tears, key_items, other, progressive -- plus the umbrellas
-    `goods`, `key_items` (the whole inventory tab: cookbooks and bell bearings included),
-    `bell_bearings` (both kinds) and `everything`.
-
-    Empty (default) = merchants stock exactly what they would have. On a SMALL seed there may not be
-    room: the hub is 184 shop rows out of 224 locations, and if a category holds more items than
-    there are non-shop slots to move them to, that category is skipped and the generation log says
-    which one and by how much. Larger seeds have room to spare."""
-    display_name = "Keep Out Of Shops"
+    Covers purchases and rerolled infinite shelves. Not kept out: other players' items,
+    Region Locks, stacked pickups (Arrow x20) and armor sets, so armor does little while
+    Armor Set Bundling is on (default). Small seeds may skip a kind. Stops generation with
+    Vanilla Placement or a listed kind pinned in infinite_hub_wares. With Progressive
+    Upgrade Bell Bearings on, list progressive too.
+    Kinds: weapons, armor, talismans, spells, spirit_ashes, ashes (Ashes of War), crafting,
+    consumables, upgrade_materials, crystal_tears, cookbooks, runes, scadutree_fragments,
+    upgrade_bells (stone, glovewort bearings), merchant_bells (all other bearings),
+    progressive, other (Remembrances, notes, maps).
+    Groups: goods (all but weapons, armor, talismans, ashes, progressive), key_items (whole
+    key tab), bell_bearings, everything.
+    """
+    display_name = "Keep Your Items Out of Shops"
     valid_keys = frozenset(SELECTABLE)
 
 

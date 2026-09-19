@@ -153,32 +153,28 @@ _CLIENT_FEATURE_TAG = "shop_preview_fmg_insert"
 
 
 class MerchantBellLogic(Choice):
-    """Whether bell-bearing merchants' shop checks require their bell in logic. off = every shop
-    check is always open; logic_only would gate them behind the merchant's Bell Bearing. The
-    bell->merchant->shop-rows mapping is not derivable matt-free from disk (bell-item flags do not
-    appear in ShopLineupParam; the join lives in EMEVD bell-handover events), so v1 carries the
-    option only and it is a no-op until a v2 EMEVD enrichment supplies that map (see module docstring)."""
+    """Does nothing; kept only so old yamls that set it still load. Leave it off.
+
+    off: no shop check needs a Bell Bearing in logic (the only real behavior).
+    logic_only: accepted but ignored; behaves exactly like off.
+    """
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
-    visibility = Visibility.all & ~Visibility.template
-    display_name = "Merchant Bell Logic"
+    visibility = Visibility.complex_ui | Visibility.spoiler
+    display_name = "Merchant Bell Logic (no effect)"
     option_off = 0
     option_logic_only = 1
     default = 0
 
 
 class ShopChecks(DefaultOnToggle):
-    """Whether merchant purchase slots are AP CHECKS. ON (default): buying from a merchant can pay
-    out an AP item, as normal. OFF: no merchant slot is a check -- the ~562 shop rows (184 in the hub
-    alone) stop being locations entirely, so no item -- yours OR another player's -- can be gated
-    behind a purchase menu, and there is no shop-grinding to collect checks.
+    """Whether buying from a merchant can pay out an item, yours or another player's.
 
-    This SHRINKS the seed (fewer checks, a correspondingly smaller item pool) and empties the
-    `ShopSlot` progression surface (the feasibility ladder widens automatically). Merchants still
-    exist and still sell their vanilla wares; their purchase slots simply hold nothing to collect.
-
-    Distinct from `keep_out_of_shops`, which only relocates YOUR OWN items and leaves the slots as
-    checks a FOREIGN item can still land in -- this removes the slots outright, which is what "an
-    item someone else really wants never ends up in a merchant" requires."""
+    On (default): purchases are checks, so an item can sit behind a purchase, and a few
+    merchants may sell something you need to progress. Off: merchants sell only their normal
+    wares and nothing is locked behind a purchase, but the seed shrinks, most on small seeds
+    (shops are most of Roundtable Hold's checks). For only some of your own items, see
+    keep_out_of_shops.
+    """
     display_name = "Shop Checks"
 
 

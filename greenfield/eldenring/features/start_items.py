@@ -162,11 +162,13 @@ class StartWithWhetstone(DefaultOnToggle):
 
 
 class StartWithWhetblades(Toggle):
-    """Start with all five whetblades (Iron, Red-Hot, Sanctified, Glintstone, Black) so every Ash-of-War
-    affinity is selectable at any grace from the opening, instead of hunting the vanilla pickups. OFF by
-    default (opt-in). Grants the ITEMS only -- no event flag is set, because each whetblade's only
-    vanilla flag is its randomized check flag; the grace affinity menu keys on possession. The whetblade
-    CHECKS stay in the pool regardless."""
+    """Gives you all five whetblade items in your inventory at the start.
+
+    Grants the items only. Unconfirmed: the game unlocks Ash of War affinities by event
+    flag, which this does not set, so it may unlock none. The whetblade pickups in the
+    world are unchanged. Ignored by Vanilla Placement, which keeps items where the game
+    puts them.
+    """
     display_name = "Start With All Whetblades"
 
 

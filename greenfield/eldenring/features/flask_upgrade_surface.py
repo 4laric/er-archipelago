@@ -10,15 +10,14 @@ from ..registry import Feature, register
 
 
 class FlaskUpgradesOnProgressionSurface(Toggle):
-    """Legacy v0.5 spelling; accepted but unnecessary in v0.6.
+    """Does nothing; kept only so old yamls that set it still load.
 
-    Flask upgrades now always prefer unused progression-surface checks and safely spill into normal
-    fill. They remain useful rather than required. This value is retained only so an older YAML
-    containing it does not fail validation.
+    Flask upgrades now prefer your Progression Surface spots when there is room, on every
+    seed, whatever this says.
     """
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
-    visibility = Visibility.all & ~Visibility.template
-    display_name = "Flask Upgrades on Progression Surface (legacy; now automatic)"
+    visibility = Visibility.complex_ui | Visibility.spoiler
+    display_name = "Flask Upgrades on Progression Surface (no effect)"
     default = 0
 
 

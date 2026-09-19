@@ -23,6 +23,33 @@ TODO(open): if the version moved, a client half is needed (`contract_gen.rs` emb
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+### What changed
+
+- **Shorter, plainer option tooltips (apworld):** every option's help text was rewritten to fit on
+  screen -- about 72,000 characters became about 33,600, and the three longest (Dungeon Sweep, Keep
+  Local, Keep Local: Rune Cap; 3,300-3,700 characters each) are now 445-895. Each starts with one
+  plain sentence, then what it does and what the default does. A new test
+  (`test_gf_option_doc_budget`) keeps them that size. The rewrite also corrected claims that were
+  wrong: `dungeon_sweep: all` does sweep the DLC's open-world bosses; `maximum_enemy_difficulty:
+  auto` is 4.1x on a default six-region seed (not 3.7x); `enable_dlc_gear` always adds two DLC
+  crystal tears; and `keep_out_of_shops` / `no_runes_in_shops` do not catch stacked pickups ("Golden
+  Rune [1] x3"), nor armor sets while Armor Set Bundling is on (now stated in their help text).
+- **A short first page (apworld):** the Launcher's Options Creator and the WebHost options page now
+  show 47 of the 77 options instead of 77, in nine sections that start with "Start Here" (six
+  decisions: DLC, number of regions, final boss, Great Runes needed, enemy scaling, Death Link). The
+  other 30 -- expert dials and settings that no longer do anything -- are hidden from those two
+  pages only. They stay in the generated template yaml (the four compatibility-only ones excepted),
+  on the weighted-options page and in the wizard, and every yaml that names them loads and
+  generates exactly as before. No yaml key, default, contract or client changed.
+- **Ready-made starting points (apworld, docs):** four presets -- Base Game, Base Game - Short Run,
+  Base Game - Whole Map, DLC Only (experimental) -- appear in the WebHost preset dropdown and as
+  ready-to-use yamls under `Players/Templates/Presets/` after "Generate Template Options".
+  `EldenRing-Quickstart.yaml` ships beside the full `EldenRing.yaml`: just the six Start Here
+  decisions. The player guide now opens with a Quick start.
+- **Clearer option names (apworld):** 47 options have plainer labels on the options screen (Goal is
+  now Final Boss, Great Runes Required is Great Runes Needed to Finish, Vanilla Item Pool is
+  Original Item Pool). Only the label changed; every yaml key is the same.
+
 ## v0.6.1 — 2026-09-18
 
 ### What you need to update
