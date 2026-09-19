@@ -7,17 +7,17 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** No -- nothing has changed since v0.6.1. Keep the v0.6.1 client.
+- **APWorld:** No -- nothing has changed since v0.6.1.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Profile/assets:** No action; no map or asset changes.
 
 Window opened AT THE TAG of v0.6.1 with ZERO commits past it.
 
-`CONTRACT_HASH` is `2aa64f43`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading `contract.py`, not assumed). No slot_data shape moved, so the handshake is unaffected in both directions between v0.6.1 and this window, and the client's audited bridge to every 0.4.13 / 0.5.x / 0.6.0.x contract carries over unchanged.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+The version moved, so the client half is a version stamp only -- `contract_gen.rs` regenerated, crate `Cargo.toml` and `Cargo.lock` at `0.6.1+f1` -- shipped as clients #699 and pinned by the gitlink in the window-opening commit (AGENTS §7). The stable promotion to v0.6.1 rode the same commit.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.1 in this same commit.
 
