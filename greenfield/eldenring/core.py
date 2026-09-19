@@ -15,7 +15,7 @@ from dataclasses import fields as dataclass_fields, make_dataclass
 from BaseClasses import Region, Location, Item, ItemClassification
 from worlds.AutoWorld import World, WebWorld
 from Options import (PerGameCommonOptions, Range, Choice, Toggle, DefaultOnToggle,
-                     OptionError, OptionGroup)
+                     OptionError, OptionGroup, Visibility)
 
 from .gamename import GAME as _GAME
 # THE data tables (#1464). ONE call, and it is the FIRST world-local import on purpose: a tree with
@@ -58,6 +58,7 @@ from .region_spine import (compute_kept, describe_kept, GOAL_REGION, DLC_REGIONS
                            base_regions, dlc_regions, REGION_PARENT)
 from . import registry
 from .defaults import FROZEN_OPTIONS, apply_frozen
+from .option_presets import OPTIONS_PRESETS
 from . import contract
 from . import features as _features  # noqa: F401  -- import triggers feature self-registration
 from .features import natural_progression as _np  # vanilla/natural-progression mode (zero synthetic locks)
@@ -130,40 +131,28 @@ GREAT_RUNES: List[str] = item_categories.GREAT_RUNES
 
 # ---- core options ----------------------------------------------------------------------------
 class NumRegions(Range):
-    """How many regions are DRAWN for this seed. 0 = all regions (full Shattering). Only kept
-    regions get locks and checks, for a shorter run.
+    """How many map regions (Limgrave, Caelid...) your seed uses. Fewer = a shorter run.
 
-    N IS A DRAW SIZE. Exactly ONE thing can still add to it: a kept region also keeps the region
-    you must pass THROUGH to reach it (Leyndell keeps Altus). Nothing else -- `goal: auto` forces
-    nothing, and no named goal forces a base-game region any more. So `num_regions: 1` keeps one
-    region, or two if the one it drew sits behind another.
-
-    It did not, until v0.3.7. Burning the Erdtree required killing Maliketh in Crumbling Farum
-    Azula, so an ending only existed on seeds that kept that region AND Leyndell -- and the goal
-    force-kept both, with Leyndell dragging Altus in behind it. Asking for one region handed you
-    four. The burn is an item now (see Goal), so it forces nothing. The generation log states the
-    breakdown for your seed either way. 0 keeps the whole map.
-
-    Default 6, not 0: a full 30-region Shattering is an enormous first run, and a six-region seed is
-    the length most players actually finish. Set 0 for the full map."""
-    display_name = "Number of Regions"
+    0 uses the whole map (28 with the DLC, 17 without, 11 with DLC Only). The seed can
+    outgrow the number: a region behind another brings it along (Leyndell brings Altus),
+    and your Final Boss or Allowed Starting Regions can add more.
+    """
+    display_name = "Number of Regions (0 = all)"
     range_start = 0
     range_end = len(REGIONS)
     default = 6
 
 
 class NumRegionsOrder(Choice):
-    """How the kept regions are chosen when num_regions > 0. This decides WHICH regions your seed
-    keeps. It does NOT decide where you start -- the opening region is always an independent draw
-    weighted by region size, over whatever ends up kept.
+    """Whether your seed's regions are picked at random or in the game's own order.
 
-    rolled (default): N regions drawn at random from the eligible pool. Every base region shows up
-    in roughly a third of seeds.
-
-    vanilla_order: the first N regions along the game's own progression path -- Limgrave, Weeping,
-    Stormveil, Liurnia, and so on. Fully deterministic, so the same num_regions always keeps the
-    same regions, and the later regions never appear at small N. Pick it if you want an early-game
-    run you can predict; leave it alone if you want variety."""
+    Only matters when Number of Regions (N) is below the whole map. It does not choose
+    where you start. Change it only for a predictable early-game run. Ignored by Natural
+    Progression and Vanilla Placement.
+    rolled: N random regions, different every seed (default)
+    vanilla_order: first N in game order, DLC last; same regions every seed
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
     # 🛑 THIS DOCSTRING IS THE PLAYER-FACING TEXT. tools/dump_options_metadata.py dumps it
     # verbatim into wizard/options-metadata.json and inlines it in wizard.html, and AP shows it as
     # the option tooltip -- so the rationale below is a COMMENT on purpose. It was briefly in the
@@ -183,7 +172,7 @@ class NumRegionsOrder(Choice):
     # features/start_grace.pick_anchor_region). Alaric's first instinct in August was
     # `spine -> limgrave_start`, which would have baked that exact misreading into the name.
     # `vanilla_order` describes the ORDER the regions are taken in, which is all it has ever done.
-    display_name = "Region Selection"
+    display_name = "How Regions Are Chosen"
     option_rolled = 0
     option_vanilla_order = 1
     # ⭐ `spine` was this value's name until 2026-08-11 and is kept as an AP ALIAS, not a second
@@ -213,30 +202,19 @@ class ItemShuffle(Toggle):
 
 
 class Goal(Choice):
-    """WHICH BOSS ENDS THE RUN. 'auto' (default) derives it: on ANY seed with the base game in
-    play, Godfrey/Hoarah Loux + the Elden Beast. Under DLC Only, the major bosses of the deepest
-    kept region.
+    """Which boss fight ends your run.
 
-    HOW YOU GET THERE. The Erdtree burn is an ITEM. The Ashen Capital Lock is shuffled into the
-    pool like any other progression item, and when it reaches you the Erdtree burns and the Ashen
-    Capital's graces light -- so you warp to the end of the game from wherever you are, and no
-    particular region has to be kept for the ending to exist. Before v0.3.7 the burn was the
-    game's own (Maliketh, in Farum Azula), which is why this option used to force two regions into
-    every draw. The Ashen Capital itself is never rolled, never counted by Number of Regions and
-    never where you start.
+    Leave it on auto unless you want a DLC or Malenia ending. You finish by meeting the
+    ending requirements (see Great Runes Needed to Finish and Regions Needed to Finish) and
+    beating that boss. A Final Boss your settings rule out stops generation: elden_beast and
+    malenia with DLC Only, promised_consort with Enable DLC off.
 
-    'elden_beast' pins that pair explicitly and forces NO regions kept.
-    'promised_consort' pins Enir Ilim -- Promised Consort Radahn, the DLC's final boss -- and
-    FORCES Enir Ilim to be kept. 'malenia' pins Malenia alone, force-keeps the Haligtree, and opens
-    the route at Haligtree Canopy only: Loretta, Elphael and the full descent remain physical play.
-    On a full base+DLC seed 'auto' ends at the Elden Beast and the whole DLC is optional, so PCR or
-    Malenia can never be the goal by luck.
-
-    A choice its toggles make impossible is a GENERATION ERROR, never a silent fallback:
-    'promised_consort' needs DLC content in play (fails with Enable DLC off); 'elden_beast' and
-    'malenia' need base-game content (fail with DLC Only on). A goal that quietly evaporates is
-    worse than a yaml that refuses to roll."""
-    display_name = "Goal"
+    auto: as elden_beast; Promised Consort Radahn with DLC Only (default)
+    elden_beast: Hoarah Loux + Elden Beast (what auto picks, unless DLC Only)
+    promised_consort: Promised Consort Radahn; adds Enir Ilim to your seed
+    malenia: Malenia only; adds the Haligtree; warp to its Canopy, then walk
+    """
+    display_name = "Final Boss"
     option_auto = 0
     option_elden_beast = 1
     option_promised_consort = 2
@@ -245,22 +223,14 @@ class Goal(Choice):
 
 
 class EndingCondition(Choice):
-    """Whether the seed's goal requires Great Runes. DEFAULT: ``great_runes`` -- collect four of the
-    seven (Goal Great Runes) and the ending opens; with the default Goal Region Unlock Policy
-    (``none``) no Region Lock is required to finish.
+    """Whether finishing needs Great Runes at all.
 
-    This does NOT decide whether Region Locks are needed to open the Ashen Capital -- Goal Region
-    Unlock Policy does. Set it to ``items_held`` and ``great_runes`` means Region Locks AND the
-    rune count. ``region_locks`` is the compatibility spelling for no Great-Rune requirement;
-    ``great_runes`` requires the configured rune count.
-
-    Great Runes only exist as real items when Shuffle Vanilla Items is on, so with shuffle off the
-    rune requirement is inert. It is auto-clamped to the number of Great Runes actually reachable
-    this seed, so it can never make a seed unbeatable.
-
-    'great_runes' means ANY N of the seven Great Runes. The full eligible set rides slot_data as
-    `great_rune_items`, alongside `great_runes_required`; both the AP completion rule and client
-    count distinct held names from that set (#813)."""
+    Despite its name, region_locks does not make Region Locks (the items that open regions)
+    required; Regions Needed to Finish does. With that at none, no Great Rune or Region Lock
+    gates the ending. Great Runes Needed to Finish sets the count for great_runes.
+    great_runes: the ending needs the Great Runes count you set (default)
+    region_locks: no Great Runes needed
+    """
     display_name = "Ending Condition"
     option_region_locks = 0
     option_great_runes = 1
@@ -268,25 +238,15 @@ class EndingCondition(Choice):
 
 
 class GreatRunesRequired(Range):
-    """How many Great Runes the 'great_runes' ending needs. INERT unless Ending Condition is
-    great_runes -- core._resolve_required_runes returns before this value is ever read.
+    """How many of the seven Great Runes you must hold to finish.
 
-    RENAMED from `great_runes_required` (2026-07-14). It sat one line above `leyndell_runes_required`,
-    which was a completely different thing (the Great Runes once needed to ENTER Leyndell, live in
-    every seed -- retired 2026-09-14, when Leyndell became an ordinary Lock region; the name survives
-    only as a deprecated no-op), and the pair read as two settings for one mechanic. One was a no-op
-    in the default config and nothing said so.
-
-    The effective requirement is clamped down to the Great Runes reachable in the kept regions, so
-    sealing away Great-Rune regions (num_regions) lowers -- never breaks -- the goal.
-
-    The maximum is SEVEN. The Great Rune of the Unborn counts: Rennala drops it (flag 197, ap
-    7900004 in Raya Lucaria Academy), the game counts it toward the Leyndell wall, and this world
-    can hand it to you like any other rune.
-
-    A COUNT OF THE FULL SEVEN-RUNE SET. Any distinct runes count; no particular named rune is
-    mandatory (#813)."""
-    display_name = "Great Runes Required"
+    Raise it for a longer hunt, lower it for a shorter one. Any of the seven count,
+    the Great Rune of the Unborn included; none is mandatory. You must hold the Great
+    Rune itself: beating its boss is not enough, because they are shuffled items that
+    land on Progression Surface checks, possibly in other players' worlds. Only used
+    when Ending Condition is great_runes.
+    """
+    display_name = "Great Runes Needed to Finish"
     range_start = 1
     # DERIVED, not typed (#405), and it is SEVEN again -- by derivation this time, not by typing.
     #
@@ -305,43 +265,51 @@ class GreatRunesRequired(Range):
 
 
 class EnableDLC(DefaultOnToggle):
-    """Whether the Shadow of the Erdtree DLC regions (Land of Shadow, Belurat, Scadu Altus, Shadow
-    Keep, Jagged Peak, Abyssal Woods) are in play. on (default): DLC regions are eligible and can be
-    kept by num_regions alongside base-game regions. off: DLC regions are excluded from the region
-    pool entirely -- num_regions draws only from base-game regions, and every DLC lock/check/grace is
-    sealed like any non-kept region. Ignored (forced on) when DLC Only is on."""
+    """Includes the Shadow of the Erdtree DLC in your run.
+
+    Turn this off without the DLC, or you may get checks in areas you cannot enter.
+    On (default; DLC Only forces it): Number of Regions can draw DLC regions and DLC items
+    can appear. Off: no DLC region or item appears (except Enable DLC Gear's gear); Final
+    Boss promised_consort, or a DLC name in Allowed Starting Regions, stops generation
+    (Natural Progression and Vanilla Placement ignore that list).
+    """
     display_name = "Enable DLC"
 
 
 class EnableDLCGear(Toggle):
-    """Allow Shadow of the Erdtree equipment in the randomized pool even when Enable DLC is off.
-    Includes weapons, armor, talismans, Ashes of War, spells, spirit ashes, and crystal tears.
-    Does not enable DLC regions, checks, locks, quest items, or blessing fragments. Gear is selected
-    by the normal item-pool settings; this does not guarantee every DLC item will appear. Has no
-    additional effect when DLC regions are enabled. off (default) preserves the base-game pool."""
+    """Lets Shadow of the Erdtree gear drop in a run that has the DLC turned off.
+
+    For owners who keep Enable DLC off: DLC weapons, armor, talismans, Ashes of War, spells,
+    spirit ashes and crystal tears can show up as rewards; two DLC tears (Bloodsucking
+    Cracked Tear, Deflecting Hardtear) always do. Nothing else DLC is added; off (default)
+    keeps gear base-game only. No effect with Enable DLC or DLC Only on, and almost none
+    with Original Item Pool on.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Enable DLC Gear"
 
 
 class EnableTarnishedPack(Toggle):
-    """Whether paid Tarnished Pack equipment may enter the randomized item pool. off (default):
-    none of its weapons, shields, or armor can be placed. on: the verified equipment roster is
-    available to the pool builder as honorary S-tier gear. This does not yet add the pack's field,
-    merchant, or invasion locations, nor its Spectral Steed attire unlocks."""
+    """Includes the paid Tarnished Pack's gear, and its shop and field checks, in your run.
+
+    Turn this on only if you own the pack, or you may receive items you cannot use. On lets
+    its 26 weapons, shields and armor pieces appear as rewards and adds up to 14 checks (3
+    field pickups, 11 merchant purchases that need Shop Checks on). Its Spectral Steed
+    outfits and NPC invasion rewards are not included. Off (default): none of it is in your
+    seed.
+    """
     display_name = "Enable Tarnished Pack"
 
 
 class DLCOnly(Toggle):
-    """off (default): normal -- base game (and DLC when Enable DLC is on) are all in play. on: ONLY
-    the Shadow of the Erdtree DLC regions are eligible; every base-game region is sealed. Implies
-    Enable DLC (turning this on forces the DLC in even if Enable DLC is off). The goal becomes "hold
-    every kept DLC lock"; the base-game goal region (Leyndell) is sealed but is not required, so the
-    seed stays winnable.
+    """Limits your run to Shadow of the Erdtree; base-game regions are locked out.
 
-    A great_runes ending WORKS here (changed 2026-08-16, #764). It used to collapse to region_locks,
-    because no Great Rune boss stands in the Land of Shadow and the requirement was clamped to the
-    runes the draw supplied -- under DLC Only that was zero. All seven Great Runes are now injected
-    into every seed's pool regardless of draw, so a DLC-only seed has seven runes to find; they come
-    from the multiworld and from DLC checks rather than from demigods who are not in your run."""
+    Forces Enable DLC on. Final Boss auto ends on Promised Consort Radahn in Enir Ilim, a
+    region always included on top of Number of Regions. Final Boss elden_beast or malenia
+    stops generation, as do base-game names in Allowed Starting Regions (Natural
+    Progression and Vanilla Placement ignore that list). The default Great Runes ending
+    works; all seven runes join the pool.
+    """
     display_name = "DLC Only"
 
 
@@ -503,58 +471,78 @@ class GFLocation(Location):
 # wizard's `ungrouped` bucket, i.e. back inside Advanced -- which is exactly the failure above, just
 # one option at a time. tests/test_gf_option_groups.py fails on any ungrouped visible key.
 _OPTION_GROUPS = [
-    ("Goal & Regions", [
-        "num_regions", "num_regions_order", "start_regions", "start_region_pool", "start_region_selection", "goal",
-        "ending_condition",
-        # goal_region_unlock_policy sits directly under the rune pair because it is the OTHER half of
-        # the goal gate (Mrks, 2026-09-13: a great_runes seed still needed every Region Lock and
-        # nothing near the rune count said why -- the policy was the last row of the group).
-        "goal_great_runes", "goal_region_unlock_policy", "leyndell_runes_required", "region_grace_unlock",
-        "grace_attunement", "grace_attunement_anchor"]),
+    # The six decisions a first seed needs. Everything else has a sensible default.
+    ("Start Here", [
+        "enable_dlc", "num_regions", "goal", "goal_great_runes", "enemy_scaling", "death_link",
+    ]),
+    # How the run is shaped and what ends it. Advanced rows follow the basic ones.
+    ("Regions & Finish Line", [
+        "goal_region_unlock_policy", "ending_condition", "start_region_pool", "start_regions",
+        "region_grace_unlock",
+        # advanced (hidden from the simple UIs)
+        "num_regions_order", "start_region_selection", "grace_attunement",
+        "grace_attunement_anchor",
+        # compat-only (hidden everywhere but the weighted page)
+        "leyndell_runes_required",
+    ]),
+    # Shadow of the Erdtree content and how Scadutree Blessings work.
     ("DLC & Blessings", [
-        "enable_dlc", "enable_dlc_gear", "enable_tarnished_pack", "dlc_only", "scadutree_blessing_scope", "dlc_blessing_catchup",
-        "global_scadutree_blessing"]),
-    ("Difficulty & Scaling", [
-        "enemy_scaling", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed", "coop_difficulty", "scale_rune_rewards", "traps", "spawn_traps",
-        "trap_count"]),
+        "enable_tarnished_pack", "dlc_only",
+        # advanced (hidden from the simple UIs)
+        "enable_dlc_gear", "scadutree_blessing_scope", "dlc_blessing_catchup",
+        # compat-only (hidden everywhere but the weighted page)
+        "global_scadutree_blessing",
+    ]),
+    # Enemy scaling dials and trap items.
+    ("Difficulty & Traps", [
+        "traps", "trap_count", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
+        "difficulty_ramp_speed",
+        # advanced (hidden from the simple UIs)
+        "spawn_traps", "coop_difficulty", "scale_rune_rewards",
+    ]),
+    # What counts as a check and what the item pool is made of.
     ("Checks & Item Pool", [
-        "dungeon_sweep", "full_area_sweeps", "reveal_sweep_boss_names",
-        "reroll_enemy_drops", "reroll_mine_materials",
-        "protect_missable_locations", "armor_bundles",
-        # vanilla_pool sits directly before curated_filler because it OVERRIDES it (#618): the
-        # wizard renders a group in this order, and a player reading the recipe first would edit
-        # weights that the switch above them makes moot.
-        "vanilla_pool",
-        "curated_filler", "pool_builder_intensity", "pool_builder_pct_weapons",
-        "pool_builder_pct_armor", "pool_builder_pct_spells", "pool_builder_pct_talismans",
-        "pool_builder_pct_ashes_of_war"]),
+        "dungeon_sweep", "protect_missable_locations", "armor_bundles", "vanilla_pool",
+        # advanced (hidden from the simple UIs)
+        "full_area_sweeps", "reveal_sweep_boss_names", "reroll_enemy_drops",
+        "reroll_mine_materials", "curated_filler", "pool_builder_intensity",
+        "pool_builder_pct_weapons", "pool_builder_pct_armor", "pool_builder_pct_spells",
+        "pool_builder_pct_talismans", "pool_builder_pct_ashes_of_war",
+    ]),
+    # How your items and other players' items are shared.
     ("Multiworld & Placement", [
-        "death_link", "death_link_amnesty_inbound", "death_link_amnesty_outbound",
-        "trap_link", "region_sync", "filler_foreign_pct", "progression_surface", "progression_sharing",
-        # progression_bias / cross_game_progression / confine_foreign_progression are hidden
-        # (Visibility.none) and governed by progression_sharing -- deliberately not listed here.
-        "keep_local", "keep_local_rune_cap"]),
+        "progression_surface", "keep_local", "progression_sharing", "filler_foreign_pct",
+        "region_sync", "trap_link",
+        # advanced (hidden from the simple UIs)
+        "keep_local_rune_cap", "death_link_amnesty_inbound", "death_link_amnesty_outbound",
+    ]),
+    # Shop checks, what may be sold, and merchant unlocks.
     ("Shops & Merchants", [
-        "shop_checks", "keep_out_of_shops", "no_runes_in_shops", "rune_shop_pricing", "merchant_bells_on_talk",
-        "merchant_bell_logic", "reroll_infinite_shop_stock", "infinite_hub_wares",
-        "progressive_stone_bells"]),
+        "shop_checks", "keep_out_of_shops", "merchant_bells_on_talk", "reroll_infinite_shop_stock",
+        "infinite_hub_wares", "progressive_stone_bells", "no_runes_in_shops",
+        # Frozen (FROZEN_OPTIONS), so it has no yaml key and no control today, but it stays FILED:
+        # an option that is unfrozen with no home here falls into the wizard's `ungrouped` bucket and
+        # renders inside Advanced (test_gf_rune_pricing pins this; the 2026-08-12 unfreeze needed it).
+        "rune_shop_pricing",
+        # compat-only (hidden everywhere but the weighted page)
+        "merchant_bell_logic",
+    ]),
+    # Comfort options: equipment, upgrades, flasks and doors.
     ("Quality of Life", [
-        # auto_equip and no_equip_load are ADJACENT on purpose (Alaric 2026-08-20): the moment you
-        # turn auto_equip on, "do you want a guaranteed medium roll so a random drop cannot
-        # overload you?" is the next question, so it sits right there. no_weapon_requirements is
-        # the same kind of constraint-remover and follows. auto_upgrade UNFROZE the same day.
-        "auto_equip", "no_equip_load", "auto_upgrade", "flatten_regular_upgrades",
-        "no_weapon_requirements",
+        "auto_equip", "no_equip_load", "auto_upgrade", "no_weapon_requirements",
+        "flatten_regular_upgrades", "progressive_flasks", "open_boss_doors",
         "start_with_whetblades",
-        "progressive_flasks", "flask_upgrades_on_progression_surface",
-        "capital_reconciler", "open_boss_doors"]),
-    # Collapsed = filed under the wizard's Advanced step and folded on AP's page. Both of these
-    # invert the randomizer's whole premise (items where vanilla keeps them; vanilla's dependency
-    # shape instead of synthetic locks) -- Alaric 2026-08-20: "buried pretty deep, both kind of
-    # experimental". They are still fully supported options; they just should not greet a player
-    # who came to randomize.
-    ("Experimental", ["vanilla_placement", "natural_progression", "locked_abilities", "ability_lock_mode", "ability_unlocks_required"], True),
+        # advanced (hidden from the simple UIs)
+        "capital_reconciler",
+        # compat-only (hidden everywhere but the weighted page)
+        "flask_upgrades_on_progression_surface",
+    ]),
+    # Collapsed. These change the randomizer's basic premise.
+    ("Experimental", [
+        "natural_progression", "vanilla_placement", "locked_abilities", "ability_lock_mode",
+        # advanced (hidden from the simple UIs)
+        "ability_unlocks_required",
+    ], True),
 ]
 
 
@@ -605,7 +593,7 @@ _ESSENTIAL_OPTIONS = frozenset({
     # front-page yes/no whose regions_completed spelling is the deep cut)
     "num_regions", "goal", "ending_condition", "goal_great_runes", "goal_region_unlock_policy",
     # DLC & Blessings -- the ownership toggle alone; dlc_only is the More tier (Alaric 2026-08-20)
-    "enable_dlc", "enable_dlc_gear", "enable_tarnished_pack",
+    "enable_dlc", "enable_tarnished_pack",
     # Difficulty & Scaling -- the headline toggle and the flavor decision; the dials stay under
     # More behind the easy/standard/hard quick-picks the wizard draws
     "enemy_scaling", "traps",
@@ -633,6 +621,9 @@ class GFWeb(WebWorld):
     # metaclass, so an option landing in two groups fails at import. Assigning after the class is
     # created would skip that check.
     option_groups = _option_groups()
+    # "For dummies" starting points: a preset dropdown on the WebHost page and ready-made yamls under
+    # Players/Templates/Presets. Keys and values are pinned by tests/test_gf_options_presets.py.
+    options_presets = OPTIONS_PRESETS
 
 
 # After class creation on purpose (the mirror of the note above): essential_options is OUR

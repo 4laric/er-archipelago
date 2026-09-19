@@ -61,7 +61,7 @@ This RETIRES the two half-shipped grace gates that used to live here:
 Client contract: regionGraces (region.rs) {item_name: [grace_flag,...]} -- light on receipt of ANY
 keyed item. Keys are region Locks; a gated child's Lock maps to [] while its wall is armed.
 """
-from Options import Choice, Range
+from Options import Choice, Range, Visibility
 
 from ..registry import Feature, register
 from . import vanilla_placement as _vp
@@ -210,28 +210,15 @@ def entrance_grace(flags, region=None):
 
 
 class RegionGraceUnlock(Choice):
-    """How many of a region's Sites of Grace a region unlock hands you.
+    """How many warp points (Sites of Grace) light up when you unlock a region.
 
-    all (default) -- every warp grace in the region, so you can fast-travel anywhere in it at once.
-    Liurnia lights 59 at once, Caelid 38, Limgrave 28, which is what makes a region you have never
-    walked read as already-explored.
-    landmarks -- one per sub-area, using the warp menu's OWN grouping (Liurnia resolves to
-    Lake-Facing Cliffs, East Raya Lucaria Gate, Moonlight Altar and Ruin-Strewn Precipice). 50 across
-    the map. A middle setting: you can still cross a big region in a couple of hops.
-    entrance -- only the region's front door; disconnected regions receive one entry per traversal
-    component, so every check AP considers open is physically reachable. You walk to and touch the
-    rest yourself, the vanilla way.
-
-    It moves no item. Region Locks remain the only progression and every check stays exactly where
-    it was, so nothing here changes what your seed contains or where any of it sits. A region whose
-    bundle is WITHHELD (a gated child behind an armed wall) grants nothing at any value -- no
-    setting here is a way past a wall.
-
-    🛑 THAT IS NOT THE SAME AS SAFE. The intent is that a grace you were not handed is still
-    reachable on foot and still lights when you touch it. The bundles have not been walked region
-    by region, though, so which ones can leave you somewhere you cannot get out of is genuinely not
-    known. `all` is the setting that has been played. Treat the other two as experimental, and
-    please report anything that strands you.
+    Leave it on all unless you want to explore: the others are experimental and can strand
+    you; please report it. Pacing only: no item or check moves. Ignored by Vanilla
+    Placement. For a gradual unlock on top of all, see grace_attunement. Final Boss malenia
+    opens Haligtree at its Canopy only.
+    all: every warp point in the region at once (default)
+    landmarks: one per sub-area, so a few hops still cross a big region
+    entrance: front door only (two in Ainsel River, Mountaintops); rest on foot
     """
     # WHY THE OLD "cannot make a seed unwinnable" LINE CAME DOWN (Alaric, 2026-08-13): nobody ever
     # measured it. The half about items and checks is STRUCTURAL and stays -- nothing in this option
@@ -241,7 +228,7 @@ class RegionGraceUnlock(Choice):
     # this docstring IS the wizard tooltip, AP's own option help, and the comment in the generated
     # yaml -- three places a player reads BEFORE choosing. Restore the strong wording when someone
     # has walked the bundles, not before.
-    display_name = "Region Grace Unlock"
+    display_name = "Warp Points When a Region Opens"
     option_all = 0
     option_landmarks = 1
     option_entrance = 2
@@ -249,39 +236,37 @@ class RegionGraceUnlock(Choice):
 
 
 class GraceAttunement(Range):
-    """Warp points arrive by exploring, not all at once. Unlocking a region lights ONE of its Sites
-    of Grace per connected component; touch this many more and the rest light. 0 (default) keeps the current behaviour --
-    a region Lock lights every grace it has.
+    """A region opens with only its starter warp points; discover this many more for the rest.
 
-    Regions with too few graces to reach the number are left alone entirely, so a two-grace region
-    never ends up with warps it can never open. Requires a client that supports grace attunement;
-    a seed using it refuses an older one rather than connecting and silently ignoring it.
-
-    🛑 EXPERIMENTAL, and not for the reason a version number would tell you. Holding warps back
-    means you walk more of the world on foot, and the grace bundles have not been walked region by
-    region -- so which regions can leave you somewhere you cannot get out of is not known. It moves
-    no item and no check, so your seed still contains everything it did; what is untested is
-    whether you can always get to it. 0 is the setting that has been played. Please report anything
-    that strands you."""
-    display_name = "Grace Attunement"
+    0 (default) is off. Regions with this many or fewer other warp points light normally.
+    Meant for Warp Points When a Region Opens set to all: nothing happens with entrance,
+    little with landmarks. Experimental: you walk more and could get stuck, so please report
+    it. No item or check moves. Needs an up-to-date client; older ones refuse a seed it
+    applies to.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Warp Points Needed to Light the Rest"
     range_start = 0
     range_end = 10
     default = 0
 
 
 class GraceAttunementAnchor(Choice):
-    """Which Site of Grace a region hands you when it unlocks. `front_door` (default) is the
-    region's own entrance, so you always arrive somewhere sensible. `random_grace` picks one of the
-    region's graces instead, which can drop you deeper in and cuts more traversal -- every
-    candidate is a real, physically-present warp point, so it can never strand you in a sealed
-    arena. Regions with separate traversal components retain their fixed component entrances
-    with either setting. Only used when Grace Attunement is on."""
+    """Which warp point a region gives you first, when it starts with just one.
+
+    Only used when grace_attunement is above 0, in regions big enough for it. Ainsel River
+    and Mountaintops of the Giants always give both entrances. Every candidate is a real
+    warp point, never a sealed boss arena.
+    front_door: the region's preset starter, not always its entrance (default)
+    random_grace: any warp point it would light; you may start deeper in
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
     # 🛑 NOT `option_random`. Archipelago RESERVES "random" on every Choice as the built-in
     # meta-value that rolls the option itself, and Options.py asserts at CLASS-CREATION time:
     # "Choice option 'random' cannot be manually assigned." That is an import-time crash for the
     # whole apworld, not a validation error on a seed -- so the collision is unmissable, but only
     # once something imports the module.
-    display_name = "Grace Attunement Anchor"
+    display_name = "Starter Warp Point per Region"
     option_front_door = 0
     option_random_grace = 1
     default = 0

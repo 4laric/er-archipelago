@@ -30,28 +30,29 @@ from ..registry import Feature, register
 
 
 class AutoUpgrade(Toggle):
-    """Automatically raise any weapon that enters your bag -- an AP grant, a world pickup, or an
-    item you put down with Leave and took back -- to the highest reinforce level you already hold
-    on its smithing track (normal caps at +25, somber at +10). Raise-only and per-track: nothing
-    is ever downgraded, and somber never feeds normal. The put-it-down-pick-it-up gesture is the
-    intended catch-up for a weapon received before you found your stones. On by default, and the
-    receipt half has been every seed's behaviour since v0.2 -- turn it off to keep weapons at
-    their found level and spend the stones yourself."""
+    """Raises every weapon you receive or pick up to your best upgrade level.
+
+    It matches the highest level you hold on that weapon's track (regular up to +25, somber
+    up to +10; the two never mix) and never lowers one. To catch up a weapon you got early,
+    put it down with Leave (not Discard, which destroys it) and pick it up again. On by
+    default; off leaves weapons at their found level and you pay for upgrades.
+    """
     # The default IS the ex-frozen value (2026-08-20 unfreeze). While an option is frozen its class
     # default is unreachable and rots; moving it in the same commit is what keeps a default seed's
     # behaviour identical (the PoolBuilderIntensity lesson). Pinned by test_gf_option_groups.
     default = 1
-    display_name = "Auto-Upgrade Received Weapons"
+    display_name = "Auto-Upgrade Weapons"
 
 
 class FlattenRegularUpgrades(Range):
-    """Stones per +level for STANDARD weapon reinforcement -- the client flattens the vanilla 2/4/6
-    ladder to a uniform cost. 0 = off (vanilla 2/4/6); 1..4 = uniform N stones per level (lower =
-    weapons upgrade faster). The upgrade-curve analyzer found 3 best matches the smoothstep difficulty
-    scaling (0/vanilla undershoots the target, 1 overshoots it). The default is 2, preserving the
-    fixed cost used by existing releases. Somber weapons
-    (1 stone/level) and the +25 Ancient Dragon step are unaffected."""
-    display_name = "Flatten Regular Upgrades (stones/level)"
+    """Caps how many Smithing Stones each upgrade level of a regular weapon costs.
+
+    Vanilla charges 2, 4, then 6 stones for each set of three levels that share a stone
+    type, and 0 keeps that. Any other number caps every level at that many stones, so lower
+    is cheaper. Default 2, cheaper than vanilla. Somber weapons and the final step to +25 do
+    not change. A randomized seed sizes its early stone supply to match.
+    """
+    display_name = "Smithing Stone Cost Cap (0 = vanilla)"
     range_start = 0
     range_end = 4
     default = 2

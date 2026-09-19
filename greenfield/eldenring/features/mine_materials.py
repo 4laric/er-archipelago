@@ -11,7 +11,7 @@ all deposits of one original tier receive the same seed-selected replacement.
 """
 import random as _random
 
-from Options import DefaultOnToggle
+from Options import DefaultOnToggle, Visibility
 
 from .. import contract
 from ..registry import Feature, register
@@ -42,12 +42,15 @@ _CATEGORIES = ("throwables", "greases", "foods", "boluses", "utility", "funny")
 
 
 class RerollMineMaterials(DefaultOnToggle):
-    """Reroll repeatable mine-stone deposits to useful consumables, per seed.
+    """Mine deposits give a random consumable instead of smithing stones, chosen per seed.
 
-    Deposits remain ordinary respawning world pickups, not Archipelago checks.  All deposits that
-    originally shared one stone tier also share one replacement for the seed.  Ancient Dragon and
-    Somber Ancient Dragon capstones are never included.  Disable this option to keep vanilla mine
-    rewards unchanged."""
+    The respawning stone deposits in mines are not checks. Each stone tier gives one
+    consumable (grease, bolus, throwing dagger, Rune Arc...), the same at every deposit of
+    that tier. Ancient Dragon deposits are unchanged, and stones still arrive as check
+    rewards. On by default; off keeps vanilla mining. Original Item Pool and Vanilla
+    Placement do not turn this off.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Reroll Mine Materials"
 
 

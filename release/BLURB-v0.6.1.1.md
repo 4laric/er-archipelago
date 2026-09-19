@@ -17,8 +17,13 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.1 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+**The options screen is shorter and plainer.** If you build your yaml in the Archipelago Launcher or
+on the web options page, it now opens on a "Start Here" section with six decisions -- do you own the
+DLC, how many regions, which boss ends the run, how many Great Runes, enemy scaling, Death Link --
+and the expert dials are out of the way (still in the template yaml and the wizard; nothing you
+already wrote stops working). Every tooltip was cut to fit on screen, and the rewrite fixed several
+that said the wrong thing. New: ready-made presets (Base Game, Short Run, Whole Map, DLC Only) and an
+`EldenRing-Quickstart.yaml` with just the six decisions.
 
 ## What carried over from v0.6.1
 

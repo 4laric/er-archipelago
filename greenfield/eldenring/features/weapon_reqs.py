@@ -16,15 +16,13 @@ from .. import contract
 
 
 class NoWeaponRequirements(Toggle):
-    """Remove the stat requirements on weapons, shields, and catalysts (and spell requirements) so
-    anything the multiworld hands you is usable regardless of your build.
+    """Lets you use any weapon, shield, catalyst or spell whatever your stats are.
 
-    On by default -- a randomizer hands you gear no build was made for, and this is what has always
-    happened. Turn it off if you want your stats to decide what you can hold; the seed is generated
-    the same either way, so nothing becomes unwinnable, it just becomes a fight you have to build for.
-
-    The client zeroes the live params at runtime and only ever LOWERS a requirement, so it is
-    reconnect-safe."""
+    It removes the stat requirements, so gear the multiworld sends you works on any build.
+    On by default, since a randomizer hands you gear no build was made for. Turn it off to
+    bring requirements back and let your stats decide what you can hold; the seed is
+    generated the same either way, so nothing becomes unwinnable.
+    """
     display_name = "No Weapon Requirements"
     # 🛑 1, NOT the bare Toggle 0. This option was FROZEN AT 1 until 2026-08-13; the freeze value IS
     # the default, and a class default that disagrees with it silently reverts every seed that does

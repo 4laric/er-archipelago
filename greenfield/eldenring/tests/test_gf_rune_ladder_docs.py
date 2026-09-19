@@ -92,7 +92,12 @@ def test_the_shipped_yaml_ladder_matches_the_params():
     if not os.path.isfile(path):
         pytest.skip("release/EldenRing.yaml not present")
     text = open(path, encoding="utf-8").read()
-    block = text[text.find("keep_local_rune_cap") - 3000:text.find("keep_local_rune_cap") + 200]
+    # Anchor on the KEY LINE, not on the first mention of the name: keep_local's own comment block
+    # says "see keep_local_rune_cap", so a bare find() lands in the wrong option and the window
+    # before it holds no ladder (found when the option text was cut down to tooltip size).
+    m = re.search(r"^  keep_local_rune_cap:", text, re.M)
+    assert m, "release/EldenRing.yaml has no `keep_local_rune_cap:` line"
+    block = text[max(0, m.start() - 3000):m.end() + 200]
     _check(block, "release/EldenRing.yaml (rune cap block)")
 
 

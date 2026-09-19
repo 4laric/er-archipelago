@@ -144,20 +144,13 @@ NOT_LEVERS = {
 
 
 class OpenBossDoors(Toggle):
-    """Open the catacombs' boss doors from the start, so you can walk in and fight instead of
-    hunting the lever first. Off by default.
+    """Opens base-game catacomb boss doors from the start, so there is no lever to hunt first.
 
-    Also lights both ancestor altars in Siofra River, so the Ancestor Spirit and the Regal Ancestor
-    Spirit are reachable without riding around lighting urns. Not a door; same promise.
-
-    Covers the 18 minor dungeons whose boss door is a genuine LEVER puzzle. It deliberately does not
-    touch the four that are not: Sainted and Giant-Conquering Hero's Graves open when you kill the
-    Gladiator and the Shadow Troll respectively, and skipping a fight is not what this option is
-    for; Gelmir and Auriza Hero's Graves have no lever to skip.
-
-    Nothing is granted and no check is skipped -- the door is a prerequisite to REACHING the boss,
-    and the boss and its dungeon sweep still have to be earned. Set at connect, so a dungeon you are
-    already standing in needs a reload before its door moves."""
+    Covers 18 dungeons that have a lever door; the four Hero's Graves are left alone (two
+    open by a fight, two have no lever). Also lights the two Siofra River altars that lead
+    to the Ancestor Spirit bosses. Nothing is granted and no check is skipped. Takes effect
+    when you connect; re-enter a dungeon you are already in.
+    """
     display_name = "Open Catacomb Boss Doors"
 
 

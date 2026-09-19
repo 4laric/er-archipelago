@@ -586,6 +586,7 @@ Info "+ apconfig.json (generic template: archipelago.gg / Player1 -- port is a p
 $Docs = @(
     @{ src = (Join-Path $Rel  "LICENSE");                                  required = $true  },
     @{ src = (Join-Path $Rel  "EldenRing.yaml");                           required = $true  },
+    @{ src = (Join-Path $Rel  "EldenRing-Quickstart.yaml");                 required = $true  },
     @{ src = (Join-Path $Rel  "SETUP.md");                                 required = $true  },
     @{ src = (Join-Path $Rel  "RELEASE-NOTES-v0.2.md");                    required = $true  },
     @{ src = (Join-Path $Rel  "CHANGELOG.md");                             required = $true  },
