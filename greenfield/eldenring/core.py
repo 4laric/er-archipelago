@@ -1230,6 +1230,12 @@ class GreenfieldEldenRingWorld(World):
         # Raise only from filler: never DOWNgrade something a category rule already called useful.
         if name in GREAT_RUNES and base == ItemClassification.filler:
             return ItemClassification.useful
+        # A Talisman Pouch is three permanent talisman slots in total -- build power, not junk
+        # (Alaric, 2026-09-19). It is a GOOD, so its category defaults it to filler; promote by name,
+        # raise-only, and it covers the vanilla copies and presence_floor's injected ones alike
+        # because both come through here.
+        if name == "Talisman Pouch" and base == ItemClassification.filler:
+            return ItemClassification.useful
         return base
 
     def create_item(self, name: str) -> GFItem:
