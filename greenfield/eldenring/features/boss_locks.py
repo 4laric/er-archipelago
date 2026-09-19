@@ -157,58 +157,19 @@ _SWEEP_RUNGS = contract.SWEEP_RUNGS
 
 
 class DungeonSweep(Choice):
-    """Which bosses hand you their area's loot in a sweep when you kill them.
+    """Which boss kills also collect the rest of their area's checks for you (a "sweep").
 
-    none -- no sweeps; every check is picked up where it lies.
-    minidungeons -- catacombs, caves, tunnels and minor dungeons only (~510 checks).
-    all -- those plus legacy dungeons and castles (~2614).
-    bosses (default) -- those plus FIELD bosses, i.e. everything (~3876).
-
-    Those are the BAKED pools. What a seed grants is that minus its Progression Surface cut below;
-    at the default surface, ~3782 at the widest rung.
-
-    🛑 UNTIL 2026-07-29 THESE THREE WERE THE SAME THING. The emit gated on `value != 0` and never
-    filtered by class, so minidungeons/all/bosses each granted the full 3197 -- the ladder in this
-    docstring described behaviour that had never been implemented, and the player guide and the
-    v0.2.15 release notes repeated it. The rungs are real now.
-
-    The DEFAULT moved 'all' -> 'bosses' at the same time, and that is not a behaviour change: the
-    full set is what every non-none value already granted, so 'bosses' IS what shipped. Leaving the
-    default at 'all' would have quietly dropped field sweeps (1213 checks, 38%) from every seed
-    under the banner of a bug fix.
-
-    A sweep never hands you another boss's reward, a Remembrance, a Great Rune, a key item or a
-    merchant's stock: those are cut when the sweep is built and no option restores them.
-
-    Everything else in the area is yours, INCLUDING the good stuff -- Golden Seeds, Sacred Tears,
-    Scadutree Fragments, Revered Spirit Ashes, Crystal Tears and the legendaries (2026-08-13; it was
-    filler-only before, +145 checks corpus-wide). The exception is the classes YOU put on the
-    Progression Surface: those are where this seed places its Locks, so they are taken back out of
-    the sweep, per seed. At the default surface that means Golden Seeds, Sacred Tears, Scadutree
-    Fragments and Revered Ashes stay where they lie and the legendaries and Crystal Tears sweep;
-    untick a collectathon line on the surface and the sweep picks it up instead.
-
-    🛑 ONE SWEEP MEMBER PER TRIGGER CAN NOW HOLD PROGRESSION, in a default seed (2026-08-13). The
-    default Progression Surface includes `SweepSlot`, which nominates a single member of every sweep
-    you run as somewhere a key item may be placed -- so killing a boss can hand you one. That is the
-    only class the surface does NOT take back out of the sweep, and deliberately: taking it back
-    would delete the check it just nominated. Drop `SweepSlot` from progression_surface if you would
-    rather a sweep never pay out progression -- or see `full_area_sweeps` for the opposite ask,
-    every check in the area including the progression; the cost of dropping it is that at the default
-    `confine_foreign_progression` another player's key items have only ~30 checks of yours to land
-    on, and most of them stop arriving (er-archipelago#631).
-
-    🛑 With an EMPTY Progression Surface there is no confinement at all, so progression scatters
-    wherever AP's fill puts it -- including onto ordinary sweep members, as it always could. The cut
-    can only act on a surface that says something.
-
-    A group is only sent to a seed that can actually FIRE it (issue #445): the trigger boss's ARENA
-    region has to be kept too, not just the region its members live in. Six groups are fought
-    somewhere other than where their loot lies -- the Golden Hippopotamus hands over 104 Shadow Keep
-    checks from Scadu Altus ground -- and a seed that keeps one region without the other used to
-    ship a sweep whose boss the region lock would not let the player reach. Those groups are dropped
-    instead. The checks are unaffected: every member is an ordinary pickup in its own region, so what
-    is lost is the convenience, not the loot.
+    Kill such a boss and the other checks in its dungeon or area arrive at once, so you can
+    skip walking to them. Nothing is lost or required either way. Never collected this way:
+    boss rewards, quest keys, shop stock, and by default collectibles such as Golden Seeds
+    and Sacred Tears (see full_area_sweeps). By default some checks in a sweep may hold
+    progression; to reduce that, remove SweepSlot from Progression Surface (where
+    progression can land). In a multiworld, other players' progression then has fewer of
+    your checks to land on.
+    none: no sweeps; pick up every check where it lies
+    minidungeons: catacombs, caves, tunnels and other small dungeons
+    all: minidungeons plus legacy dungeons, castles and DLC open-world bosses
+    bosses: all plus base-game open-world bosses (default)
     """
     display_name = "Dungeon Sweep"
     option_none = 0
@@ -219,49 +180,26 @@ class DungeonSweep(Choice):
 
 
 class FullAreaSweeps(Toggle):
-    """Should a boss kill hand you EVERYTHING in its area, including the good stuff this seed is
-    using for progression?
+    """Boss kills that sweep up an area also take the pickups they usually skip.
 
-    off (default) -- a sweep pays out the area's ordinary loot. The classes you put on the
-    Progression Surface are taken back out of it, because those are exactly where this seed places
-    its key items: at the default surface that is Golden Seeds, Sacred Tears, Scadutree Fragments
-    and Revered Spirit Ashes, and you still walk to those yourself.
-
-    on -- nothing is taken back out. Every check the sweep holds is granted the moment the boss
-    dies, progression included, so killing a boss can hand you a region Lock (or, at the default
-    `confine_foreign_progression`, another player's item). That is the point of the option, not a
-    side effect: it is what "killing the boss gives me the area" actually means. It cannot strand
-    you -- a sweep only ever grants checks in a region you kept and behind a boss you could reach,
-    so it makes a reachable check arrive earlier and never makes an unreachable one required.
-
-    WHAT IT DOES NOT DO, in any seed. This widens WHICH checks a sweep pays; it does not widen
-    which bosses sweep (that is `dungeon_sweep`) and it does not lift the permanent floor:
-
-    * another boss's reward, remembrance or Great Rune -- handing those over would delete the fight;
-    * gate and quest KEY ITEMS;
-    * merchant stock, which is bought at a counter rather than picked up off the ground.
-
-    Nor can it reach a check whose position was never recovered from the game data: those belong to
-    no boss's area, so no boss kill can grant them. Requested by siffrin and bobler (#1033).
-
-    Missable checks are unaffected by this option in either direction -- they have always been
-    ordinary sweep members (170 of the 289 are swept today), so a sweep already rescues most of
-    them and this changes nothing about which. `protect_missable_locations` is the option for that.
-
-    Corpus size of the change: +113 member links at the default Progression Surface (4101 -> 4214),
-    up to +215 for a seed that puts all six of the collectathon/rarity classes on its surface, and
-    exactly zero for a seed with an empty surface -- an empty surface makes no claim, so there was
-    nothing being taken back out to restore."""
+    A sweep skips what Progression Surface reserves for progression (by default Golden
+    Seeds, Sacred Tears, Scadutree Fragments, Revered Spirit Ashes). On: it takes those too,
+    so a kill may hand you an item that opens a region or another player's progression. It
+    cannot strand you. Boss rewards, quest keys and shop stock are never swept. No effect if
+    Dungeon Sweep is none.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Full Area Sweeps"
 
 
 class RevealSweepBossNames(Toggle):
-    """Show boss names for tracker sweep rows before their region has been opened.
+    """The F6 tracker shows boss names for sweeps in regions that are still locked.
 
-    Off by default so the tracker does not turn the sweep convenience into a boss spoiler.  This
-    is presentation-only: the emitted sweep groups, their members, and every logic rule are
-    identical either way; the client alone decides whether a locked row may reveal its label.
+    Off by default, so the tracker does not spoil which bosses wait in locked regions. This
+    changes only the display; checks, sweeps and item placement stay identical. On needs an
+    up-to-date client; older ones refuse the seed.
     """
+    visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Reveal Hidden Sweep Boss Names"
     default = 0
 

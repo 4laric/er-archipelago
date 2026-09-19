@@ -71,25 +71,15 @@ from ..registry import Feature, register
 
 
 class VanillaPool(Toggle):
-    """Turn item-pool curation off: your checks pay what they pay in vanilla Elden Ring. Off by
-    default, and it is the ONE switch you need -- it replaces the whole `curated_filler` recipe with
-    "keep what the check already paid" AND stops the guaranteed physick-tear / bell-bearing set
-    being added to the pool. Those are the two separate things that make a seed's item spread differ
-    from vanilla's, which is why emptying `curated_filler` on its own is not enough: it does the
-    first only, and such a seed still hands you up to 18 crystal tears vanilla never placed.
+    """Uses the original loot instead of this randomizer's tuned mix.
 
-    (Items are still SHUFFLED between checks -- this decides which items exist, not where they sit.
-    `vanilla_placement` is the option for that.)
-
-    You give up a lot: no gear injection, no smithing-stone economy, no rune economy, and no
-    guarantee that a physick tear or a bell bearing exists at all in a seed that seals their home
-    regions. That is what vanilla means here -- the curation is what was buying those. If what you
-    wanted was less gear rather than none, weight `curated_filler` down instead of setting this.
-
-    Overrides `curated_filler` rather than conflicting with it: the recipe has a real default, so a
-    yaml that never mentions it still has one, and rejecting the combination would reject the
-    shipped template. The generation log names the override when it happens."""
-    display_name = "Vanilla Item Pool"
+    The pool keeps nearly what vanilla's checks held, still shuffled between checks (Vanilla
+    Placement keeps items in place). No extra gear, stones or runes, and no guarantee of
+    physick tears, bell bearings or Talisman Pouches, so a seed that leaves regions out may
+    lack them. Armor sets still arrive as set items (Armor Set Bundling changes that).
+    Overrides curated_filler.
+    """
+    display_name = "Original Item Pool"
 
 
 def is_on(world) -> bool:

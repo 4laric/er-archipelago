@@ -83,7 +83,11 @@ committed in the submodule; pushes that client branch and opens its PR; promotes
 world half as a DRAFT PR whose body lists every `TODO(open)` prose marker. The default next
 version is the shipped tag's fixpack plus one; a minor or major bump is a dispatch decision.
 
-What stays human: the three prose sites (changelog intro, ledger row, channel note), which
+The `stable` row's sentence is NOT one of the markers: `open_window.py` drafts it from the shipped
+tag's own CHANGELOG section (the bold lead-in of each bullet), so the promotion never waits on
+prose about a window that has not started. Sharpen the row in the same PR if the draft misses.
+
+What stays human: the prose sites about the NEW window (changelog intro, ledger row), which
 `check_release_notes` holds the draft on until they are written, and the two merges. It needs
 the `ICON_REPO_TOKEN` secret (the fine-grained PAT `er-release.yaml` already uses; it has Contents +
 Pull requests write on both repos) and the previous window's client PR merged, or `open_window.py`'s "sites agree before the

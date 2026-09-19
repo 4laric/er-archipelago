@@ -488,30 +488,26 @@ _BELL_ITEMS = (PROG_SMITHING_BELL, PROG_SOMBER_BELL,
 
 
 class ProgressiveFlasks(Toggle):
-    """On (default): every Golden Seed and Sacred Tear check pays out a single "Progressive Flask
-    Upgrade" item instead, one-for-one. Copies alternate deterministically: Charge, then +1 potency,
-    then Charge, then +1, continuing in that order. The first copy visibly raises total charges above
-    the vanilla starting allocation; +1 copies grant a Sacred Tear to spend at a grace. Off: seeds
-    and tears stay discrete pickups at their shuffled locations. Flasks never gate logic, so either
-    way the seed is always winnable."""
-    display_name = "Progressive Flasks"
+    """Replaces every Golden Seed and Sacred Tear with a Progressive Flask Upgrade item.
+
+    Upgrades alternate: the 1st, 3rd, 5th... add a flask charge automatically; the 2nd,
+    4th... give a Sacred Tear to spend at a Site of Grace on flask potency. If your regions
+    hold no seeds or tears, the seed still gets 24 upgrades. On by default; off keeps them
+    as separate pickups. Winnable either way. Ignored by Vanilla Placement (items stay in
+    their vanilla spots).
+    """
+    display_name = "Progressive Flask Upgrades"
     default = 1
 
 
 class FlaskUpgradeMinimum(NamedRange):
-    """The fewest Progressive Flask Upgrade copies the seed will hold when Progressive Flasks is on.
+    """The fewest Progressive Flask Upgrades your seed will hold.
 
-    Each Golden Seed or Sacred Tear check in a kept region pays one copy, so a small `num_regions`
-    draw that happens to keep few of those checks used to get a very short flask ladder (one copy was
-    reported; over 40 default-shape seeds, 13 had fewer than 12). This tops the seed up to the number
-    you set, replacing ordinary filler, so the pool does not grow.
-
-    ``auto`` (the default) is **2 x Number of Regions**. A number from 1 to 24 sets it by hand: 24
-    is enough to max both flask charges and potency, and nothing above it does anything. ``off``
-    (0) restores the old behaviour, where the ladder is only as long as the flask checks the seed
-    kept. A seed that already holds more copies than this keeps them; it is a floor, not a cap.
-
-    No effect when Progressive Flasks is off."""
+    Each Golden Seed or Sacred Tear check in a kept region pays one, so a small draw can
+    end up with few. This tops it up in place of junk. auto is 2 x Number of Regions; a
+    number from 1 to 24 sets it, and 24 maxes both charges and potency; off is 0. Seeds
+    that already have more keep them. Ignored when Progressive Flasks is off.
+    """
     display_name = "Flask Upgrade Minimum"
     range_start = 0
     range_end = 24
@@ -527,13 +523,14 @@ class ProgressiveStoneswordKeys(Toggle):
 
 
 class ProgressiveStoneBells(Toggle):
-    """Off (default). On: the vanilla smithing-stone and glovewort shop Bell Bearings are replaced
-    by four progressive items, and each
-    copy you receive unlocks the next tier of the Twin Maidens' smithing-stone shop directly (no
-    hand-over). One copy of each is forced to sphere 0, so the upgrade ramp opens at the start, and
-    there are exactly as many copies as there are shop tiers to unlock, so no copy is
-    wasted and no single pickup skips you to the top. Never gates logic (Region Locks are the only
-    progression), so this is always winnable."""
+    """Makes the upgrade Bell Bearings progressive, so their shops unlock one tier at a time.
+
+    On: the smithing-stone, somberstone and two glovewort bearings become four progressive
+    items. Each copy you receive unlocks the next tier of its Twin Maiden Husks shop,
+    nothing to hand in, and the seed tries to place one copy of each where you can reach it
+    from the start. Off (default): vanilla bearings, found and handed in as usual. Never
+    required to finish.
+    """
     display_name = "Progressive Upgrade Bell Bearings"
 
 

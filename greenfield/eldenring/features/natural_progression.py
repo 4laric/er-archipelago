@@ -221,12 +221,14 @@ NATURAL_PARENT = {
 
 
 class NaturalProgression(Toggle):
-    """Faithful-vanilla progression: play the whole map with regions gated by REAL vanilla keys +
-    boss remembrances (shuffled), in vanilla's dependency SHAPE -- the inverse of The Shattering
-    (num_regions). No synthetic region locks. Off (default): normal num_regions behaviour. On: every
-    region opens on its own real key off the start, minus the kept chokepoints (DLC behind Mohg, Gelmir
-    behind Liurnia+Academy, Rauh behind Shadow Keep, the capital behind Altus + 2 Great Runes); the
-    whole eligible map is in play (num_regions is ignored). SPEC-vanilla-progression-20260722.md."""
+    """Opens regions with the game's own keys, not this randomizer's Region Locks.
+
+    Off (default): Region Locks. On: regions open with their vanilla keys or boss
+    Remembrances (the Rusty Key for Stormveil). Keys stay shuffled, even into other worlds,
+    except Remembrances Keep Local holds. Number of Regions is ignored. The capital needs
+    Altus plus any two Great Runes; the DLC needs the Blood Lord Remembrance. Stops
+    generation with Vanilla Placement.
+    """
     display_name = "Natural Progression"
 
 

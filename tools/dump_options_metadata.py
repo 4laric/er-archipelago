@@ -77,9 +77,8 @@ PRESETS = [
         "id": "short_solo",
         "title": "Short Solo",
         "tagline": "A smaller run: four regions.",
-        "description": "Base game with only four regions kept -- a smaller "
-                       "solo seed. Leyndell (the goal region) is always kept, so it stays "
-                       "winnable.",
+        "description": "Base game with only four regions kept -- a smaller, "
+                       "shorter solo seed (about an evening).",
         "values": {"enable_dlc": False, "num_regions": 4},
     },
     {
@@ -108,7 +107,7 @@ PRESETS = [
         "title": "DLC Only (experimental)",
         "tagline": "Only the Shadow of the Erdtree regions.",
         "description": "Every base-game region is sealed; all DLC regions are eligible. "
-                       "The goal becomes holding every kept DLC Lock.",
+                       "The final boss becomes Promised Consort Radahn.",
         # Same reason as base_shattering: "every DLC region in play" needs num_regions:0 stated.
         "values": {"dlc_only": True, "num_regions": 0},
     },
@@ -315,6 +314,18 @@ def extract(ap_dir):
     if missing:
         sys.exit("[FAIL] options with no description: %s (fix the docstrings)" % ", ".join(missing))
 
+    # The docstring IS the tooltip on every built-in surface (Options Creator, template yaml,
+    # WebHost), and the Options Creator's tooltip does not scroll. Refuse to write a metadata file
+    # -- and therefore a wizard -- over the hard cap. The full rule set (soft budget, exemptions,
+    # width, ASCII) is enforced by test_gf_option_doc_budget; only the cap gates regeneration, so an
+    # over-soft-budget edit can still be regenerated and looked at before it is tightened.
+    sys.path.insert(0, HERE)
+    import option_doc_budget
+    over = option_doc_budget.hard_violations(options)
+    if over:
+        sys.exit("[FAIL] option docstrings over the tooltip hard cap (tools/option_doc_budget.py):\n  "
+                 + "\n  ".join(over))
+
     validate_presets(options)
 
     field_order = [k for k, _ in fields]
@@ -482,6 +493,14 @@ def main(argv):
             html = open(WIZARD_HTML, "r", encoding="utf-8", newline="").read()
             if fresh.replace("\r\n", "\n") not in html.replace("\r\n", "\n"):
                 stale.append("wizard/wizard.html inlined metadata differs from a fresh dump")
+        # presets/*.yaml embed each option's LABEL ("# ^ Number of Regions ..."), so a label edit
+        # makes them stale. This check used to skip them, which let a relabel ship stale presets.
+        for p in meta["presets"]:
+            ppath = os.path.join(PRESETS_DIR, p["id"].replace("_", "-") + ".yaml")
+            have = (open(ppath, "r", encoding="utf-8", newline="").read().replace("\r\n", "\n")
+                    if os.path.isfile(ppath) else None)
+            if have != preset_yaml(meta, p):
+                stale.append("presets/%s differs from a fresh render" % os.path.basename(ppath))
         if stale:
             print("[STALE] " + "; ".join(stale))
             print("        fix: python tools/dump_options_metadata.py")

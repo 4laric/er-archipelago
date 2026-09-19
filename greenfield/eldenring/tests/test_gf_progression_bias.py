@@ -244,6 +244,56 @@ class TestTravellingProgression(unittest.TestCase):
         self.assertTrue(all(any(it is original for original in pool) for it in out))
 
 
+class TestEmptySurfaceStillRunsTheCrossGamePass(unittest.TestCase):
+    """`progression_surface: []` is what the wizard writes for "I do not care where". It used to make
+    `apply()` return BEFORE the release was recorded, so `place_released_locks` had nothing to place
+    and every Lock went through ordinary fill and stayed in Elden Ring (255, seed
+    19945568586154303638: 27 Locks, none abroad, at a three-game table on `auto`)."""
+
+    @staticmethod
+    def _world(pool, surface, games=("Elden Ring", "Hollow Knight")):
+        mw = SimpleNamespace(
+            player_ids=[1, 2], itempool=list(pool),
+            worlds={i + 1: SimpleNamespace(game=g) for i, g in enumerate(games)})
+        opts = SimpleNamespace(
+            progression_surface=SimpleNamespace(value=surface),
+            progression_bias=SimpleNamespace(value=0),
+            cross_game_progression=SimpleNamespace(value=-1))
+        return mw, SimpleNamespace(options=opts, multiworld=mw, random=random.Random(1), player=1)
+
+    def test_an_empty_surface_still_releases_and_leaves_the_items_in_the_pool(self):
+        from worlds.eldenring.features import progression_surface as ps
+        pool = _pool()
+        mw, world = self._world(pool, [])
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(ps, "LOCATION_TAGS", {"x": ("MajorBoss",)})
+            mp.setattr(ps, "_restricted_items", lambda w: list(pool))
+            ps.apply(world)
+        # WITNESS: the Locks exist and the fixture releases them, so "recorded" is the fix and not
+        # an empty pool being trivially equal to an empty result.
+        self.assertTrue([it for it in pool if lock_region_name(it.name)])
+        self.assertEqual(sorted(it.name for it in world.gf_released_lock_items),
+                         ["Altus Lock", "Caelid Lock", "Limgrave Lock", "Liurnia Lock"])
+        # auto at a two-game table also carries the non-Lock progression (#811)
+        self.assertEqual({it.name for it in world.gf_released_progression_items},
+                         {it.name for it in pool})
+        # nothing was pulled out of the pool: the stage pass is what places these, and own
+        # progression is deliberately NOT confined when the selection is empty
+        self.assertEqual(len(mw.itempool), len(pool))
+
+    def test_the_stage_pass_can_see_what_apply_recorded(self):
+        """Ties the two halves: `place_released_locks` reads exactly this attribute, so a world
+        `apply()` skipped (the old behaviour) contributes nothing to it."""
+        from worlds.eldenring.features import progression_surface as ps
+        pool = _pool()
+        _mw, world = self._world(pool, [])
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(ps, "LOCATION_TAGS", {"x": ("MajorBoss",)})
+            mp.setattr(ps, "_restricted_items", lambda w: list(pool))
+            ps.apply(world)
+        self.assertTrue(getattr(world, "gf_released_progression_items", None))
+
+
 class _Loc:
     """The four fields `_foreign_open_locations` reads. `progress_type` defaults to the sentinel the
     helper treats as "fine", so a test only sets it when EXCLUDED is the point."""

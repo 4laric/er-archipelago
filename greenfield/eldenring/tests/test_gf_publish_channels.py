@@ -626,7 +626,7 @@ class LandingNumbersAreCurrent(unittest.TestCase):
             "options": len(metadata["field_order"]),
             "option-groups": len(metadata["groups"]),
         }
-        number_words = {"Eight": 8}
+        number_words = {"Eight": 8, "Nine": 9}
         for marker, count in expected.items():
             values = self._marked_values(marker)
             self.assertTrue(values, "landing.html has no %s marker" % marker)

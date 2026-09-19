@@ -17,7 +17,7 @@ and the placed leveling/upgrade economy is never seized either -- the recipe ADD
 seized junk slots. Count-neutral in-pool swap, fill-safe, deterministic. Off by default (empty recipe).
 Runs from core.create_items via curate(world, pool)."""
 from BaseClasses import ItemClassification
-from Options import OptionDict
+from Options import OptionDict, Visibility
 from ..registry import Feature, register
 
 try:
@@ -239,36 +239,16 @@ def curated_stack_name(name):
 
 
 class CuratedFiller(OptionDict):
-    """Recipe for the WHOLE filler tail: a table of {category: weight}. The tail is split across the
-    categories in proportion to their weights -- they are relative, not percentages, and need not sum
-    to anything. Categories: juice, junk_gear, stones, somber_stones, runes, throwables, pots,
-    firepots, greases, ammunition, foods, boluses, perfumes, utility, rare, funny -- plus 'junk' to
-    keep that share as whatever the check already paid. Stacks: throwables x5, pots/firepots/perfumes
-    x10, greases x2, ammunition x20.
-    NOT off by default. The shipped recipe is juice 63 / stones 6 / somber_stones 6 / runes 10 /
-    throwables 6 / pots 4 / greases 3 / foods 2 / boluses 1 / perfumes 2. Perfumes take two points
-    from juice, so adding them does not increase the filler budget.
-    filler tail is real gear. An EMPTY recipe is honoured and means no gear AND no upgrade economy --
-    it warns loudly rather than silently reverting to vanilla junk.
-    'juice' is the gear injection (rare/legendary-first equippables, drawn best-first by curated tier
-    from ~1013 qualifying items). Its opposite number is 'junk_gear': the ~368 equippables the game
-    itself rates trivial, which juice will never hand you at any intensity because its floor starts
-    above them. Weight junk_gear if you want the low end of the armoury in your filler -- it is the
-    only path to the ~96 pieces (the Celebrant's weapons among them) that have no check at all,
-    because their only source is a random enemy drop the game never flags. It competes on the same budget as everything else; raising it past
-    what the catalog can supply spills the surplus to junk, with a warning naming the shortfall.
-    'stones', 'somber_stones' and 'runes' are an upgrade-economy RESERVATION taken off the top
-    proportionally. A tail too small for that reservation to buy a useful number of stones warns by
-    name; it does not refuse to generate.
-    'firepots' (Fire Pot, Volcano Pot, DLC Hefty Fire Pot) is a fire/volcano lean for DLC Furnace
-    Golems -- overlaps 'pots', so weight it only when you want the mix biased toward fire.
-    'rare' (Dragon Heart, Stonesword Key) is meant to be weighted TINY (e.g. rare: 1). The placed
-    leveling/upgrade economy and the Raw Meat Dumpling / Gold-Tinged Excrement are never removed.
-    Example (a consumable-leaning run that still keeps its economy): {juice: 20, stones: 29,
-    somber_stones: 6, runes: 10, throwables: 25, pots: 15, greases: 10, foods: 10, boluses: 5,
-    perfumes: 8, rare: 1}. Copying an example WITHOUT `juice` and the stone weights is what the
-    empty-recipe warning is about."""
-    display_name = "Curated Filler recipe (category -> weight)"
+    """What your junk checks (plain Runes, minor pickups) pay, by category weight.
+
+    Weights are relative. A recipe replaces the default: omitted categories get nothing.
+    Names: juice (gear), stones, somber_stones, runes, throwables, pots, greases, foods,
+    boluses, perfumes, ammunition, firepots, utility, funny, rare (keep tiny), junk_gear
+    (trivial gear), junk (unchanged). No juice: no gear. Empty: no stones or runes either.
+    Ignored by Original Item Pool.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Filler Recipe"
     # 🛑 DERIVED FROM `RECIPE_KEYS`, NEVER RETYPED, and NOT from `_VALID_CATS` -- that set omits
     # `juice`, which the shipped default weights at 42, so validating against it rejects this
     # class's own default. (Caught by test_valid_keys_accepts_the_shipped_default, which exists

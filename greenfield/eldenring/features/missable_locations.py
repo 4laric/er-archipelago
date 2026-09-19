@@ -29,12 +29,15 @@ except Exception:  # not yet generated
 
 
 class ProtectMissableLocations(Choice):
-    """What may be placed at checks that can be lost behind a limited consumable, a killable NPC,
-    or NPC-questline progress. ``progression and useful`` (default) leaves only filler there;
-    ``progression`` protects winnability but may lose useful gear; ``off`` permits either and accepts
-    that a seed can require a missable questline step. Legacy ``true`` selects the new default and
-    ``false`` selects off."""
-    display_name = "Protect Missable Locations"
+    """What may sit on checks you can permanently miss (e.g. NPC quest rewards).
+
+    A missable check can be lost for good: an NPC dies, a limited item runs out, or a quest
+    step is skipped. If a tiny seed fails to generate, use progression or off.
+    progression_and_useful: filler or traps only; a miss is harmless (default)
+    progression: no progression items there, but useful gear can be lost
+    off: anything goes; a seed may require a missable quest step
+    """
+    display_name = "Protect Missable Checks"
     option_off = 0
     option_progression = 1
     option_progression_and_useful = 2

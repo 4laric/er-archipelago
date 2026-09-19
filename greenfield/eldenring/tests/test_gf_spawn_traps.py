@@ -612,7 +612,11 @@ class TheNameSurface(unittest.TestCase):
         """DOCSTRING = WIZARD METADATA. The names only help if they are written where the option is
         described, so the docstring has to carry them and to say ids still work."""
         doc = _mod().SpawnTraps.__doc__
-        for needle in ("Basilisk", "Runebear", "model id", "4150"):
+        # The tooltip gives ONE example of each spelling (a name, and a model id) and points at the
+        # Player Guide for the full lists; both examples are real entries (enemy_names.py: c2010 is
+        # Blaidd the Half-Wolf; spawn_trap_data.py: 4980), so the doc's claim that they work is
+        # tested by test_every_valid_key_resolves and the spawn table, not by this needle.
+        for needle in ("Blaidd", "model id", "4980"):
             self.assertIn(needle, doc, needle)
 
     def test_the_contract_hash_did_not_move(self):

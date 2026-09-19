@@ -56,7 +56,7 @@ which changes which ones).
 """
 from typing import List
 
-from Options import Choice, Range, Removed, Toggle
+from Options import Choice, Range, Removed, Toggle, Visibility
 from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from ..tables.data import HUB, LOCATIONS
@@ -126,19 +126,16 @@ class PoolBuilder(Removed):
 
 
 class PoolBuilderIntensity(Choice):
-    """How good a piece of gear has to be before it counts as `juice`.
+    """How many gear items can replace your junk checks; a smaller list can only cut gear.
 
-    normal -- legendary only (~149 items).  high -- legendary + rare (~536).  max (default) -- also
-    B-tier (~1013).
-
-    A HIGHER FLOOR MEANS LESS GEAR, NOT BETTER GEAR. Each level is a strictly smaller catalog while
-    the `juice` weight in curated_filler is unchanged, so raising it asks for the same number of items
-    out of a shorter list and the surplus spills to junk. Measured on one seed: max 1518 gear in the
-    pool, high 872, normal 230. It buys quality by paying quantity, which is the trade worth exposing.
-
-    (Inert from the filler_budget refactor until 2026-07-28: it had become the constant JUICE_FLOOR
-    because the option was frozen and could not move. filler_budget.juice_floor reads it again.)"""
-    display_name = "Pool Builder Intensity"
+    The gear is the juice share of curated_filler, handed out best first from a built-in S,
+    A, B tier list. A smaller list never improves it; unfilled slots become junk.
+    normal: S tier only (roughly 150 items)
+    high: S and A tier (roughly 500 items)
+    max: S, A and B tier, the most gear, roughly 1,000 items (default)
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Gear Pool Size"
     option_normal = 0
     option_high = 1
     option_max = 2
@@ -196,43 +193,63 @@ class _PoolBuilderPctCategory(Range):
 
 
 class PoolBuilderPctWeapons(_PoolBuilderPctCategory):
-    """Relative weight for weapon gear within the juice allocation -- steers the MIX, never the
-    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
-    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
-    junk."""
-    display_name = "Pool Builder % Weapons"
+    """How much of the gear in your junk checks is weapons, relative to other types.
+
+    Five sliders (weapons, armor, spells, talismans, Ashes of War) split the gear share
+    (juice) of curated_filler. Values are relative: 3 and 1 equals 75 and 25. All 0
+    (default) takes the best gear of any type. Once any is above 0, a type left at 0 gets
+    none (spirit ashes too), and slots a type cannot fill become junk.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Gear Mix: Weapons"
 
 
 class PoolBuilderPctArmor(_PoolBuilderPctCategory):
-    """Relative weight for armor gear within the juice allocation -- steers the MIX, never the
-    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
-    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
-    junk."""
-    display_name = "Pool Builder % Armor"
+    """How much of the gear in your junk checks is armor, relative to other types.
+
+    Five sliders (weapons, armor, spells, talismans, Ashes of War) split the gear share
+    (juice) of curated_filler. Values are relative: 3 and 1 equals 75 and 25. All 0
+    (default) takes the best gear of any type. Once any is above 0, a type left at 0 gets
+    none (spirit ashes too), and slots a type cannot fill become junk.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Gear Mix: Armor"
 
 
 class PoolBuilderPctSpells(_PoolBuilderPctCategory):
-    """Relative weight for spell gear within the juice allocation -- steers the MIX, never the
-    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
-    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
-    junk. Spells have the SMALLEST catalog, so weighting them spills the most."""
-    display_name = "Pool Builder % Spells & Incantations"
+    """How much of the gear in your junk checks is spells, relative to other types.
+
+    Five sliders (weapons, armor, spells, talismans, Ashes of War) split the gear share
+    (juice) of curated_filler. Values are relative: 3 and 1 equals 75 and 25. All 0
+    (default) takes the best gear of any type. Once any is above 0, a type left at 0 gets
+    none (spirit ashes too), and slots a type cannot fill become junk.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Gear Mix: Spells and Incantations"
 
 
 class PoolBuilderPctTalismans(_PoolBuilderPctCategory):
-    """Relative weight for talisman gear within the juice allocation -- steers the MIX, never the
-    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
-    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
-    junk."""
-    display_name = "Pool Builder % Talismans"
+    """How much of the gear in your junk checks is talismans, relative to other types.
+
+    Five sliders (weapons, armor, spells, talismans, Ashes of War) split the gear share
+    (juice) of curated_filler. Values are relative: 3 and 1 equals 75 and 25. All 0
+    (default) takes the best gear of any type. Once any is above 0, a type left at 0 gets
+    none (spirit ashes too), and slots a type cannot fill become junk.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Gear Mix: Talismans"
 
 
 class PoolBuilderPctAshesOfWar(_PoolBuilderPctCategory):
-    """Relative weight for Ash of War gear within the juice allocation -- steers the MIX, never the
-    amount. Drawn best-first by curated tier. 0 (default) across every category = fill best-
-    first from all of them, which yields the MOST gear; concentrating spills the shortfall to
-    junk."""
-    display_name = "Pool Builder % Ashes of War"
+    """How much of the gear in your junk checks is Ashes of War, relative to other types.
+
+    Five sliders (weapons, armor, spells, talismans, Ashes of War) split the gear share
+    (juice) of curated_filler. Values are relative: 3 and 1 equals 75 and 25. All 0
+    (default) takes the best gear of any type. Once any is above 0, a type left at 0 gets
+    none (spirit ashes too), and slots a type cannot fill become junk.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Gear Mix: Ashes of War"
 
 
 @register

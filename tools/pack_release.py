@@ -123,6 +123,7 @@ OUR_BINARIES = ("eldenring_archipelago.dll", "MapForGoblins.dll", "MapForGoblins
 DOCS = [
     ("release/LICENSE", True),
     ("release/EldenRing.yaml", True),
+    ("release/EldenRing-Quickstart.yaml", True),
     ("release/SETUP.md", True),
     ("release/RELEASE-NOTES-v0.2.md", True),
     ("release/CHANGELOG.md", True),

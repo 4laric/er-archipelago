@@ -73,14 +73,15 @@ CLIENT_FEATURE_TAG = "merchant_bells_on_talk"
 
 
 class MerchantBellsOnTalk(Toggle):
-    """Opening a merchant's shop hands their Bell Bearing to the Twin Maiden Husks for you, so
-    their wares are on sale at the Roundtable Hold from then on. You are not given the bell itself
-    -- it stays in the multiworld as a real item to find -- only the shop it would have unlocked.
-    Covers the roving merchants and the named NPC vendors; the peddlers whose bells add stock to
-    the Maidens' own shelf are not covered, and neither are Ash-of-War, tailoring or upgrade
-    counters. Off by default. A seed with this on requires a client that supports it and will say
-    so rather than connect and quietly ignore the setting."""
-    display_name = "Merchant Bells on Talk"
+    """Opening a merchant's shop unlocks their Bell Bearing shop at the Twin Maiden Husks.
+
+    No bearing needed: you get the shop, not the bell, which stays in the multiworld as an
+    item to find. Covers roving merchants and named vendors, normal buy menu only (not
+    peddlers, several Shadow of the Erdtree sellers such as the Herbalist and Igon, or Ash
+    of War, tailoring and upgrade counters). Needs an up-to-date client; older ones refuse
+    the seed.
+    """
+    display_name = "Unlock Merchant Shops at Roundtable Hold"
 
 
 @register

@@ -62,13 +62,14 @@ except Exception:  # not yet generated -> no shop scope -> feature can only warn
 
 
 class NoRunesInShops(Toggle):
-    """Keep your own money runes (Golden/Hero's/Lord's/Numen's and the DLC runes) out of your
-    merchants' stock: no shop check's reward is ever one of your own runes, and the rerolled
-    infinite shelves never stock one. Escape hatch for rune shop rows failing to show in the
-    purchase menu; the runes still exist, just never behind a merchant. Off = no change. Other
-    players' items at your shops are unaffected (they display as AP placeholders, which the
-    rendering issue cannot hide)."""
-    display_name = "No Runes In Shops"
+    """Keeps your own money runes (Golden Runes etc.) off merchants' shelves.
+
+    On: no purchase pays out one of your runes and no infinite shelf stocks one. Great
+    Runes, stacked runes (Golden Rune [1] x3) and other players' items are unaffected.
+    Skipped (log note) if runes outnumber the room outside shops. Stops generation if
+    infinite_hub_wares names a rune. No effect on purchases with Vanilla Placement.
+    """
+    display_name = "No Runes in Shops"
 
 
 def _skip_reason(rune_count, capacity):

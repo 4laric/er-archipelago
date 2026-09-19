@@ -15,14 +15,15 @@ CLIENT_FEATURE_TAG = "trap_link"
 
 
 class TrapLink(Toggle):
-    """Share trap items with other TrapLink players.
+    """Sends the traps you get to other Trap Link players, and receives theirs.
 
-    A trap received through Archipelago is broadcast once when it enters your local trap queue.
-    Linked traps use an exact compatible Elden Ring trap name; unknown foreign trap names are
-    ignored rather than converted into an arbitrary effect. Incoming linked traps never echo back.
+    Trap Link lets games in a multiworld trigger each other's traps. Off by default; only
+    useful if other players use it too. A trap from another player hits you only if this
+    client recognizes its name; the rest are ignored. Needs an up-to-date client; older ones
+    refuse the seed.
     """
 
-    display_name = "TrapLink"
+    display_name = "Trap Link"
 
 
 @register
