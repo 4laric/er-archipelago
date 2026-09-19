@@ -287,6 +287,10 @@ TESTS_JOB = {
                                     "repo-root walk-up. The tests job checks out the full repository "
                                     "and exercises the sequential-patch guard; installed-world-only "
                                     "consumers without that checkout skip honestly",
+    "open_window_stable_sentence": "pure-stdlib suite imports tools/open_window.py through the "
+                                   "repo-root walk-up. The tests job checks out the full repository "
+                                   "and exercises the drafted stable-row sentence; installed-world-only "
+                                   "consumers without that checkout skip honestly",
     "client_gitlink_notes": "pure-stdlib Git fixture imports tools/check_release_notes.py through "
                             "the repo-root walk-up. The tests job checks out full history and the "
                             "repo tree, so the per-bump gate must run there rather than skip; it "
