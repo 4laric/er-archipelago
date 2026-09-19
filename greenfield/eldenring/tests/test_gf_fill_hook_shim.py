@@ -116,5 +116,59 @@ class PoolViewContract(unittest.TestCase):
         self.assertEqual(mw.itempool, [])
 
 
+class _PItem(_Item):
+    def __init__(self, name, player):
+        super().__init__(name)
+        self.player = player
+
+
+class _NamedMW(_MW):
+    def __init__(self):
+        super().__init__()
+        self.worlds = {2: type("W", (), {"game": "Some Other Game"})()}
+
+    def get_player_name(self, player):
+        return {2: "Partner"}.get(player, "P%d" % player)
+
+
+class NamesTheCulprit(unittest.TestCase):
+    """2026-09-18: alttpr's pot hook (2026-08-28 build) placed 128 items and removed an unplaced
+    same-named twin from the pool instead (`list.remove` compares by name + player). The placed
+    items were still in the pools when our hook started, and the failure read "a pass created or
+    dropped an item" -- pointing at us. It has to point at the owner."""
+
+    def test_an_already_placed_item_in_a_pool_is_named_at_entry(self):
+        mw = _NamedMW()
+        stale = _PItem("Small Heart", 2)
+        Loc = _Loc("pot")
+        Loc.place(stale)
+        prog, useful, filler, locs = [], [], [stale, _PItem("Small Heart", 2)], []
+        with self.assertRaises(AssertionError) as ctx:
+            with pool_view(mw, prog, useful, filler, locs):
+                self.fail("the body must not run over a corrupted pool")   # pragma: no cover
+        msg = str(ctx.exception)
+        self.assertIn("already PLACED", msg)
+        self.assertIn("1x Small Heart [Partner (Some Other Game)]", msg)
+        self.assertIn("not an Elden Ring pass", msg)
+        # Nothing was mutated on the way out: the dead pool was never revived.
+        self.assertEqual(mw.itempool, [])
+
+    def test_a_pass_that_drops_an_item_names_it_at_exit(self):
+        mw = _NamedMW()
+        a, b = _PItem("Rune", 1), _PItem("Small Magic", 2)
+        with self.assertRaises(AssertionError) as ctx:
+            with pool_view(mw, [a], [], [b], []):
+                mw.itempool.remove(b)           # dropped on the floor: neither placed nor returned
+        msg = str(ctx.exception)
+        self.assertIn("created or dropped an item", msg)
+        self.assertIn("1x Small Magic [Partner (Some Other Game)]", msg)
+        self.assertIn("In multiworld.itempool only: none", msg)
+
+    def test_a_clean_run_raises_nothing(self):
+        mw = _NamedMW()
+        with pool_view(mw, [_PItem("Rune", 1)], [], [_PItem("Small Magic", 2)], []):
+            pass
+
+
 if __name__ == "__main__":       # pragma: no cover
     unittest.main()
