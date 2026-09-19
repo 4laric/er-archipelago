@@ -791,10 +791,10 @@ class GreenfieldEldenRingWorld(World):
         # that on 2026-08-15 (num_regions 9, start_regions 2, start_region_pool [Caelid]), tried
         # the advice, and died identically.
         #
-        # The bound is EXACT in the direction it is used, and only that direction. By the time the
-        # three checks above have passed, every named region is force-kept (generate_early adds the
-        # pool to `_forced`), so `kept` CONTAINS `named` and the narrowed set is exactly `named`;
-        # asking for more anchors than that set holds is therefore unsatisfiable, and this never
+        # The bound is EXACT in the direction it is used, and only that direction. The anchors are
+        # drawn only from the named regions the seed kept, and generate_early force-keeps as many
+        # named regions as `start_regions` is short by, so the seatable set is at most `named`;
+        # asking for more anchors than `named` holds is therefore unsatisfiable, and this never
         # refuses a seed that would have generated. The CONVERSE does not hold -- a named region
         # with zero emitted checks still cannot anchor, and this cannot see that -- which is why
         # the ValueError in start_grace stays as the backstop rather than being replaced by this.
@@ -920,23 +920,45 @@ class GreenfieldEldenRingWorld(World):
             tuple(_gl.forced_regions(self.gf_goal_choice)) + tuple(_auto_forced)))
         self.gf_goal_forced: tuple = _forced
         # START REGION POOL (features/start_grace.StartRegionPool). The player named the regions the
-        # run may open in, so those regions have to BE here -- force-kept on the same seam the goal
-        # uses, and additive to num_regions for the same reason (it is a DRAW SIZE, #409). Validated
-        # HERE and not at the anchor pick, because this is the only place the DLC toggles, the goal's
-        # own force-keeps and the gated children are all resolved: an error raised later could only
-        # say "no region can open this run" without being able to say WHICH name was the problem.
-        self.gf_start_pool: frozenset = self._resolve_start_region_pool()
-        if self.gf_start_pool:
-            _forced = tuple(dict.fromkeys(_forced + tuple(sorted(self.gf_start_pool))))
-        self.gf_kept: List[str] = compute_kept(
-            _nr,
-            self.random,
-            self.gf_eligible,
-            forced=_forced,
-            parts=_draw_parts,
-            bar_from_draw=_auto_forced,
-            order=self.options.num_regions_order.current_key,
-        )
+        # run MAY open in. It is a set of CANDIDATES for the opening region(s), not a set of regions
+        # to keep: the draw runs as it always does, and only if it kept fewer than `start_regions`
+        # of the named regions are the missing ones force-kept (chosen from the pool, additive like
+        # a goal's, #409). Until 2026-09-19 every named region was force-kept, so a 25-name pool
+        # kept 25 regions whatever `num_regions` said (255, seed 19945568586154303638).
+        # Validated HERE and not at the anchor pick, because this is the only place the DLC toggles,
+        # the goal's own force-keeps and the gated children are all resolved: an error raised later
+        # could only say "no region can open this run" without saying WHICH name was the problem.
+        _named_pool: frozenset = self._resolve_start_region_pool()
+
+        def _draw_kept(forced):
+            return compute_kept(
+                _nr,
+                self.random,
+                self.gf_eligible,
+                forced=forced,
+                parts=_draw_parts,
+                bar_from_draw=_auto_forced,
+                order=self.options.num_regions_order.current_key,
+            )
+
+        _rng_before_draw = self.random.getstate()
+        self.gf_kept: List[str] = _draw_kept(_forced)
+        _pool_forced: tuple = ()
+        if _named_pool:
+            _sr = getattr(self.options, "start_regions", None)
+            _n_start = max(1, int(_sr.value)) if _sr is not None else 1
+            _short = _n_start - sum(1 for r in self.gf_kept if r in _named_pool)
+            if _short > 0:
+                # `_resolve_start_region_pool` guarantees len(named) >= start_regions, so the
+                # unkept names always cover the shortfall. Redraw from the SAME rng state with the
+                # extras forced, so the kept set is one consistent draw (closure, order) rather than
+                # a patched one.
+                _pool_forced = tuple(sorted(
+                    self.random.sample(sorted(_named_pool - set(self.gf_kept)), _short)))
+                self.random.setstate(_rng_before_draw)
+                self.gf_kept = _draw_kept(tuple(dict.fromkeys(_forced + _pool_forced)))
+        # What the anchor pick may open on: the named regions this seed actually kept.
+        self.gf_start_pool: frozenset = frozenset(r for r in self.gf_kept if r in _named_pool)
         # #409: SAY WHAT THE NUMBER DID. `num_regions` is a DRAW SIZE -- a named goal force-keeps
         # its own regions and every kept region pulls its parents in -- so the seed can contain more
         # regions than the yaml asked for. That is correct and deliberate (#402), and it read as a
@@ -945,7 +967,7 @@ class GreenfieldEldenRingWorld(World):
         logging.getLogger("Greenfield").info(
             "[eldenring:%s] %s", self.player,
             describe_kept(_nr, _draw_parts, self.gf_kept, self.gf_goal_choice,
-                          start_region_pool=self.gf_start_pool))
+                          start_region_pool=frozenset(_pool_forced)))
         # Resolve the Great-Rune goal now (once), so create_item/set_rules/slot_data agree.
         self.gf_required_runes: List[str] = self._resolve_required_runes()
         self._lint_goal_reachability()

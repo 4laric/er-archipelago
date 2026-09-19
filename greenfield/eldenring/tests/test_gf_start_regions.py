@@ -304,11 +304,11 @@ class StartRegionPoolWired(WorldTestBase):
                              f"seed {seed}: start_region_pool named Caelid and the run opened "
                              f"elsewhere")
 
-    def test_the_named_region_is_force_kept(self):
-        """The pool NAMES a region, so the region has to be in the seed. num_regions is a draw size
-        and this rides the same force-keep seam a named goal does -- if that seam ever stops being
-        additive, the anchor above would still pass by opening in a region the draw happened to
-        take, and this is the assertion that would not."""
+    def test_the_named_region_is_kept_when_the_draw_missed_it(self):
+        """A pool of ONE region is a guarantee: when the draw did not take Caelid, exactly the
+        shortfall is force-kept (additive, like a goal's). If that top-up ever stops working the
+        anchor above would still pass on seeds whose draw happened to take Caelid, and this is the
+        assertion that would not."""
         for seed in self.SEEDS:
             self.world_setup(seed=seed)
             self.assertIn("Caelid", list(self.world._kept()), f"seed {seed}")
@@ -333,6 +333,35 @@ class StartRegionPoolDrawsFromThePool(WorldTestBase):
         self.assertEqual(seen, {"Caelid", "Liurnia"},
                          "over 8 seeds only %s ever opened the run, so the second name is dead"
                          % sorted(seen))
+
+
+class StartRegionPoolDoesNotInflateTheSeed(WorldTestBase):
+    """The pool is a set of CANDIDATES for the opening region, not a set of regions to keep. 255
+    (2026-09-19, seed 19945568586154303638) named 25 regions with `num_regions: 6` and got 27 kept,
+    so every Lock, and the whole playthrough, covered the entire map."""
+    game = GAME
+    POOL = ["Abyssal", "Ainsel River", "Altus", "Ancient Ruins", "Belurat", "Caelid", "Cerulean",
+            "Consecrated Snowfield", "Deeproot Depths", "Ensis", "Farum Azula", "Gravesite",
+            "Haligtree", "Jagged Peak", "Limgrave", "Liurnia", "Mohgwyn",
+            "Mountaintops of the Giants", "Mt. Gelmir", "Rauh Base", "Scadu Altus", "Shadow Keep",
+            "Siofra River", "Stormveil", "Weeping"]
+    options = {"num_regions": 6, "start_region_pool": POOL}
+    SEEDS = (1, 7, 13, 22222, 5551212)
+
+    def test_a_big_pool_does_not_grow_the_kept_set(self):
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            kept = list(self.world._kept())
+            # 6 drawn + the goal/closure allowance; the old behaviour kept every pool region (>=25)
+            self.assertLess(len(kept), 15, f"seed {seed}: {len(kept)} regions kept: {kept}")
+
+    def test_the_run_still_opens_in_a_named_region_the_seed_kept(self):
+        for seed in self.SEEDS:
+            self.world_setup(seed=seed)
+            locks = _precollected_locks(self)
+            self.assertEqual(len(locks), 1, f"seed {seed}: {locks}")
+            self.assertIn(locks[0], self.POOL, f"seed {seed}: opened in {locks[0]}")
+            self.assertIn(locks[0], list(self.world._kept()), f"seed {seed}")
 
 
 class StartRegionPoolComposesWithStartRegions(WorldTestBase):

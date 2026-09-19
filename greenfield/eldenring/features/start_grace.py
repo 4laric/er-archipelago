@@ -203,16 +203,12 @@ class StartRegionPool(OptionSet):
     Gravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient Ruins, Cerulean,
     Abyssal, Jagged Peak, Enir Ilim.
 
-    🛑 EVERY REGION YOU NAME IS FORCE-KEPT, so this can make a seed BIGGER than `num_regions` asked
-    for -- that number is a DRAW SIZE, and force-keeps are additive (the same seam a named `goal`
-    uses). The generation log names the contribution. Naming three regions and asking for one is
-    therefore a three-region seed, not a one-region seed with a choice; if you want "just play
-    Caelid", name one.
-
-    The alternative -- draw the opening region from your pool FIRST and force-keep only the winner --
-    was considered and rejected: it needs a second draw before the kept set exists, and two draws
-    that must agree about the same region is precisely the shape that has produced drift here before.
-    One mechanism, stated, beats two that have to be kept in step.
+    This is a set of CANDIDATES, not a set of regions to keep, and it does not change how many
+    regions the seed has. `num_regions` draws the kept set as usual and the opening region is
+    chosen from the named regions that draw kept. Only when the draw kept fewer named regions than
+    `Starting Regions` asks for are the missing ones added (chosen from your pool, and named in the
+    generation log), so a pool of 25 names in a 6-region seed is still a 6-region seed. If you want
+    to guarantee "just play Caelid", name one: it is added whenever the draw missed it.
 
     Ignored when Start With A Region Lock is off and under Natural Progression / Vanilla Placement,
     which mint no Lock items -- exactly like Starting Regions above. Naming a region this seed
