@@ -47,25 +47,14 @@ CLIENT_FEATURE_TAG = "no_equip_load_roll"
 
 
 class NoEquipLoad(Choice):
-    """What your equipment weighs, and therefore which roll you get.
+    """Lets you wear heavy gear without a slow, fat dodge roll.
 
-    off (default) -- equipment weighs what it weighs. Your kit is a budget you spend.
-    light -- equipment weighs nothing, so you are always at light roll whatever you wear. Heavy
-    armour and greatshields cost you nothing at all.
-    medium -- never worse than a medium roll. Your equip-load ceiling is raised far enough that no
-    real kit can push you into a fat roll, but the light-roll threshold still moves with what you
-    put on, so what you wear is still a decision.
-
-    The game recomputes max equip load every frame from Endurance, so the client cannot write the
-    number: it multiplies the WEIGHT side with a silent permanent SpEffect, and logs the equip load
-    it actually got so the setting can be checked rather than taken on trust.
-
-    This is a generation-time choice recorded in the seed. It cannot be changed during an existing
-    run; change your YAML and generate a new seed to choose another mode.
-
-    `medium` requires a client that supports it, and a seed using it refuses an older one rather
-    than connecting -- an old client reads it as "on" and gives you `light`, which is the stronger
-    setting you did not ask for. `off` and `light` connect to any client, as they always have."""
+    Your roll is light, medium or fat depending on how heavy your gear is. Handy for heavy
+    armor builds. Only medium needs an up-to-date client; older ones refuse the seed.
+    off: equipment weighs what it weighs (default)
+    medium: no real kit fat-rolls, but heavy gear can cost you the light roll
+    light: equipment weighs nothing, so you always get the light roll
+    """
     display_name = "Equipment Weight"
     option_off = 0
     option_light = 1

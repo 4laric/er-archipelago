@@ -4,6 +4,27 @@ You have it installed (if not, see `SETUP.md` -- this guide won't repeat that).
 This is about what happens after you press New Game: how the run actually plays,
 and the handful of things worth understanding before they confuse you.
 
+## Quick start: you do not have to understand every option
+
+Most players change three things and leave the rest alone.
+
+1. **Do you own the Shadow of the Erdtree DLC?** Set *Enable DLC* to match. It is on
+   by default, so turn it off if you do not own the DLC.
+2. **How long a run do you want?** *Number of Regions*: 4 for an evening, 6 (the
+   default) for a run you will actually finish, 0 for the whole map.
+3. **Playing with friends?** Turn on *Death Link* if you all want it.
+
+Everything else has a default that works. The options screen opens on a **Start Here**
+section with just these decisions (plus the boss that ends the run, how many Great Runes
+you need, and whether enemies scale). The sections after it hold the rest, and the expert
+dials are hidden from the Launcher's Options Creator and the web options page. They are
+still in the generated template yaml, so nothing is lost by leaving them alone.
+
+Prefer to start from a file? `EldenRing-Quickstart.yaml` in this download has just the
+six Start Here decisions. "Generate Template Options" in the Archipelago Launcher also
+writes ready-made variants (Base Game, Base Game - Short Run, Base Game - Whole Map, DLC
+Only) to `Players/Templates/Presets/`. `EldenRing.yaml` explains every option.
+
 ## The mental model
 
 Two ideas, and everything else follows from them.

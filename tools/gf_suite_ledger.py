@@ -58,6 +58,10 @@ GENERATORS = [
     "sweep_anchor_coords",
     "region_selection",
     "check_browser",
+    # Option docstring tooltip budget: reads the committed wizard/options-metadata.json and
+    # tools/option_doc_budget.py, neither of which is installed beside the world. AP-free; the
+    # dumper's --check (the `tests` job) is what proves the artifact is current.
+    "option_doc_budget",
     # Phase-1 offline evidence browser (#1212): imports its builder and normalized fixture from
     # the repo, neither of which is installed beside the world. AP-free and deterministic; run it
     # in the generators job where the page staleness diff is enforced.

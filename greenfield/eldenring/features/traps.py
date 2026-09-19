@@ -39,7 +39,7 @@ import unicodedata
 from typing import List, Optional, Set
 
 from BaseClasses import ItemClassification
-from Options import OptionError, OptionSet, Range
+from Options import OptionError, OptionSet, Range, Visibility
 
 from ..registry import Feature, register
 from .. import contract
@@ -165,27 +165,21 @@ TRAPS = {
 
 
 class Traps(OptionSet):
-    """Which traps may appear in your world. Empty (default) = no traps at all.
+    """Trap items that hit you the moment you get them, from lost runes to a surprise boss.
 
-    A trap is an item that makes your run briefly worse. They are FILLER: a trap never holds
-    progression, and every trap in your pool replaces one junk item, so your seed does not grow.
-
-    - **rune_thief** -- half your runes, gone.
-    - **no_flask** -- your flask heals nothing for 20 seconds. You can still drink it; it just does
-      nothing, and the charge is spent.
-    - **blackout** -- the screen fades out, stays dark for 2 seconds, then fades back in.
-    - **runebear** -- a Runebear appears exactly where you are standing. Kill it and you keep the
-      runes.
-    - **basilisk** -- THREE basilisks appear where you are standing. One is a joke; three is the
-      Death Blight mist, which kills outright. Killing you sends a DeathLink.
-
-    Traps are sent to YOU by your own world like any other item, so in a multiworld somebody else
-    may be the one who finds them.
-
-    THIS OPTION TAKES THESE WORDS AND NOTHING ELSE. For any other enemy in the game -- by name or by
-    character model id -- use `spawn_traps`, which is the other list in this section.
+    Empty (default) means no traps. Traps replace filler items only, never progression. Trap
+    Count sets how many; for other enemies see spawn_traps. No traps appear with Vanilla
+    Placement. blackout, basilisk, malenia and aging_untouchable need an up-to-date client;
+    older ones refuse the seed.
+    rune_thief: you lose half your runes
+    no_flask: your flask heals nothing for 20 seconds; the charge is spent
+    blackout: the screen goes dark for 2 seconds
+    runebear: a Runebear appears where you stand
+    basilisk: three Basilisks appear; their Death Blight can kill you outright
+    malenia: Malenia, in her first phase, appears where you stand
+    aging_untouchable: an Aging Untouchable appears; immune until parried
     """
-    display_name = "Traps"
+    display_name = "Trap Types"
     # 🛑 The union, not `TRAPS` alone: a curated spawn key is a yaml value exactly like a fixed
     # trap's, and leaving it out would make `traps: [basilisk]` an unknown-key error.
     valid_keys = frozenset(TRAPS) | frozenset(SPAWN_TRAP_KEYS)
@@ -213,48 +207,15 @@ class Traps(OptionSet):
 
 
 class SpawnTraps(OptionSet):
-    """Extra enemies to drop on your own head. Takes an ENEMY NAME or a character model id.
+    """Drops extra enemies on your head, picked by name or by model id.
 
-    THE ESCAPE HATCH. `traps` carries the enemies we curated and named; this takes any of the 390
-    spawnable models in the game, for anyone who wants something specific standing on top of them.
-    One appears where you are; the curated ones may come in numbers.
-
-    Both spellings work and mean the same thing, so write whichever you have::
-
-        spawn_traps: [Basilisk, Runebear]     # a name -- case does not matter
-        spawn_traps: ["4150", "4630"]         # the same two models, by id
-
-    THE NAMED MODELS (35 of the 390):
-
-    Aging Untouchable, Alexander Warrior Jar, Asimi Silver Tear, Basilisk, Blaidd the Half-Wolf,
-    Boc the Seamster, Demi-Human Boc, Finger Reader Crone, Finger Reader Enia, Gatekeeper Gostoc,
-    Gurranq Beast Clergyman, Hornsent Grandam, Jar-Bairn, Latenna the Albinauric,
-    Malenia (Phase 1), Melina, Merchant Kale, Miriel Pastor of Vows, Pidia Carian Servant,
-    Primeval Sorcerer Azur, Primeval Sorcerer Lusat, Ranni the Witch,
-    Rennala Queen of the Full Moon, Runebear, Smithing Master Hewg, Smithing Master Iji,
-    Sorceress Sellen, St. Trina, Tanith's Knight, The Noble Goldmask, The Two Fingers,
-    Zorayas the Scout. (Six of these carry a comma in the game -- `Alexander,
-    Warrior Jar`. A comma separates values in yaml flow style and in the wizard box, so the
-    offered spelling drops it; both spellings resolve.)
-
-    THE OTHER 355 HAVE NO NAME TO TAKE, and that is the game's doing rather than an omission here:
-    Elden Ring never writes an enemy's name on screen, so outside `NpcName.fmg.xml` -- 31 of these
-    models -- there is no name in the data to use, and this project will not invent one. Those
-    models stay reachable by id, which is what they always were.
-
-    Empty by default, and inert unless `trap_count` is above zero. A name or id that is not
-    spawnable is a yaml ERROR naming its nearest matches, rather than an item that silently never
-    fires -- 26 models are excluded because they have no AI row or no body (props like the Walking
-    Mausoleum), and refusing them at generation is the point.
-
-    Naming the same enemy here and in `traps` is harmless: it is one item either way.
-
-    🛑 THE ITEM IS STILL NAMED AFTER THE MODEL, not after what you typed: `Runebear` here mints
-    `Trap: c4630 x1`, because the item name is a cross-repo contract the client parses and writing a
-    name into the yaml must not move it. What you write is resolved to the model at generation and
-    goes no further -- which is the whole reason this cost no client release.
+    For enemies Trap Types does not offer. About 30 have a name to write, such as Blaidd the
+    Half-Wolf (case does not matter); the rest use a model id, a number such as 4980. The
+    shipped EldenRing.yaml lists every name. Needs Trap Count above 0; older clients refuse
+    the seed. A name or id that cannot spawn stops generation.
     """
-    display_name = "Spawn Traps"
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Extra Enemy Traps"
     # Strings, because a yaml list of bare ints is easy to write and an OptionSet keys on str.
     # The union of the three spellings a player can write: the model ids, the display names, and
     # the curated `traps` keys (so `basilisk` means the same thing in either option).
@@ -303,10 +264,11 @@ class SpawnTraps(OptionSet):
 
 
 class TrapCount(Range):
-    """How many trap items to put in your pool, shared out evenly between the traps you enabled.
+    """How many trap items to add; nothing happens until you pick a trap type.
 
-    INERT unless `traps` names at least one trap. Each trap displaces one filler item, so raising
-    this does not change how many checks your seed has -- only how much of your junk bites back.
+    The types you pick in Trap Types or spawn_traps share the number out evenly, and each
+    trap replaces one filler item, so the seed does not grow. Keep it at least as high as
+    the number of types, or some of them never appear. 0 turns every trap off.
     """
     display_name = "Trap Count"
     range_start = 0

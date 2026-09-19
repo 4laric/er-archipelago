@@ -1,0 +1,42 @@
+# ============================================================================
+#  ELDEN RING -- Archipelago QUICK START yaml
+#
+#  The six decisions a first seed needs. Everything else has a sensible
+#  default, so you can ignore it until you want to change something.
+#
+#  1. Put this file in your Archipelago "Players" folder.
+#  2. Change "name" below to your slot name (16 characters or fewer).
+#  3. Set enable_dlc to match what you own, then generate.
+#
+#  Want more control? EldenRing.yaml in this download explains EVERY option.
+#  Want a ready-made variant? Run "Generate Template Options" in the
+#  Archipelago Launcher and look in Players/Templates/Presets/.
+# ============================================================================
+
+name: YourName
+game: Elden Ring
+
+Elden Ring:
+  # Do you own the Shadow of the Erdtree DLC?
+  #   true  = DLC regions, items and checks can appear in your seed
+  #   false = base game only (pick this if you do NOT own the DLC)
+  enable_dlc: false
+
+  # How many map regions (Limgrave, Caelid...) your seed uses. Fewer = a
+  # shorter run. 0 = the whole map. 6 is the default.
+  num_regions: 6
+
+  # Which boss fight ends your run: auto, elden_beast, promised_consort or
+  # malenia. Leave it on auto unless you want a DLC or Malenia ending.
+  # (promised_consort needs enable_dlc: true.)
+  goal: auto
+
+  # How many of the seven Great Runes you must hold to finish (1 to 7).
+  goal_great_runes: 4
+
+  # true:  enemy strength follows when your seed lets you into each region.
+  # false: vanilla strength everywhere.
+  enemy_scaling: true
+
+  # true: share deaths with other players who also have Death Link on.
+  death_link: false
