@@ -1570,8 +1570,6 @@ def apply(world) -> None:
     if not LOCATION_TAGS:
         return
     surface = selected_surface(_selection(world))
-    if not surface:
-        return
     mw = world.multiworld
     to_place = _restricted_items(world)
     if not to_place:
@@ -1605,6 +1603,19 @@ def apply(world) -> None:
     # objects from the pool and hand them to fill_restrictive.
     world.gf_released_lock_items = list(released)
     world.gf_released_progression_items = list(travelling)
+    if not surface:
+        # An EMPTY surface means "do not confine my own progression" (it scatters), NOT "skip the
+        # multiworld allocation". This used to return before the release above was recorded, so
+        # `progression_surface: []` -- what the wizard writes for "I do not care where" -- silently
+        # switched off the whole cross-game pass: every Lock went through ordinary fill and stayed
+        # home (255, seed 19945568586154303638). The travelling share is still handed to
+        # `place_released_locks`; only the confinement of the rest is skipped.
+        import logging
+        logging.getLogger("Greenfield").info(
+            "[greenfield] progression surface: EMPTY selection -- own progression is not confined; "
+            "%d Lock(s) RELEASED and %d item(s) travelling to the multiworld pass",
+            len(world.gf_locks_released), len(travelling))
+        return
     n0 = len(to_place)
     trusted_capacity = len(_open_trusted(world))
     for it in to_place:
