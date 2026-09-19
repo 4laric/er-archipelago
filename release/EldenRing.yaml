@@ -560,6 +560,19 @@ Elden Ring:
   # Values: true or false (default true)
   progressive_flasks: true
 
+  # Flask Upgrade Minimum
+  #
+  # The fewest Progressive Flask Upgrades your seed will hold.
+  #
+  # Each Golden Seed or Sacred Tear check in a kept region pays one upgrade, so a small
+  # num_regions draw can end up with very few. This tops it up in place of junk. auto is
+  # 2 x num_regions; a number from 1 to 24 sets it yourself (24 maxes charges and potency,
+  # more does nothing); off is 0. A seed that already has more keeps them. Ignored when
+  # Progressive Flask Upgrades is off.
+  #
+  # Values: auto, off, or a whole number from 1 to 24 (default auto)
+  flask_upgrade_minimum: auto
+
   # Progressive Upgrade Bell Bearings
   #
   # Makes the upgrade Bell Bearings progressive, so their shops unlock one tier at a time.

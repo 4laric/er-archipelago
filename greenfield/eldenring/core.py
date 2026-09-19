@@ -533,7 +533,7 @@ _OPTION_GROUPS = [
         "flatten_regular_upgrades", "progressive_flasks", "open_boss_doors",
         "start_with_whetblades",
         # advanced (hidden from the simple UIs)
-        "capital_reconciler",
+        "capital_reconciler", "flask_upgrade_minimum",
         # compat-only (hidden everywhere but the weighted page)
         "flask_upgrades_on_progression_surface",
     ]),

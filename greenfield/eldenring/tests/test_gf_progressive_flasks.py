@@ -153,6 +153,90 @@ class ProgressiveFlaskLadder(WorldTestBase):
         self.assertIsNone(contract._chk_nested_grants({pg.PROG_FLASK: grants[pg.PROG_FLASK]}))
 
 
+# ---- the 2 x num_regions floor ------------------------------------------------------------------
+def test_flask_floor_is_two_per_region_capped_at_a_maxed_ladder():
+    from types import SimpleNamespace
+
+    def w(n):
+        return SimpleNamespace(options=SimpleNamespace(num_regions=SimpleNamespace(value=n)))
+
+    assert pg.flask_floor(w(6)) == 12
+    assert pg.flask_floor(w(1)) == 2
+    # witness: the cap is what binds here, not the arithmetic
+    assert 2 * 20 > pg.DLC_ONLY_FLASK_COPIES
+    assert pg.flask_floor(w(20)) == pg.DLC_ONLY_FLASK_COPIES
+    # 0 = the whole map, which substitutes far more than any floor
+    assert pg.flask_floor(w(0)) == 0
+
+
+def test_flask_upgrade_minimum_overrides_auto_and_off_restores_the_old_length():
+    from types import SimpleNamespace
+
+    def w(minimum, regions=6):
+        return SimpleNamespace(options=SimpleNamespace(
+            num_regions=SimpleNamespace(value=regions),
+            flask_upgrade_minimum=SimpleNamespace(value=minimum)))
+
+    assert pg.FlaskUpgradeMinimum.default == -1
+    assert pg.FlaskUpgradeMinimum.special_range_names == {"auto": -1, "off": 0}
+    # WITNESS: auto at the same num_regions is 12, so the values below are the option being read
+    assert pg.flask_floor(w(-1)) == 12
+    assert pg.flask_floor(w(5)) == 5          # explicit beats auto, in either direction
+    assert pg.flask_floor(w(20, regions=1)) == 20
+    assert pg.flask_floor(w(0)) == 0          # off
+    assert pg.flask_floor(w(24)) == pg.DLC_ONLY_FLASK_COPIES
+
+
+class ProgressiveFlaskFloorSmallSeed(WorldTestBase):
+    """A `num_regions` draw that keeps few seed/tear checks used to get a ladder that short (one copy
+    was reported). The floor tops it up to 2 x num_regions, count-neutrally.
+
+    MEASURED 2026-09-19: over seeds 1..40 at num_regions 6, 13 kept fewer than 12 copies and the
+    minimum was 4. Seed 3 keeps 4; seed 2 keeps 25 and must NOT be inflated."""
+    game = GAME
+    options = {"progressive_flasks": True, "num_regions": 6}
+    THIN_SEED, RICH_SEED = 3, 2
+
+    def test_the_floor_is_what_sets_the_length_on_a_thin_draw(self):
+        self.world_setup(seed=self.THIN_SEED)
+        w = self.world
+        floor = pg.flask_floor(w)
+        self.assertEqual(floor, 12)
+        # WITNESS: this draw keeps fewer flask checks than the floor, so the assertions below are
+        # the injection working and not the substitution happening to be big enough.
+        self.assertLess(pg._substituted_flask_copies(w), floor,
+                        "fixture no longer thin enough to exercise the floor")
+        self.assertEqual(pg.flask_copy_count(w), floor)
+        self.assertEqual(pg.flask_inject_count(w), floor - pg._substituted_flask_copies(w))
+
+    def test_off_restores_the_short_ladder_on_the_same_seed(self):
+        self.options = dict(self.options, flask_upgrade_minimum=0)
+        self.world_setup(seed=self.THIN_SEED)
+        w = self.world
+        self.assertEqual(pg.flask_floor(w), 0)
+        self.assertEqual(pg.flask_copy_count(w), pg._substituted_flask_copies(w))
+        self.assertLess(pg.flask_copy_count(w), 12)
+
+    def test_a_rich_draw_is_not_inflated(self):
+        self.world_setup(seed=self.RICH_SEED)
+        w = self.world
+        self.assertGreater(pg._substituted_flask_copies(w), pg.flask_floor(w),
+                           "fixture no longer rich enough to prove the floor is a floor")
+        self.assertEqual(pg.flask_inject_count(w), 0)
+        self.assertEqual(pg.flask_copy_count(w), pg._substituted_flask_copies(w))
+
+    def test_pool_and_ladder_agree_with_the_floor(self):
+        self.world_setup(seed=self.THIN_SEED)
+        w = self.world
+        copies = world_item_names(self).count(pg.PROG_FLASK)
+        self.assertEqual(copies, pg.flask_copy_count(w))
+        self.assertEqual(len(pg.flask_ladder(w)), copies)
+        self.assertEqual(len(self.multiworld.itempool) + sum(
+            1 for loc in self.multiworld.get_locations(w.player) if loc.item is not None),
+            len(self.multiworld.get_locations(w.player)),
+            "the injected copies must displace filler, not grow the pool")
+
+
 # ---- the ladder under dlc_only (the fixed floor) -----------------------------------------------
 class ProgressiveFlaskLadderDLCOnly(WorldTestBase):
     """dlc_only seals every base region, so no kept REGION holds a seed/tear check (only the HUB's lone

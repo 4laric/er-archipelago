@@ -33,7 +33,8 @@ Ships three independent toggles (progressive_flasks default ON; the others defau
     until the flask ran past its cap and CTD'd, playtest 2026-07-12 -- hence consumed=True is
     REQUIRED.) The charge axis's "later pickups buy less" deceleration is baked into the escalating
     charge-step weights; the potency axis is a flat +1 tear per copy. The ladder's LENGTH follows the
-    kept seed/tear checks (num_regions / DLC scale it for free); when NONE are kept (dlc_only) a fixed
+    kept seed/tear checks (num_regions / DLC scale it for free) but never drops below
+    2 x num_regions, capped at 24 (see flask_floor); when NONE are kept (dlc_only) a fixed
     12 copies are injected -- enough for both charges (max 14) and potency (max 12, one tear each) to
     fully max by copy 12. PROG_FLASK stays a pool item and the Golden Seed / Sacred Tear checks still
     SUBSTITUTE to it; the flask now appears in BOTH progressiveGrants (potency tears) and flaskLadder
@@ -96,7 +97,7 @@ import itertools
 from typing import Any, Dict, List
 
 from BaseClasses import ItemClassification
-from Options import Toggle
+from Options import NamedRange, Toggle
 from ..registry import Feature, register
 from .. import contract
 
@@ -233,15 +234,37 @@ def _region_flask_copies(world) -> int:
     return _flask_check_count(world, list(kept))
 
 
+FLASK_COPIES_PER_REGION = 2
+
+
+def flask_floor(world) -> int:
+    """The minimum PROG_FLASK copies: `flask_upgrade_minimum` when set (0 = off), else `auto` =
+    2 per drawn region. Capped at DLC_ONLY_FLASK_COPIES either way (24 fully maxes both axes; a copy
+    past it buys nothing). 0 for num_regions 0 under auto (the whole map, which already substitutes
+    far more than the cap).
+
+    Added 2026-09-19 (Alaric) after a seed with ONE flask copy: the ladder length used to follow the
+    kept seed/tear checks with no lower bound, so a small draw that happened to keep few of them
+    got almost no flask progression."""
+    explicit = getattr(world.options, "flask_upgrade_minimum", None)
+    v = int(explicit.value) if explicit is not None else -1
+    if v >= 0:
+        return min(v, DLC_ONLY_FLASK_COPIES)
+    opt = getattr(world.options, "num_regions", None)
+    n = int(opt.value) if opt is not None else 0
+    return min(max(n, 0) * FLASK_COPIES_PER_REGION, DLC_ONLY_FLASK_COPIES)
+
+
 def flask_copy_count(world) -> int:
     """The number of PROG_FLASK copies this seed will actually have == the flaskLadder length. When a
-    kept region has flask checks: every substituted copy (HUB + regions). When none does (dlc_only):
-    a fixed floor (DLC_ONLY_FLASK_COPIES) so the mode still has a real flask curve. 0 when flasks
-    off."""
+    kept region has flask checks: every substituted copy (HUB + regions), raised to `flask_floor` when
+    the draw kept fewer than that. When none does (dlc_only): a fixed floor (DLC_ONLY_FLASK_COPIES) so
+    the mode still has a real flask curve. 0 when flasks off. Copies above the substituted count are
+    injected by `flask_inject_count`, count-neutrally."""
     if not _flasks_on(world):
         return 0
     if _region_flask_copies(world) > 0:
-        return _substituted_flask_copies(world)
+        return max(_substituted_flask_copies(world), flask_floor(world))
     return DLC_ONLY_FLASK_COPIES
 
 
@@ -477,6 +500,21 @@ class ProgressiveFlasks(Toggle):
     default = 1
 
 
+class FlaskUpgradeMinimum(NamedRange):
+    """The fewest Progressive Flask Upgrades your seed will hold.
+
+    Each Golden Seed or Sacred Tear check in a kept region pays one, so a small draw can
+    end up with few. This tops it up in place of junk. auto is 2 x Number of Regions; a
+    number from 1 to 24 sets it, and 24 maxes both charges and potency; off is 0. Seeds
+    that already have more keep them. Ignored when Progressive Flasks is off.
+    """
+    display_name = "Flask Upgrade Minimum"
+    range_start = 0
+    range_end = 24
+    default = -1
+    special_range_names = {"auto": -1, "off": 0}
+
+
 class ProgressiveStoneswordKeys(Toggle):
     """Off (default). On: add Progressive Stonesword Key items -- each copy grants one Stonesword
     Key for opening Imp Statue seals. Never gates logic (Region Locks are the only progression), so
@@ -501,6 +539,7 @@ class Progressive(Feature):
     name = "progressive"
     OPTIONS = {
         "progressive_flasks": ProgressiveFlasks,
+        "flask_upgrade_minimum": FlaskUpgradeMinimum,
         "progressive_stonesword_keys": ProgressiveStoneswordKeys,
         "progressive_stone_bells": ProgressiveStoneBells,
     }
