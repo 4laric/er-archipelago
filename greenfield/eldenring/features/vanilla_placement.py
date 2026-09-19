@@ -102,30 +102,14 @@ except Exception:  # pragma: no cover -- pre-regen data
 
 
 class VanillaPlacement(Choice):
-    """WHERE THE ITEMS ARE. 'off' (default) is the randomizer: every check's vanilla item is
-    shuffled across the multiworld.
+    """Puts every item back where the game keeps it, so nothing is shuffled.
 
-    'all' puts every item back exactly where the base game keeps it -- the Dectus halves in Fort
-    Haight and Fort Faroth, the Academy Glintstone Key on its corpse, every Golden Seed on its
-    sapling. Checks still fire, the tracker still works and Death Link still works, so this is the
-    setting for a group who want to play the base game together and share deaths rather than
-    randomize anything. Nothing is sent to or received from other worlds: the seed is self-contained
-    by design.
-
-    Progression is gated the way the base game gates it, so the region locks are not used at all and
-    Number of Regions is ignored -- the whole map is in play from the start, and the Leyndell wall,
-    the Rold Medallion and every other door work as they always did.
-
-    The start is vanilla too. You begin with what your class begins with -- no lantern, no extra
-    flasks, no Torrent, no Spirit Calling Bell, no crafting pots, no revealed maps, and no levelling
-    until you meet Melina. Everything this world normally hands you at the start is somewhere in the
-    world instead, where the base game keeps it. (Three of those gifts also used to tick off their
-    own Roundtable checks the moment you connected, which is not how you want a vanilla run to open.)
-
-    The combat quality-of-life this world always applies is unchanged: weapons still upgrade
-    automatically and still ignore their stat requirements. So this is vanilla PLACEMENT and a
-    vanilla START, not vanilla BALANCE. It also inherits the base game's own missables -- burning the
-    Erdtree still strands Leyndell's checks."""
+    The game's own doors gate the map (Number of Regions is ignored) and the randomizer's
+    starting gifts (Torrent, lantern...) are off. It stops generation with Natural
+    Progression or a keep_out_of_shops list.
+    off: the normal randomizer; items shuffled across the multiworld (default)
+    all: items stay in their vanilla spots; no items cross to other worlds
+    """
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
     visibility = Visibility.all & ~Visibility.template
     display_name = "Vanilla Placement"

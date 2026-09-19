@@ -25,24 +25,16 @@ CLIENT_FEATURE_TAG = "region_sync"
 
 
 class RegionSync(Toggle):
-    """Share region unlocks with the other Elden Ring players in this multiworld.
+    """In Seamless Co-op, opens a region for all players with this on once anyone unlocks it.
 
-    For seamless co-op. Everyone plays in ONE physical world (the co-op host's), but each player
-    has their own Archipelago slot -- so if one of you has unlocked Liurnia and the rest have not,
-    the rest get kicked out of it and cannot follow. With this on, the moment ANY Elden Ring player
-    who also turned it on unlocks a region, that region's door opens for all of you: the map gate
-    lifts and its Sites of Grace light up.
-
-    It only opens the door. It does NOT give anyone else the region's key item -- that stays
-    wherever the multiworld put it, and finding your own is still what counts for your items and
-    your goal. Nothing about how the seed is generated changes, so you can turn this on without
-    making anyone's game easier to complete.
-
-    Turn it on for every Elden Ring player in the co-op group; players who leave it off are not
-    affected either way, and other games in the multiworld never see it.
+    Co-op players share one game on separate slots, so a region only some have unlocked
+    kicks the rest out. With this on, when anyone unlocks a region, its door opens for
+    everyone else who has it on. Doors only: nobody receives the Region Lock (the item that
+    opens a region). Turn it on for every co-op player. Needs an up-to-date client; older
+    ones refuse the seed.
     """
 
-    display_name = "Region Sync"
+    display_name = "Region Sync (Seamless Co-op)"
 
 
 @register

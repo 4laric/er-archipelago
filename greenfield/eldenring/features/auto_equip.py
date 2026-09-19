@@ -38,11 +38,13 @@ CLIENT_FEATURE_TAG = "auto_equip"
 
 
 class AutoEquip(Toggle):
-    """Wear whatever the multiworld sends you. A weapon or armour piece is put on the moment it
-    lands in your bag, replacing whatever was in that slot -- including in the middle of a boss
-    fight, and including a weapon your build cannot use. You do not choose your kit; the item order
-    does. Off by default. A seed with this on requires a client that supports it and will say so
-    rather than connect and quietly ignore the setting."""
+    """Puts on every weapon, armor piece and talisman you receive the moment it arrives.
+
+    It replaces whatever was in that slot, even mid-boss-fight and even if the gear does not
+    suit your build. Meant for use-what-you-get challenge runs; leave it off otherwise.
+    Random gear can weigh you down; the Equipment Weight option counters that. Needs an
+    up-to-date client; older ones refuse the seed.
+    """
     display_name = "Auto-Equip Received Gear"
 
 

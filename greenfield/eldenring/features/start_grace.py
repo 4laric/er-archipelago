@@ -14,7 +14,7 @@ rides here: 4680 (Level Up enable) + 951 (Melina first-meeting done) -- the two 
 confirmed in-game (set both, rest, Level Up works, no cutscene). The first entry (a real grace) is the
 client's clobber read-back sentinel. All ids are from prior in-game-verified work; none invented.
 """
-from Options import Choice, DefaultOnToggle, OptionSet, Range, Toggle
+from Options import Choice, DefaultOnToggle, OptionSet, Range, Toggle, Visibility
 from ..registry import Feature, register
 from . import catacomb_doors as _doors
 from .. import contract
@@ -152,70 +152,46 @@ class StartWithRegionLock(DefaultOnToggle):
 
 
 class StartRegions(Range):
-    """How many regions are OPEN at run start. 1 (default) is the classic single opening region;
-    higher values precollect that many Region Locks, so the run begins with more of the map
-    reachable and fewer locks left to find.
+    """How many regions are already open when your run starts.
 
-    Only consulted when Start With A Region Lock is on, and ignored under Natural Progression
-    (which mints no Lock items at all). It must stay BELOW the number of regions the seed actually
-    kept -- holding every kept Lock at connect would complete the goal before you play -- and
-    generation fails loudly, naming both numbers, if it does not. Remember that Number of Regions
-    is a DRAW SIZE: a seed can keep more regions than you asked for, but never fewer.
-
-    Starting Region Selection controls the draw. By default the first region is picked
-    as it always was (size-weighted over the kept base-game
-    regions, MajorBoss-biased under a strict Progression Surface). The extras are drawn the same
-    way from what is left, except that the goal region can never be one: a run that opens on the
-    region it ends in is over before it starts."""
-    display_name = "Starting Regions"
+    You begin holding that many Region Locks (the items that open regions), so more of the
+    map is reachable and fewer Region Locks are left to find. Keep it well below Number of
+    Regions: too high a number stops generation (Leyndell, Raya Lucaria Academy and your
+    Final Boss's region can never start a run). Ignored by Natural Progression and Vanilla
+    Placement.
+    """
+    display_name = "Regions Open at Start"
     range_start = 1
     range_end = 10
     default = 1
 
 
 class StartRegionSelection(Choice):
-    """How starting regions are drawn from the regions kept in this seed.
+    """How the game picks your starting region when you do not name one.
 
-    Weighted (default) preserves the current selection: prefer base-game regions, weight by
-    check count, and prefer a MajorBoss region for the first pick.
-    Uniform gives each eligible region equal odds, including DLC when enabled, without size
-    weighting or a MajorBoss preference. Small regions can therefore open the run.
-
-    Both modes respect Starting Region Pool and exclude inaccessible child regions and the
-    goal's forced regions. Multiple starting regions are drawn without replacement.
-    Ignored when Start With A Region Lock is off, or under Natural Progression or Vanilla
-    Placement, which create no region locks. This does not change which regions the seed keeps.
+    Also decides among Allowed Starting Regions. With weighted, the first starting region
+    also prefers one that hosts a major boss. Ignored by Natural Progression and Vanilla
+    Placement.
+    weighted: base-game regions before DLC ones, bigger ones likelier (default)
+    uniform: any region that can start a run, equally likely, small and DLC too
     """
-    display_name = "Starting Region Selection"
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Starting Region Odds"
     option_weighted = 0
     option_uniform = 1
     default = 0
 
 
 class StartRegionPool(OptionSet):
-    """WHICH regions the run may open in, by name. Empty (default) = any kept region, drawn the way
-    it always was. Name one and the run opens there; name several and the opening region is drawn
-    from just those.
+    """Which regions your run may start in, by name (e.g. Caelid). Empty = any region.
 
-    Region names are the ones the spoiler and the client use: Limgrave, Liurnia, Caelid, Altus,
-    Stormveil, Raya Lucaria Academy, Leyndell, Mt. Gelmir, Mountaintops of the Giants, Weeping,
-    Deeproot Depths, Siofra River, Ainsel River, Mohgwyn, Farum Azula, Sewer, and the DLC's
-    Gravesite, Belurat, Ensis, Scadu Altus, Shadow Keep, Rauh Base, Ancient Ruins, Cerulean,
-    Abyssal, Jagged Peak, Enir Ilim.
-
-    This is a set of CANDIDATES, not a set of regions to keep, and it does not change how many
-    regions the seed has. `num_regions` draws the kept set as usual and the opening region is
-    chosen from the named regions that draw kept. Only when the draw kept fewer named regions than
-    `Starting Regions` asks for are the missing ones added (chosen from your pool, and named in the
-    generation log), so a pool of 25 names in a 6-region seed is still a 6-region seed. If you want
-    to guarantee "just play Caelid", name one: it is added whenever the draw missed it.
-
-    Ignored when Start With A Region Lock is off and under Natural Progression / Vanilla Placement,
-    which mint no Lock items -- exactly like Starting Regions above. Naming a region this seed
-    cannot open in (sealed by your DLC toggles, needed by your goal, or a child region that is
-    reached through its parent) fails generation and says which and why, rather than quietly
-    dropping it."""
-    display_name = "Starting Region Pool"
+    Regions Open at Start says how many it opens, so list at least that many. Adds regions
+    only if the draw missed. Naming Leyndell, Raya Lucaria Academy, your Final Boss's
+    region or a region your DLC setting removes stops generation. Base-game names beat DLC
+    ones unless start_region_selection is uniform. Ignored by Natural Progression and
+    Vanilla Placement.
+    """
+    display_name = "Allowed Starting Regions"
     valid_keys = frozenset(REGIONS)
 
 

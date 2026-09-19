@@ -33,7 +33,7 @@ different roll each call.
 """
 import random as _random
 
-from Options import DefaultOnToggle
+from Options import DefaultOnToggle, Visibility
 
 from ..registry import Feature, register
 from .. import contract
@@ -58,9 +58,15 @@ _ROW_ID_MASK = 0x0FFFFFFF
 
 
 class RerollEnemyDrops(DefaultOnToggle):
-    """Reroll what farmable enemies drop. Their one-time drops (the AP checks) are untouched -- only the
-    repeatable, unflagged drops change, and only the consumable slots, at exactly the vanilla rates."""
-    display_name = "Reroll Enemy Drops"
+    """Enemies you can farm drop random consumables and materials instead of their usual ones.
+
+    Each repeatable consumable or material drop is swapped for another (pot, grease, Golden
+    Rune, smithing stone...), chosen per seed, at the same drop rate. The enemies, one-time
+    drops (the checks), weapons and armor are untouched. On by default; off keeps vanilla
+    drops. Original Item Pool and Vanilla Placement do not turn this off.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Reroll Farmable Enemy Drops"
 
 
 def pool():

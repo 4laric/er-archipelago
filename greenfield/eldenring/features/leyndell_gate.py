@@ -37,14 +37,15 @@ _log = logging.getLogger(_GAME)
 
 
 class LeyndellRunesRequired(Range):
-    """DEPRECATED 2026-09-14 -- Leyndell opens on its Lock like every other region; no Great Rune
-    count gates it any more. Still honoured as in still accepted, so an existing yaml keeps
-    generating the identical seed shape it would have: every value is ignored.
+    """Does nothing; kept only so old yamls that set it still load.
 
-    Importable and visible in detailed tools/spoilers, never suggested in a new YAML."""
+    Leyndell opens with its Region Lock (the item that opens a region), not a Great Rune
+    count. Natural Progression and Vanilla Placement keep the game's own wall of two Great
+    Runes, and this option does not change it.
+    """
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
-    visibility = Visibility.all & ~Visibility.template
-    display_name = "Leyndell Great Runes Required (deprecated)"
+    visibility = Visibility.complex_ui | Visibility.spoiler
+    display_name = "Leyndell Great Runes Required (no effect)"
     range_start = 0
     range_end = 6
     default = 2

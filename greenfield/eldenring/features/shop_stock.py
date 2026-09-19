@@ -120,32 +120,27 @@ HUB_SHELF_ROWS = (600020, 600022, 600021, 600017)
 
 
 class InfiniteHubWares(OptionSet):
-    """Wares the hub merchant always stocks, unlimited, instead of leaving the shelf to the reroll.
+    """Chooses what Roundtable Hold's infinite shelves always sell.
 
-    Give item names exactly as the randomiser knows them, e.g.
-
-        infinite_hub_wares: ["Rune Arc", "Larval Tear"]
-
-    Up to FOUR: that is how many browsable unlimited shelves the hub has, and asking for more is
-    rejected at generation with a message rather than silently dropping the extras. Each ware is sold
-    at its own derived price, so a shelf never becomes a free dispenser.
-
-    Empty by default -- a fresh yaml generates exactly as it did before this option existed. Worth a
-    thought before filling it: unlimited Larval Tears is unlimited respec, and unlimited Rune Arcs is
-    a permanent great-rune buff. Both are real changes to how a run plays."""
-    display_name = "Infinite Hub Wares"
+    Example: infinite_hub_wares: Rune Arc, Larval Tear. Give up to four exact in-game names
+    of farmable items (a misspelled or non-goods name stops generation). Unlimited Rune Arcs
+    or Larval Tears change how a run plays. Needs reroll_infinite_shop_stock on, and no name
+    kept out by keep_out_of_shops. Empty (default): shelves are rerolled. Which merchant
+    sells them is unconfirmed in game.
+    """
+    display_name = "Infinite Wares at Roundtable Hold"
     default = frozenset()
 
 
 class RerollInfiniteShopStock(DefaultOnToggle):
-    """Reroll the merchants' unlimited consumable shelves to a random high-impact consumable.
+    """Replaces the wares on merchants' infinite-stock shelves with random items.
 
-    Kale's Glass Shards, Iji's Somber Smithing Stones, the throwing-knife and poison-dart shelves --
-    14 of them. Each is rerolled per seed and PRICED at what the new item is worth, so a shelf never
-    becomes an infinite cheap source of something economy-breaking.
-
-    Ammo shelves (arrows, bolts) are untouched. These shelves are never AP checks, so nothing here
-    moves an item or a location."""
+    On (default): the 14 shelves that sell unlimited stock of one item (Somber Smithing
+    Stones, throwing daggers and similar) get a random consumable, stone or Golden Rune each
+    seed, priced at its worth (a rune at up to its worth). Arrow and bolt shelves are left
+    alone. Off: base-game shelves. Never checks, so nothing else moves. Kinds in
+    keep_out_of_shops stay off them.
+    """
     display_name = "Reroll Infinite Shop Stock"
 
 

@@ -252,8 +252,8 @@ class PresenceFloor(Feature):
             it = world.create_item(name)
             it.classification = ItemClassification.useful
             out.append(it)
-        # Pouches deliberately retain their catalog classification (`filler`): they unlock slots
-        # but gate no access.  Adding them here, before core sizes and cheapest-first trims the
+        # Pouches are `useful` (core._class_for promotes them by name; they gate no access, so
+        # never progression). Adding them here, before core sizes and cheapest-first trims the
         # vanilla filler tail, makes every injected copy displace exactly one ordinary filler item.
         pouch_injected = talisman_pouch_inject_count(world)
         out.extend(world.create_item(TALISMAN_POUCH) for _ in range(pouch_injected))

@@ -43,7 +43,7 @@ client logs "capital reconciler INERT" and never touches 9116):
     eventFlag_forRelease is 9116 ITSELF (Enia's Maliketh armor set) re-key to 118, or the
     reconciler's OFF-default would keep those four checks off the shelf forever.
 """
-from Options import DefaultOnToggle
+from Options import DefaultOnToggle, Visibility
 
 from ..registry import Feature, register
 from .. import contract
@@ -185,15 +185,16 @@ except Exception:  # pragma: no cover -- pre-regen data
 
 
 class CapitalReconciler(DefaultOnToggle):
-    """Keep the Leyndell map-version flag (9116) matched to where you actually are, so burning
-    the Erdtree never permanently strands the Royal Capital's checks: warp to a Royal grace (or
-    walk in from Altus) and the Royal Capital is back; warp to an Ashen grace and the finale is
-    where you left it. Also lets Royal Capital checks carry progression. Default on.
+    """Keeps Leyndell's Royal Capital reachable after the Erdtree burns.
 
-    Turn OFF if the capital flag toggle misbehaves in-game (the toggle is assumed side-effect
-    free but not yet probe-verified): off restores vanilla one-way behavior AND re-bars the
-    Royal Capital from progression, so seeds stay winnable either way."""
-    display_name = "Capital Version Reconciler"
+    Vanilla swaps it for the Ashen Capital for good, leaving its checks unreachable. On
+    (default), warp anywhere but the Ashen Capital or Elden Throne, then walk in from Altus
+    and it is back; its checks may hold progression. Off gives vanilla's one-way burn and
+    bars progression from them. Not fully tested in game: if Leyndell misbehaves (repeated
+    wrong respawns, say), turn it off.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Keep Royal Capital After Erdtree Burn"
 
 
 @register

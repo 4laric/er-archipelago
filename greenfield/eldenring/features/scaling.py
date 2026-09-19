@@ -441,46 +441,26 @@ def blessing_floor_ranges(kept):
 
 
 class EnemyScaling(Toggle):
-    """Whether enemy difficulty follows your PROGRESSION instead of the map.
+    """Whether enemy strength follows your progress or stays as the base game made it.
 
-    On (default), a region's enemies are re-tiered by how deep it sits in your unlock order, so a
-    zone you reach late is dangerous even if it is early on the map, and one you open first is not a
-    walkover just because it is late. `minimum_enemy_difficulty`, `maximum_enemy_difficulty` and
-    `difficulty_ramp_speed` shape that curve.
-
-    Off = VANILLA. Every enemy keeps exactly the strength the base game gave it, everywhere. The
-    client does not touch a single enemy: no re-tiering, no floor, no ceiling, and the three sliders
-    above stop meaning anything. Worth choosing if you want the randomizer's item placement without
-    its difficulty curve, or if you are playing a route where the vanilla curve already suits you.
-
-    🛑 A seed rolled with this off is not "easier" -- it is the game's own difficulty, which in a
-    randomized world can mean meeting a late-game area's enemies at level 20."""
+    On (default): each region's enemies are tuned by how early or late your seed unlocks it,
+    not by where it sits on the map, so a region you open late hits hard even in early-game
+    territory. Off: vanilla strength everywhere (not easier: a late area can come early);
+    Minimum Enemy Difficulty, Maximum Enemy Difficulty and Difficulty Ramp Speed then do
+    nothing to enemies.
+    """
     display_name = "Enemy Scaling"
     default = 1
 
 
 class MinimumEnemyDifficulty(Range):
-    """How hard the EASIEST enemies in your run are. 0 (default) leaves the early game at its normal
-    strength; higher values lift the whole floor, so nowhere stays trivial once you have outgrown it.
+    """Raises your weakest enemies' strength so no region is ever trivial.
 
-      0    normal -- your first region is as weak as vanilla-ish   (default)
-      25   nothing below about 2.3x enemy HP
-      50   nothing below about 4x
-      100  everything at maximum, everywhere, from your first region on
-
-    Useful because progression here is not geography: a region you unlock late can be an "early"
-    one, and this stops it being a walkover. Enemy rune rewards are unchanged at every setting.
-
-    🛑 THE DEFAULT WAS BRIEFLY 25 AND IS BACK TO 0 (2026-08-05, same day, unreleased). The case for
-    raising it was that vanilla applies TWO scaling rows per enemy -- a ladder rung and a second row
-    at the same index +400 -- so its effective HP floor was 3.56x against our 1.141x. **That was
-    arithmetic, not measurement, and per-enemy measurement disproved it.** Observed `max_hp` is
-    vanilla base x the RUNG rate exactly, with the second row contributing nothing:
-    base 755 with `[7020, 7420]` measures 967, and 755 x 1.281 = 967. Six enemies, plus eleven
-    reading residual 1.000 against a rung-only model.
-
-    So vanilla's HP floor IS 1.141x, 0 IS the vanilla-equivalent default, and it never needed
-    changing. Do not raise this default again without a measurement rather than a product.
+    0 (default) changes nothing; raise it if the early game feels easy. 25 gives every enemy
+    at least 2.3x its base HP, 50 at least 4.1x, 100 puts every region at max. Must not
+    exceed Maximum Enemy Difficulty (auto rises to match; a lower one stops generation, even
+    with Enemy Scaling off, which otherwise ignores this). Rune rewards stay vanilla unless
+    scale_rune_rewards is on.
     """
     display_name = "Minimum Enemy Difficulty"
     range_start = 0
@@ -591,34 +571,14 @@ def blessing_everywhere(world) -> bool:
 
 
 class MaximumEnemyDifficulty(NamedRange):
-    """How hard the TOUGHEST enemies get.
+    """Caps how strong the toughest enemies can get.
 
-      auto  base-game top (about 3.7x), or higher with the blessing  (default)
-       100  no cap -- the deepest region hits the game's maximum, about 7.4x enemy HP
-        75  nothing above about 5.5x enemy HP
-        50  nothing above about 4x
-        47  the base game's own top -- vanilla Haligtree
-        25  nothing above about 2x
-
-    `auto` caps the run at the strongest thing the BASE GAME ever asks of you: about 3.7x enemy HP,
-    vanilla Haligtree. Every rung above that is the DLC's own enemy ladder, tuned for a player who
-    is also carrying a Scadutree Blessing, so `auto` lets a region climb into those rungs only
-    where the blessing applies: DLC regions always, base-game regions only when the blessing is
-    scoped everywhere (`scadutree_blessing_scope: anywhere`, the default) and the DLC is on so its
-    fragments can enter the pool. Where it climbs, the cap grows with the length of the run --
-    about 3.7x at 5 regions, 5.5x at 10, 6.7x at 15, the full 7.4x on the whole map -- and the seed
-    injects the fragments that pay for it. Give a number instead to pick the cap yourself, for
-    every region; the yaml builder shows what either choice resolves to as you move the slider.
-
-    ⚠️ Above 3.7x the curve is extrapolation over rungs nobody has playtested at length. A
-    13-region default run with the DLC on met Caelid at close to Haligtree strength (2026-09-06),
-    which is what put the base-game gate here.
-
-    Must be at least Minimum Enemy Difficulty; generation refuses the inverted pair rather than
-    quietly picking one.
-
-    ⚠️ Needs a client that understands it. A seed setting this below 100 tells the client so at
-    connect, and an older client refuses with a message rather than ignoring the cap."""
+    25 = 2.3x base HP, 50 = 4.1x, 100 = 7.4x (no cap); 50+ is DLC strength. auto (default):
+    3.7x, the base game's top, unless the Scadutree Blessing applies everywhere or a DLC
+    region is drawn; then it grows with Number of Regions (4.1x at 6, 7.4x at 28) and adds
+    Scadutree Fragments. No effect on enemies with Enemy Scaling off. A cap under 100 (auto
+    too) needs a current client; older ones refuse it.
+    """
     display_name = "Maximum Enemy Difficulty"
     range_start = 0
     range_end = 100
@@ -627,18 +587,13 @@ class MaximumEnemyDifficulty(NamedRange):
 
 
 class DifficultyRampSpeed(Range):
-    """How quickly enemies get harder as you progress. 0 (default) spreads the climb evenly across
-    the whole run; higher values front-load it, so you hit the hardest enemies sooner and the rest of
-    the run stays there.
+    """How quickly enemy strength climbs from your first regions to your last.
 
-      0    even across the run -- your last region is the first to reach maximum   (default)
-      50   maximum from about halfway; everything after that is equally hard
-      75   maximum about a quarter of the way in
-      100  maximum almost immediately
-
-    This does not change how hard the HARDEST enemies are -- that ceiling is fixed. It changes how
-    much of your run is spent below it. Pairs with Minimum Enemy Difficulty, which raises the
-    BOTTOM instead."""
+    0 (default) climbs evenly, so only your final region reaches full strength. 50 gets
+    there halfway through the regions your seed opens and stays, 75 by a quarter of the way,
+    100 almost at once. Raise it to spend more of the run at full strength. Maximum Enemy
+    Difficulty sets what full strength is. No effect if Enemy Scaling is off.
+    """
     display_name = "Difficulty Ramp Speed"
     range_start = 0
     range_end = 100
@@ -677,16 +632,15 @@ def ramp_pct_from_speed(speed):
 
 
 class ScadutreeBlessingScope(Choice):
-    """WHERE the Scadutree blessing applies. dlc_only = vanilla: the blessing is a Land of Shadow
-    mechanic and does nothing in Limgrave, exactly as FromSoft shipped it. anywhere = the blessing
-    becomes a GAME-WIDE power curve driven by the fragments the multiworld has sent you, so it works
-    everywhere. Enemies are untouched either way, so `anywhere` is explicitly a power fantasy.
+    """Where the Scadutree Blessing, the DLC's power bonus from Scadutree Fragments, applies.
 
-    HOW `anywhere` IS POSSIBLE AT ALL. Every vanilla rung 20000100+level carries
-    effectEndurance = 0.05 -- 50ms. It is not a persistent buff; a refresher loop that only runs in
-    the Land of Shadow re-applies it every tick. The client clones the rung onto a row of its own
-    with effectEndurance = -1 and applies that (see the client's `scadu_blessing` module and
-    docs/specs/SPEC-global-scadutree-blessing-20260729.md). Measured in-game 2026-07-29."""
+    It changes only your damage and defense, and matters only when the DLC is on (Enable DLC
+    or DLC Only). With anywhere, Maximum Enemy Difficulty auto may also raise base-game
+    enemies to DLC strength.
+    anywhere: works in every region; extra fragments added as needed (default)
+    dlc_only: the game's own rule, only inside the DLC; no fragments added
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Scadutree Blessing Scope"
     option_dlc_only = 0
     option_anywhere = 1
@@ -694,19 +648,14 @@ class ScadutreeBlessingScope(Choice):
 
 
 class DlcBlessingCatchup(Toggle):
-    """Guarantee each DLC region's expected Scadutree Blessing while you are standing in it.
+    """Lifts your Scadutree Blessing, the DLC power bonus, to a minimum inside DLC regions.
 
-    WHY IT EXISTS, AND WHY IT IS NOT A DIFFICULTY KNOB. DLC enemies are tuned around a per-AREA
-    blessing level. In this rando the fragments that raise blessing are scattered multiworld checks,
-    so the fill can hand you Shadow Keep while your blessing is 0 -- through no decision of yours.
-    This lifts you to that area's floor (DLC_BLESSING_FLOORS, ~3-4 under vanilla expectation) so
-    collected fragments still buy visible power above it. Compose is MAX, never a replacement.
-
-    🛑 IT IS SCOPED TO WHERE YOU STAND, NOT TO WHAT YOU UNLOCKED. The client re-reads your current
-    play_region every tick; leave the region and the floor goes with you. Nothing is granted.
-
-    Inert outside the DLC: base-game buckets have no floor, so a base-only seed emits no wire at all.
+    DLC enemies assume some blessing, but fragments are scattered checks, so you can arrive
+    with none. When on, you get the higher of your own level and that region's minimum, a
+    few levels below what the DLC expects. No effect if your seed has no DLC region. With
+    scadutree_blessing_scope dlc_only, older clients refuse the seed regardless.
     """
+    visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "DLC Blessing Catch-up"
 
 
@@ -727,16 +676,17 @@ LEGACY_BLESSING_MAP = {
 
 
 class GlobalScadutreeBlessing(Choice):
-    """DEPRECATED 2026-08-06 -- split into `scadutree_blessing_scope` + `dlc_blessing_catchup`.
+    """Old setting, kept so old yamls still load. Use the Scadutree Blessing options instead.
 
-    Still honoured, so an existing yaml keeps generating the same seed: off -> (dlc_only, off),
-    player_only -> (anywhere, off), scaled -> (anywhere, on). Setting this AND either replacement to
-    values that disagree is an OptionError rather than a silent winner -- see Scaling.generate_early.
-
-    Prefer the replacements: they can also express (dlc_only, on), which this key cannot say."""
+    Those are scadutree_blessing_scope and dlc_blessing_catchup, which can also say vanilla
+    scope plus catch-up. Either one contradicting player_only or scaled stops generation.
+    off: does nothing, and does not mean vanilla scope
+    player_only: same as scope anywhere, catch-up off
+    scaled: same as scope anywhere, catch-up on
+    """
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
-    visibility = Visibility.all & ~Visibility.template
-    display_name = "Global Scadutree Blessing (deprecated)"
+    visibility = Visibility.complex_ui | Visibility.spoiler
+    display_name = "Global Scadutree Blessing (old)"
     option_off = 0
     option_player_only = 1
     option_scaled = 2
@@ -802,36 +752,29 @@ def blessing_mode(world) -> int:
 
 
 class CoopDifficulty(Range):
-    """Extra enemy difficulty per co-op partner, for seamless co-op (#993). Solo play ignores it.
+    """Makes enemies tougher for each Seamless Co-op partner. Solo players: leave at 0.
 
-      0    off -- co-op enemies scale exactly as they do today                (default)
-      1    +1 sphere tier per partner in your world (a little more HP and bite)
-      2    +2 tiers per partner (noticeably harder with a full party)
-      3+   steeper still, clamped to the top of the ladder
-
-    Seamless co-op already raises enemy HP, but it leaves enemy DAMAGE at the host's default -- so a
-    second player roughly halves the threat coming at each of you without the enemies hitting any
-    harder, which is the "it felt too easy in co-op" report this addresses. Each extra tier moves an
-    enemy UP the same sphere ladder normal scaling uses, and a higher rung carries both more HP and
-    more attack, so the missing bite comes back. Every player is on their own Archipelago slot reading
-    the one shared world, so each client counts the party and applies the same bump -- no host.
-
-    🛑 A TIER CARRIES HP AS WELL AS ATTACK. If you leave Seamless's own enemy-HP scaling on, this
-    stacks a little extra HP on top of the damage it is really there to restore. Pair a non-zero value
-    with Seamless's HP knob turned down, or accept spongier-and-harder. Needs enemy_scaling ON to do
-    anything (vanilla-difficulty seeds apply no tier to bump)."""
-    display_name = "Co-op Difficulty"
+    Each point makes every enemy one strength step tougher per partner: about 10% more HP on
+    average, plus more damage. 0 (default) is off. No effect if Enemy Scaling is off.
+    Seamless's own enemy-HP scaling stacks with the extra HP: turn it down or expect
+    spongier fights. Older clients ignore it.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Seamless Co-op Difficulty"
     range_start = 0
     range_end = 9
     default = 0
 
 
 class ScaleRuneRewards(Toggle):
-    """Scale direct enemy and boss rune payouts with sphere difficulty (#1091).
+    """Makes rune drops from enemies and bosses follow their region's difficulty.
 
-    Off by default. When enabled, ordinary `NpcParam.getSoul` and boss `GameAreaParam` payouts
-    follow the same region tier as combat, preserving the vanilla reward differences between
-    enemies. Golden Rune inventory items are deliberately outside the feature."""
+    Turn it on to keep rewards in step with effort when the randomizer moves an early enemy
+    late or a late boss early; a bigger enemy still pays more. Golden Rune items never
+    change. No effect if Enemy Scaling is off, but the seed still needs an up-to-date
+    client; older ones refuse it.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Scale Rune Rewards"
     default = 0
 
