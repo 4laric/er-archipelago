@@ -1,7 +1,7 @@
 """presence_floor -- curated QoL types and the three-copy Talisman Pouch floor are always present.
 
-An absent roster item is injected exactly once (count-neutral, `useful`), while pouches retain their
-ordinary filler classification and are topped up by copy count. This is what makes dlc_only (and
+An absent roster item is injected exactly once (count-neutral, `useful`), while pouches are `useful`
+(core._class_for promotes them by name) and are topped up by copy count. This is what makes dlc_only (and
 num_regions seeds that seal a floor item's home region) feel like a complete standalone mode.
 
 The four cases the deliverable pins:
@@ -197,7 +197,7 @@ class PresenceFloorFullSeed(WorldTestBase):
         self.assertEqual(pf.talisman_pouch_inject_count(w), 0)
         pouches = [i for i in _pool_items(w) if i.name == pf.TALISMAN_POUCH]
         self.assertEqual(len(pouches), 3)
-        self.assertTrue(all(i.classification == ItemClassification.filler for i in pouches))
+        self.assertTrue(all(i.classification == ItemClassification.useful for i in pouches))
 
 
 class PresenceFloorDLCOnly(WorldTestBase):
@@ -262,7 +262,7 @@ class PresenceFloorDLCOnly(WorldTestBase):
         self.assertEqual(pf.talisman_pouch_inject_count(w), 2)
         pouches = [i for i in _pool_items(w) if i.name == pf.TALISMAN_POUCH]
         self.assertEqual(len(pouches), 3)
-        self.assertTrue(all(i.classification == ItemClassification.filler for i in pouches))
+        self.assertTrue(all(i.classification == ItemClassification.useful for i in pouches))
         self.assertEqual(len(_pool_items(w)), len(w.multiworld.get_locations(w.player)))
 
     def test_beatable(self):
