@@ -547,7 +547,7 @@ _OPTION_GROUPS = [
         "auto_equip", "no_equip_load", "auto_upgrade", "flatten_regular_upgrades",
         "no_weapon_requirements",
         "start_with_whetblades",
-        "progressive_flasks", "flask_upgrades_on_progression_surface",
+        "progressive_flasks", "flask_upgrade_minimum", "flask_upgrades_on_progression_surface",
         "capital_reconciler", "open_boss_doors"]),
     # Collapsed = filed under the wizard's Advanced step and folded on AP's page. Both of these
     # invert the randomizer's whole premise (items where vanilla keeps them; vanilla's dependency

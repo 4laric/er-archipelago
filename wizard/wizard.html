@@ -199,7 +199,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.6.1.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "ab7fffc5cb456619f8de1c8ec727bfd2b1697c3e5d7222505032ff655eab2114",
+ "source_sha256": "f73bbfa2e4d00272804cc9a69262fa9b845a61c666662bd0208a3976b7302c47",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -240,6 +240,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "grace_attunement",
   "grace_attunement_anchor",
   "progressive_flasks",
+  "flask_upgrade_minimum",
   "progressive_stone_bells",
   "keep_out_of_shops",
   "leyndell_runes_required",
@@ -389,6 +390,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "no_weapon_requirements",
     "start_with_whetblades",
     "progressive_flasks",
+    "flask_upgrade_minimum",
     "flask_upgrades_on_progression_surface",
     "capital_reconciler",
     "open_boss_doors"
@@ -1310,6 +1312,36 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "flask_upgrade_minimum",
+   "class": "FlaskUpgradeMinimum",
+   "compatibility_only": false,
+   "display_name": "Flask Upgrade Minimum",
+   "description": "The fewest Progressive Flask Upgrade copies the seed will hold when Progressive Flasks is on.\n\nEach Golden Seed or Sacred Tear check in a kept region pays one copy, so a small `num_regions`\ndraw that happens to keep few of those checks used to get a very short flask ladder (one copy was\nreported; over 40 default-shape seeds, 13 had fewer than 12). This tops the seed up to the number\nyou set, replacing ordinary filler, so the pool does not grow.\n\n``auto`` (the default) is **2 x Number of Regions**. A number from 1 to 24 sets it by hand: 24\nis enough to max both flask charges and potency, and nothing above it does anything. ``off``\n(0) restores the old behaviour, where the ladder is only as long as the flask checks the seed\nkept. A seed that already holds more copies than this keeps them; it is a floor, not a cap.\n\nNo effect when Progressive Flasks is off.",
+   "kind": "range",
+   "base": "NamedRange",
+   "default": -1,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 24
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": [
+    {
+     "name": "auto",
+     "value": -1
+    },
+    {
+     "name": "off",
+     "value": 0
+    }
+   ],
    "essential": false
   },
   {

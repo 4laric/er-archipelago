@@ -478,6 +478,15 @@ Elden Ring:
   # and tears stay discrete pickups at their shuffled locations.
   progressive_flasks: true
 
+  # The fewest Progressive Flask Upgrade copies the seed will hold. Each Golden
+  # Seed or Sacred Tear check in a kept region pays one copy, so a small
+  # num_regions draw that happens to keep few of them used to get a very short
+  # flask ladder. `auto` is 2 x num_regions; a number from 1 to 24 sets it by
+  # hand (24 maxes both charges and potency; more does nothing); `off` (0) is
+  # the old behaviour. It tops the pool up in place of filler and never lowers a
+  # seed that already has more. No effect when progressive_flasks is false.
+  flask_upgrade_minimum: auto
+
   # Weapon and spirit-ash upgrades by SHOP TIER instead of by luck. On: the
   # Smithing-Stone, Somberstone, Glovewort, and Ghost-Glovewort Bell Bearings
   # become four progressive items. Each copy unlocks the next tier of its Twin
