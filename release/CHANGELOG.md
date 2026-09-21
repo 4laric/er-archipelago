@@ -7,9 +7,9 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** No -- nothing has changed since v0.6.1. Keep the v0.6.1 client.
-- **APWorld:** No -- nothing has changed since v0.6.1.
-- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Client:** Optional, recommended. Three client-only fixes (clients #700, #702, #703) repair the repeating grace banner, false Great Rune boss-defeat announcements and the Leyndell tracker on older seeds. `CONTRACT_HASH` is unmoved, so a v0.6.1 client still plays every v0.6.1.1 seed and swapping the `.dll` mid-run is safe.
+- **APWorld:** Host-only, for newly generated rooms: a new `flask_upgrade_minimum` option, a smaller draw from `start_region_pool`, Talisman Pouch classified useful, and cross-game Locks landing abroad again with an empty `progression_surface`.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.** `flask_upgrade_minimum` is optional and defaults to `auto`.
 - **Existing seed/save:** Compatible; no regeneration or save migration required.
 - **Profile/assets:** No action; no map or asset changes.
 
@@ -49,6 +49,32 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 - **Clearer option names (apworld):** 47 options have plainer labels on the options screen (Goal is
   now Final Boss, Great Runes Required is Great Runes Needed to Finish, Vanilla Item Pool is
   Original Item Pool). Only the label changed; every yaml key is the same.
+- **A floor on flask upgrades (apworld):** the Progressive Flask Upgrade ladder used to be one copy per
+  Golden Seed / Sacred Tear check in a kept region, so at six regions 13 of 40 test seeds had fewer
+  than 12 copies and one had 4. New option `flask_upgrade_minimum` (default `auto` = 2 x
+  `num_regions`, capped at 24; `off` restores the old length). It is a floor, not a cap; the shortfall
+  replaces filler so the pool does not grow. (#1589)
+- **`start_region_pool` no longer sets how big the seed is (apworld):** it force-kept every region it
+  named on top of `num_regions`, so a 25-name pool at `num_regions: 6` kept 27 regions. It is now a
+  set of candidates for the opening region(s): `num_regions` draws the kept set as before, and only if
+  too few named regions were kept is the shortfall added (logged as `forced by start_region_pool`).
+  A seed that names several regions draws a smaller, different kept set than before; a single-name
+  pool still guarantees that region. (#1587)
+- **Cross-game Locks land abroad again with an empty `progression_surface` (apworld):** the wizard's
+  "I do not care where" writes `progression_surface: []`, which skipped the whole cross-game Lock
+  allocation, so every Lock went through ordinary fill (8 of 49 abroad on the reporter's table,
+  32 of 49 fixed). (#1586)
+- **Talisman Pouch is now useful, not filler (apworld):** it is three permanent talisman slots.
+  Nothing gates access on it, but seeds containing pouches place differently. (#1588)
+- **A clear error when another game's `fill_hook` corrupts the pools (apworld):** a host hit an
+  unexplained `fill_hook_shim` assertion beside a beta ALttP build that removed items by equality.
+  The shim now names the owner, game and item, and says it is not an Elden Ring pass. (#1584)
+- **Client fixes (clients #700, #702, #703):** a grace no longer re-announces "unlocked" every few
+  seconds and the flask heal lock re-arms after a world load; old seeds no longer announce Malenia
+  and five other shardbearers as defeated when only the Great Rune was delivered; and the tracker
+  respects the older Leyndell seal route on seeds that withheld its grace bundle.
+- **Engine pin (MapForGoblins fork):** `release/MFG-VERSION.json` moves to the fork's head
+  (`d99599a`, guarded graphics cleanup during process termination). Inputs pin unchanged.
 
 ## v0.6.1 — 2026-09-18
 
