@@ -1,6 +1,6 @@
 # v0.6.1.1 — release blurb (draft)
 
-_Draft. Written as the window fills, not at tag time -- the moment a change lands is the
+_Written as the window fills, not at tag time -- the moment a change lands is the
 only moment anyone remembers why it mattered._
 
 ## Can I update the client during a run?
@@ -9,9 +9,9 @@ only moment anyone remembers why it mattered._
 
 ## What you need to update
 
-- **Client:** No -- nothing has changed since v0.6.1. Keep the v0.6.1 client.
-- **APWorld:** No -- nothing has changed since v0.6.1.
-- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Client:** Optional, recommended -- three client-only fixes (repeating grace banner, false boss-defeat announcements, Leyndell tracker on older seeds). A v0.6.1 client still plays every v0.6.1.1 seed.
+- **APWorld:** Host-only, for newly generated rooms.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.** The new `flask_upgrade_minimum` is optional.
 - **Existing seed/save:** Compatible; no regeneration or save migration required.
 - **Profile/assets:** No action; no map or asset changes.
 
@@ -24,6 +24,14 @@ and the expert dials are out of the way (still in the template yaml and the wiza
 already wrote stops working). Every tooltip was cut to fit on screen, and the rewrite fixed several
 that said the wrong thing. New: ready-made presets (Base Game, Short Run, Whole Map, DLC Only) and an
 `EldenRing-Quickstart.yaml` with just the six decisions.
+
+**Flasks stop coming up short.** A six-region seed could hand you as few as four flask upgrades. There is now a floor of two per region (`flask_upgrade_minimum`, `off` to opt out).
+
+**`start_region_pool` is a list of places you might start, not a list of places you will visit.** A 25-name pool used to drag 27 regions into a six-region seed. Now it narrows where you open and `num_regions` still sets the size.
+
+**Cross-game Locks reach your partners again** when your yaml says "I do not care where" -- they had all stayed home.
+
+**Client fixes:** graces stop re-announcing "unlocked" every few seconds, a flask heal lock re-arms after loading in, Malenia and the other shardbearers are no longer announced as beaten when you only received the rune, and the tracker reads Leyndell correctly on older seeds. Also: Talisman Pouch counts as useful, and a corrupted item pool from another game's plugin now says whose it is.
 
 ## What carried over from v0.6.1
 
