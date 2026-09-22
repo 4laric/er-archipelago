@@ -108,6 +108,13 @@ Kill a dungeon's boss and its remaining checks register automatically. No
 crawling back through a catacomb for the two chests you missed -- the boss
 kill sweeps the dungeon.
 
+Sweeps are also the accuracy guarantee. About 83% of checks are owned by some
+boss; kill the boss and the check is yours, even if the pickup itself was
+filed in the wrong spot or sits behind a quest step the logic missed. The
+remaining checks, mostly merchant stock and NPC rewards, depend on our
+placement being right. Most are; some are not, and they are play at your own
+risk. The tracker shows which is which by name (`may be sweep-granted by ...`).
+
 ### Enemy scaling
 
 Progression-based enemy and boss scaling is **always on** -- it's keyed to how
