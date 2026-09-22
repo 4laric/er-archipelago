@@ -7,21 +7,22 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Optional. Two client-only additions (clients #705, #706): the `!scaling` runtime override command and a dismissible log legend. `CONTRACT_HASH` is unmoved, so a v0.6.1.1 client still plays every v0.6.1.2 seed and swapping the `.dll` mid-run is safe.
+- **APWorld:** No. Unchanged apart from its version stamp.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Profile/assets:** No action; no map or asset changes.
 
 Window opened AT THE TAG of v0.6.1.1 with ZERO commits past it.
 
-`CONTRACT_HASH` is `2aa64f43`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11. No world-side slot_data shape changed in this window, and the client at the new pin embeds the same hash in `contract_gen.rs`, so the handshake is unaffected in both directions between v0.6.1, v0.6.1.1 and this release.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+The version moved in the window-opening commit, whose client half (clients #704) stamped `contract_gen.rs`. This commit moves the gitlink to clients `327dff5` (#706 on top of #705 on top of #704) (AGENTS §7).
 
-`release/CHANNELS.tsv` promotes `stable` to v0.6.1.1 in this same commit.
+`release/CHANNELS.tsv` promotes `stable` to v0.6.1.1 in the window-opening commit.
 
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+- **`!scaling [seed|off|0..19]`** (clients #705): view or override this session's enemy-scaling tier from the client console. `seed` restores the generated curve, `off` pauses scaling, a number pins every enemy to that ladder rung. Resets on reconnect.
+- **Dismissible log legend** (clients #706): "Hide this legend" in the overlay, restored from Settings -> "Show log legend".
 
 ## v0.6.1.1 — 2026-09-18
 
