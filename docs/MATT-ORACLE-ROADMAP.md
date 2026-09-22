@@ -151,6 +151,10 @@ every step: read his checkout locally, commit only our own flags, names and reas
 
 ## Ownership (read before treating a queue as owed work)
 
+**2026-09-22: handed off.** Per-check accuracy work is stopped. [HANDOFF-CHECK-ACCURACY.md](HANDOFF-CHECK-ACCURACY.md)
+is the entry point for anyone picking it up and states the shipping bar: sweep-granted is
+reachable, everything else is play at your own risk.
+
 The region queue holds **143 open rows** and the missable queue **100 open rows** as of
 2026-09-22. Every verdict recorded so far was made by Codex during evidence passes; no human has
 worked either queue. **Neither queue is a commitment.** They are intake for a reviewer who has not
