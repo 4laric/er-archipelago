@@ -382,6 +382,61 @@ class MattOracleLogic(unittest.TestCase):
             rows, by_flag, missable_aps=set(), conditions={})
         self.assertEqual(queue, [])
 
+    def test_C3_ungated_rows_are_queued_only_on_request_and_under_their_own_basis(self):
+        """`include_ungated=True` (what main() passes) adds the his-only flags with NO losable
+        root of ours, under BASIS_MISSABLE_UNGATED and an EMPTY our_conditions -- never under the
+        gated basis, and never silently by default."""
+        rows, by_flag = self._missable_rows(), self._MB_BY_FLAG
+        conditions = {1: ("DIALOGUE_STEP",), 2: ("NPC_STATE",)}
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            rows, by_flag, missable_aps={12}, conditions=conditions, include_ungated=True)
+        by_key = {(q["flag"], q["ap_id"]): q for q in queue}
+        # 1 is gated (as before); 3 is the bare tag disagreement, now present but distinguished;
+        # 2 is still excluded because we already call it missable; 4 still has no row of ours.
+        self.assertEqual(sorted(by_key), [(1, 11), (3, 13)])
+        self.assertEqual(by_key[(1, 11)]["basis"], self.M.BASIS_MISSABLE)
+        self.assertEqual(by_key[(1, 11)]["our_conditions"], "DIALOGUE_STEP")
+        self.assertEqual(by_key[(3, 13)]["basis"], self.M.BASIS_MISSABLE_UNGATED)
+        self.assertEqual(by_key[(3, 13)]["our_conditions"], "")
+        self.assertEqual(set(by_key[(3, 13)]), {"flag", "ap_id", "our_name", "our_conditions",
+                                                 "basis"})
+        # The default is unchanged: the same inputs without the flag give the intersection only.
+        queue, _t, _o, _j = self.M.check_missable_queue(
+            rows, by_flag, missable_aps={12}, conditions=conditions)
+        self.assertEqual([q["flag"] for q in queue], [1])
+
+    # --- C4. uncovered rows: OUR rows he has no counterpart for ---------
+    def test_C4_uncovered_rows_are_ours_only_and_classified_from_our_names(self):
+        rows = self.rows
+        by_flag = dict(OUR_BY_FLAG)
+        by_flag[90200] = [("Limgrave", "Limgrave :: Rune Arc - from Merchant [f90200]", 7770200)]
+        by_flag[60801] = [("Caelid", "Caelid :: Polite Bow [f60801]", 7770801)]
+        by_flag[90300] = [("Caelid", "Caelid :: Thing, may be sweep-granted by Boss (m99) [f90300]",
+                           7770300)]
+        by_flag[400999] = [("Altus", "Altus :: Common-event thing [f400999]", 7770999)]
+        unc, joined = self.M.check_uncovered(rows, by_flag)
+        # 90001-90004 join his Event slots (one row each); 90005 and the four added do not.
+        self.assertEqual(joined, 4)
+        by_ap = {e["ap_id"]: e for e in unc}
+        self.assertEqual(sorted(by_ap), [7770005, 7770200, 7770300, 7770801, 7770999])
+        # 90200 is the flag his shop DebugText line names -> a counterpart keyed differently.
+        self.assertEqual(by_ap[7770200]["cls"], "shop-flag-join")
+        self.assertEqual(by_ap[7770801]["cls"], "gesture")
+        self.assertEqual(by_ap[7770300]["cls"], "sweep-granted")
+        self.assertEqual(by_ap[7770999]["cls"], "common-event-400k")
+        self.assertEqual(by_ap[7770005]["cls"], "other")
+        for e in unc:
+            self.assertIn(e["cls"], self.M.UNCOVERED_CLASSES)
+            # OURS ONLY: flag, ap_id, region, name, class. Nothing of his rides along.
+            self.assertEqual(set(e), {"flag", "ap_id", "region", "name", "cls"})
+
+    def test_C4_shop_debug_flags_are_parsed_from_shop_lines_only(self):
+        by_flag = {r["flag"]: r for r in self.rows}
+        shop = [r for r in self.rows if r["stype"] == 3][0]
+        self.assertEqual(shop["debug_flags"], frozenset({90200}))
+        # A lot line carries no `- flag N` suffix, so an Event slot parses to the empty set.
+        self.assertEqual(by_flag[90001]["debug_flags"], frozenset())
+
     def test_C3_a_non_losable_condition_class_does_not_qualify(self):
         # BOSS_KILL / REGION_ACCESS gates stay satisfiable, so they say nothing about missability.
         # Only the three classes describing a permanently losable gate admit a row.
@@ -441,10 +496,17 @@ class MattOracleLogic(unittest.TestCase):
         by_flag, _ = self.M.load_ours(REPO)
         for (flag, ap_id), row in rows.items():
             self.assertEqual(sorted(row), sorted(self.M.MISSABLE_QUEUE_COLUMNS))
-            self.assertEqual(row["basis"], self.M.BASIS_MISSABLE)
+            self.assertIn(row["basis"], self.M.MISSABLE_BASES)
             self.assertIn(row["status"], self.M.MISSABLE_QUEUE_STATUSES)
-            for cls in row["our_conditions"].split("+"):
-                self.assertIn(cls, self.M.MISSABLE_CONDITION_CLASSES)
+            # The basis and the conditions cell must agree: a gated row names at least one of
+            # our own root classes, an ungated row names none. A mismatch would mean one basis
+            # is standing in for the other, which is the confusion the two tokens exist to stop.
+            if row["basis"] == self.M.BASIS_MISSABLE:
+                self.assertTrue(row["our_conditions"])
+                for cls in row["our_conditions"].split("+"):
+                    self.assertIn(cls, self.M.MISSABLE_CONDITION_CLASSES)
+            else:
+                self.assertEqual(row["our_conditions"], "")
             # the (flag, ap_id) pair and the name must be a REAL row of ours
             self.assertIn((ap_id, row["our_name"]),
                           {(a, n) for _r, n, a in by_flag.get(flag, ())})
@@ -544,7 +606,8 @@ class MattOracleLogic(unittest.TestCase):
         # Exit 1 is CORRECT here: the fixture's flag 90012 is an unexplained missing slot. What is
         # under test is that the report is complete, not that it passes.
         self.assertEqual(out.returncode, 1, out.stdout + out.stderr)
-        headers = ["== A. ", "== B. ", "== C. ", "== D. ", "== E. ", "== F. "]
+        headers = ["== A. ", "== B. ", "== C. ", "== D. ", "== E. ", "== F. ", "== G. ",
+                   "== H. ", "== I. "]
         at = -1
         for h in headers:
             i = out.stdout.find(h)
