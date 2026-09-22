@@ -3,6 +3,35 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.1.3 — 2026-09-22
+
+### What you need to update
+
+- **Client:** No -- this fix is world-side only.
+- **APWorld:** Host-only, for newly generated rooms.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required. An already-running
+  seed keeps whatever it already generated -- this only changes new gens.
+- **Profile/assets:** No action; no map or asset changes.
+
+Window opened AT THE TAG of v0.6.1.2 with ZERO commits past it.
+
+`CONTRACT_HASH` is unmoved at `2aa64f43`, since it hasn't moved since v0.6.0.11 and this window
+touches no contract key at all.
+
+- **Fixed: the Grafted Blade Greatsword (Leonine Misbegotten, Weeping) could go permanently
+  unpaid even after a clean region clear.** Player report, log-traced: the boss's own defeat
+  fired correctly and swept its other 9 nearby checks, but this one never fired. Read out of
+  the decompiled EMEVD: the vanilla award runs through a *second* boss-area event
+  (`m60_43_30`'s `1043302800`) whose first instruction is `EndIf(EventFlag(1043300800))` -- a
+  one-shot guard meant only to stop the kill cutscene replaying on a reload. This project
+  watches and floods that same defeat flag globally from connect for its own sweep system, so
+  anything that lets it read true ahead of (or independently of) that one event thread finishing
+  can trip the guard early and permanently strand the reward two hops downstream -- the same
+  `CharacterDead` race #907 already exists to route around, one mechanism further out (a shared
+  common event instead of a raw HP wait). The boss's own weapon now also grants through the
+  sweep, the same reliable path its other 9 checks already use. New seeds only.
+
 ## v0.6.1.2 — 2026-09-21
 
 ### What you need to update
