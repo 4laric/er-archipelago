@@ -11,7 +11,7 @@ starting-class randomization are its territory, and it does them better
 than we would by duplicating them. So instead of an apology, here is the
 recipe.
 
-Two rules before anything else, because they are the only ways to get this
+Three rules before anything else, because they are the only ways to get this
 wrong:
 
 1. **In matt's randomizer, ITEM randomization must be OFF.** Items are this
@@ -20,6 +20,11 @@ wrong:
    see [When receiving is dead](#when-receiving-is-dead-randomizerhelperdll)
    below. Its auto-equip and auto-upgrade are things we already ship as yaml
    settings, so you are not giving anything up.
+3. **You do not set up `me3` at all for this path.** `me3` is only for the
+   plain launch this project's own [SETUP.md](SETUP.md) describes. Here, matt's
+   launcher loads both dlls directly (see below) and starts the game itself --
+   `ap.me3` is never read, so nothing in `SETUP.md` part B applies. Follow this
+   file only.
 
 ## Get it from the author
 
@@ -127,21 +132,25 @@ launch the game with both active.
 
    ![The client dll, added](screenshots/matt-05-client-dll-added.png)
 
-4. Click **Randomize enemies**.
+4. **Click Add dll mod again and add `MapForGoblins.dll`**, also from inside the release's `me3\`
+   folder, the same way. Load only `MapForGoblins.dll` -- **not** `MapForGoblins.upstream.dll`,
+   which sits beside it; that one is the vanilla-map build the plain `me3` launch never loads
+   either, kept only as a fallback for `ap.me3` itself.
+5. Click **Randomize enemies**.
 
    ![Randomize enemies](screenshots/matt-06-randomize-enemies.png)
 
-5. Check the **Overall seed** box is **blank**, then **Launch Elden Ring**.
+6. Check the **Overall seed** box is **blank**, then **Launch Elden Ring**.
 
    ![A blank seed box -- Reroll seed is ticked and greyed out for you](screenshots/matt-07-blank-seed-and-launch.png)
 
-The game starts with matt's enemy randomization baked into the files, and our client running in
-memory on top of it. Connect to your Archipelago room as usual.
+The game starts with matt's enemy randomization baked into the files, and our client and
+MapForGoblins running in memory on top of it. Connect to your Archipelago room as usual.
 
-> ### Add our client to that list and NOTHING ELSE that touches items
+> ### Add our client and MapForGoblins to that list and NOTHING ELSE that touches items
 >
-> The **Dll mods** dialog will happily take more than one entry, and the obvious thing to add
-> next is `RandomizerHelper.dll`. Do not. It is the single most common way to end up with a
+> The **Dll mods** dialog will happily take more than those two entries, and the obvious thing to
+> add next is `RandomizerHelper.dll`. Do not. It is the single most common way to end up with a
 > connected client that cannot give you anything.
 
 
@@ -170,7 +179,9 @@ after every release is the intended use; it is a no-op when nothing needs changi
 next section describes by hand.
 
 Doing it by hand instead is the same as the first install: **Add dll mod**, remove the old
-entry, **Add...**, pick `eldenring_archipelago.dll` from inside the new `me3\` folder.
+entry, **Add...**, pick `eldenring_archipelago.dll` from inside the new `me3\` folder. Repoint
+`MapForGoblins.dll` the same way if you loaded it (step 4 above) -- the script above only
+rewrites the client's own path, not MapForGoblins'.
 
 `ap.me3` is not part of this. Launching through matt's app never reads the me3 profile, so
 there is nothing to update there.
