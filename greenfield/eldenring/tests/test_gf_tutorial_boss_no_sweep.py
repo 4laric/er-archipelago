@@ -637,8 +637,20 @@ def test_the_sweep_corpus_did_not_shrink():
     # whole membership re-homes through the ordinary field-neighbourhood pass, the same road the
     # _SWEEP_UNSPAWNED bosses' members take. 34110800's own group empties and the trigger count drops
     # 208 -> 207, which is the honest state for a boss that does not exist.
-    assert total == 4134, (
-        "sweep corpus is %d, expected 4134. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-22 (player report, log-traced): 4134 -> 4135. ADDED 1: f510800 Grafted Blade
+    # Greatsword joins trigger 1043300800 (Leonine Misbegotten, Weeping), its own vanilla drop.
+    # boss_reward_lots.py's scripted common-event family (handler 1100/1200) is invisible to
+    # #907's own-drop admission -- that pass reads boss_drops.py's NpcParam-derived
+    # BOSS_DROP_ENTITY only, and this drop is a map-lot award off a shared common event, not an
+    # NpcParam drop table. Its vanilla chain (m60_43_30 event 1043302800, a Restart-type event
+    # whose first instruction is `EndIf(EventFlag(1043300800))`) is exactly the CharacterDead
+    # race #907 already exists to route around, just via a common event instead of a raw
+    # CharacterHPValue wait: once 1043300800 becomes true through any path other than this one
+    # thread completing under its own steam, the guard trips early and 9180/510800 are stranded
+    # for good. A new hand-curated table, `_SWEEP_BOSS_REWARD_LOT_GIFTS` in gen_data.py (same
+    # fail-closed assertions as `_SWEEP_POST_BOSS_GIFTS` beside it), admits it the same way.
+    assert total == 4135, (
+        "sweep corpus is %d, expected 4135. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -1028,6 +1040,15 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # Maggie 1037530800 (15) and the Ulcerated Tree Spirit 1037540810 (5); the Mariner takes four
     # Altus flags from Gilika 1038510800; the rest is the Altus round-robin re-phase. ZERO region
     # crossings -- #1059 holds member by member.
-    assert (digest, n) == ("7a811b40adcdc70b", 4134), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (7a811b40adcdc70b, 4134). The total alone will "
+    # 2026-09-22 (player report, log-traced), measured by (trigger, flag) against origin/main
+    # c08ba9b9: digest 7a811b40adcdc70b -> 89af6dba5e5f6cb7, n 4134 -> 4135. ADDED 1, REMOVED 0,
+    # RE-OWNED 0: f510800 Grafted Blade Greatsword joins trigger 1043300800 Leonine Misbegotten,
+    # its own boss's own vanilla drop. See the corpus-total docstring above for WHY -- the
+    # scripted common-event boss-reward-lot family is invisible to #907's own-drop admission, and
+    # this one specific chain (m60_43_30 event 1043302800's `EndIf(EventFlag(1043300800))` guard)
+    # can be permanently stranded by the same CharacterDead-race shape #907 exists to route
+    # around. ZERO region crossings -- SWEEP_REGION is 'Weeping' for 1043300800 and the check's
+    # own region alike, so #1059 holds.
+    assert (digest, n) == ("89af6dba5e5f6cb7", 4135), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (89af6dba5e5f6cb7, 4135). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))
