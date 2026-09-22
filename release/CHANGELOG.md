@@ -3,6 +3,32 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.1.3 — 2026-09-22
+
+### What you need to update
+
+- **Client:** No -- nothing in this window touches the client.
+- **APWorld:** No -- unchanged apart from its version stamp.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Profile/assets:** No action; no map or asset changes.
+
+Window opened AT THE TAG of v0.6.1.2 with ZERO commits past it.
+
+`CONTRACT_HASH` is unmoved at `2aa64f43`, since it hasn't moved since v0.6.0.11 and nothing in
+this window touches the contract at all -- this is a docs-only fixpack, version bumped purely to
+open a window for the note below.
+
+- **Docs: the matt's-randomizer setup guide was missing a step and a bullet.** Two players in the
+  same Discord thread hit this back to back: launching through matt's launcher also needs
+  `MapForGoblins.dll` added as a second dll mod (not `MapForGoblins.upstream.dll`, which sits
+  beside it and is only the `ap.me3` fallback) -- that step wasn't written down at all. And the
+  guide never said outright that `me3` setup from `SETUP.md` doesn't apply on this path; matt's
+  launcher loads both dlls itself and never reads `ap.me3`, so following `SETUP.md` part B here
+  was always a wasted step, just an undocumented one. `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`
+  now says both things plainly, including for the upgrade-by-hand path, which needs to repoint
+  MapForGoblins the same way it already repoints the client dll.
+
 ## v0.6.1.2 — 2026-09-21
 
 ### What you need to update
