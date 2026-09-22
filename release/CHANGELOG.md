@@ -13,11 +13,12 @@ The narrative — what this project is and what v0.2 brings — lives in
 - **Existing seed/save:** Compatible; no regeneration or save migration required.
 - **Profile/assets:** No action; no map or asset changes.
 
-Window opened AT THE TAG of v0.6.1.2 with ZERO commits past it.
+Window opened AT THE TAG of v0.6.1.2 with ZERO commits past it, BY THE WORKFLOW
+(`open_window.py`, #1594). `release/CHANNELS.tsv` promotes `stable` to v0.6.1.2 in that same
+commit; `beta` tracks `main`.
 
 `CONTRACT_HASH` is unmoved at `2aa64f43`, since it hasn't moved since v0.6.0.11 and nothing in
-this window touches the contract at all -- this is a docs-only fixpack, version bumped purely to
-open a window for the note below.
+this window touches the contract at all.
 
 - **Docs: the matt's-randomizer setup guide was missing a step and a bullet.** Two players in the
   same Discord thread hit this back to back: launching through matt's launcher also needs

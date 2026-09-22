@@ -28,10 +28,13 @@ permissions:
   contents: read
 
 env:
-  # dc643124be5990e5a9dbe29177ed26dea3642171 -- thefifthmatt/SoulsRandomizers, authored 2026-09-01,
-  # the commit the 2026-09 oracle study and every allowlist entry in tools/matt_oracle.py was
-  # triaged against. Bump deliberately, never automatically.
-  SOULS_RANDO_SHA: dc643124be5990e5a9dbe29177ed26dea3642171
+  # 610142523e2c765427c3f74361bfb553dc114367 -- thefifthmatt/SoulsRandomizers, authored 2026-09-22.
+  # Bumped 2026-09-22 from dc643124 (2026-09-02). Between the two pins his slot table did not add
+  # or remove a single slot; 620 slots moved between his areas as he split 174 areas into 363,
+  # and 25 tags changed. Both gates were green at both pins with the same allowlists, so the
+  # allowlist entries in tools/matt_oracle.py still describe this commit. Bump deliberately,
+  # never automatically: an unpinned clone would go red when HE changes his table.
+  SOULS_RANDO_SHA: 610142523e2c765427c3f74361bfb553dc114367
 
 jobs:
   oracle:

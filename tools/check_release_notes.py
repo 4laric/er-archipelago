@@ -421,6 +421,14 @@ def client_gitlink_note_failures(repo=REPO, rev_range=None):
         # and the branch had already been pushed, so the ruling is recorded here rather than
         # rewriting the pushed branch (same shape as #925).
         "6492c7f74e885fae6cddbdc47741ec996d734b22",
+        # v0.6.1.3 window (2026-09-22): c08ba9b9 re-pinned the gitlink to clients#707, a pure
+        # version-stamp follow-up (contract_gen.rs/Cargo.toml/Cargo.lock at 0.6.1.3, no behaviour
+        # change) already opened independently by the open-window workflow (#1594). The paired
+        # world-side changelog entry (the matt's-rando MapForGoblins/me3 fix) landed one commit
+        # earlier on the same branch; the trailer was omitted and the branch had already been
+        # pushed, so the ruling is recorded here rather than rewriting the pushed branch (same
+        # shape as #925).
+        "c08ba9b9741b80b2393ea0038ab0448dd39d5751",
     }
     failures = []
     bumps = 0

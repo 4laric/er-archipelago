@@ -5,14 +5,14 @@ only moment anyone remembers why it mattered._
 
 ## Can I update the client during a run?
 
-**Yes, trivially -- nothing changed to update.** `CONTRACT_HASH` is unmoved at `2aa64f43`, and this window touches no client code at all. Whatever client you're running keeps working exactly as before; there is nothing to swap.
+**Yes, trivially.** `CONTRACT_HASH` is unmoved at `2aa64f43`, and nothing in this window touches the client or a contract key. Whatever client you're running keeps working exactly as before.
 
 ## What you need to update
 
 - **Client:** No -- nothing in this window touches the client.
 - **APWorld:** No -- unchanged apart from its version stamp.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Existing seed/save:** Compatible; no regeneration or save migration required. A seed already in progress keeps whatever it already generated.
 - **Profile/assets:** No action; no map or asset changes.
 
 ## What is in it so far
@@ -35,5 +35,5 @@ their DLLs loaded correctly on the first try instead of the second.
 
 ## What carried over from v0.6.1.2
 
-Nothing is owed on the contract or client side -- this window opened at the v0.6.1.2 tag with zero
-commits past it, and touches docs only.
+Nothing is owed on the contract or client side -- this window opened at the v0.6.1.2 tag with
+zero commits past it. `release/CHANNELS.tsv` promotes `stable` to v0.6.1.2 in the same commit.
