@@ -784,6 +784,14 @@ It gates two classes and reports the rest:
 Region assignment, missable tagging, shop granularity and DLC membership are **report-only**
 (`--report`): the two models differ structurally there, so equality would be noise, not signal.
 
+- **I. UNCOVERED ROWS** — report-only, and the honest denominator for everything above. Every
+  other class starts from HIS slots; this one starts from OURS and counts the rows with no
+  Event-scope counterpart in his table at all (640 of 4,932, 13%, on 2026-09-22), classified
+  from OUR names and flag bands: shop rows whose flag a shop DebugText line of his names
+  (a counterpart keyed differently), sweep-granted rows, gestures, common-event 400k, other.
+  Section A's agreement figure is over the joinable rows only; this section says how many the
+  oracle cannot speak about.
+
 - **G. REGION** — report-only, and the input to a **human review queue**. His areas are treated as
   an unlabelled clustering: each cluster maps to the one of OUR regions its rows mostly sit in
   (strict plurality; an evenly split cluster maps to nothing), and a row outside its own cluster is
@@ -806,8 +814,11 @@ Region assignment, missable tagging, shop granularity and DLC membership are **r
   only where all three hold — he tags it missable, OUR `MISSABLE_LOCATIONS` does not, and OUR OWN
   `greenfield/questline_conditions.tsv` shows a `DIALOGUE_STEP` / `NPC_STATE` / `ITEM_POSSESSION`
   root on the award site (the three classes describing a gate a player can lose for good). The bare
-  tag disagreement is ~68 joinable flags and is NOT queued on its own: the two models just draw the
-  missable line in different places. The three-way intersection is 29 flags / 35 rows.
+  tag disagreement is ~68 joinable flags. The three-way intersection is 30 rows, basis
+  `second-source-missable-disagrees`. Since 2026-09-22 the bare disagreements are queued TOO, under
+  a second basis `second-source-missable-disagrees-no-local-gate` with an empty `our_conditions`
+  (70 rows): they are the case where, if he is right, our extractor MISSED the gate, which is the
+  one that strands a seed. The two bases are never merged; `MISSABLE_BASES` names both.
   `--missable-queue` refreshes `greenfield/evidence/oracle-missable-queue.tsv`. 🛑 Every column is
   ours (flag, ap_id, location name, condition classes) plus a reviewer's words; `basis` records
   only **that** a second source disagrees. Reviewers rule from the check browser's "Oracle missable

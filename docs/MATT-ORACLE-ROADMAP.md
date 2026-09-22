@@ -115,6 +115,50 @@ every step: read his checkout locally, commit only our own flags, names and reas
      committed. The counter is the whole of it — authoring finer logic of our own is still open,
      and the ratio is what says how much finer it would have to get.
 
+8. **Pin bump, 2026-09-22.** The workflow pin moved from `dc643124` (2026-09-02) to `61014252`
+   (2026-09-22). Between them his slot table added and removed **nothing**; 620 slots moved
+   between his areas as he split 174 areas into 363, and 25 tags changed. Both gates were green
+   at both pins with the same allowlists. Effects: the region queue went 196 -> 177 rows (21
+   left on the finer partition, 2 arrived), the missable queue is unchanged at 30 gated rows.
+   His Tarnished-Edition content (spiritspring stones, the new field items) landed in
+   `itemevents.txt` and `annotations.txt`, not in `itemslots.txt`, so the oracle still sees none
+   of it and his 19 `tarnished`-tagged slots stay excluded. Not bumped: nothing since 2.7.1.0 is
+   comparable yet.
+
+   **What the bump surfaced, and the fact that matters more than any count in this file.** His
+   2026-09-14 commit "External item rando data structures" adds `ExternalItemPreset` /
+   `ExternalLocationData` to his randomizer, with a `FromArchipelago(slotData, scoutedLocations)`
+   constructor under `#if ARCHIPELAGO`: the randomizer itself consumes an AP seed, maps each AP
+   location onto one of his slot keys by `LocationScopeKey` plus lot/shop param ids, and writes
+   the permutation. That is the Bedrock client path, in his tree, keyed on the same table this
+   oracle reads. Read-only for us under the licence; recorded here so the next "are we chasing
+   parity by hand" discussion starts from it.
+
+9. **Uncovered rows (report class I, 2026-09-22).** Every class above starts from HIS slots. This
+   one starts from OURS: 640 of our 4,932 rows (13%) have no Event-scope counterpart in his table
+   and get no second opinion from any section. Section A's 99.8% is agreement over the other
+   4,292 only. By class from our own names and flag bands: **426 shop rows** whose flag a shop
+   DebugText line of his names (a counterpart keyed on the shop row, the cheap extension: join
+   them into section A), **159 sweep-granted rows**, **32 gestures** (a class he does not model),
+   13 common-event 400k rows, 10 other. `--report` lists the 10.
+
+10. **Missable queue widened (2026-09-22).** Item 5's three-way intersection excludes, by
+    construction, the case that strands a seed: he tags a flag missable and OUR extractor sees no
+    losable root at all, i.e. we may have missed the gate. Those **70 rows** are now queued under
+    a second basis, `second-source-missable-disagrees-no-local-gate`, with an empty
+    `our_conditions`, beside the 30 gated ones. A reviewer rules them from the award site's
+    ESD/EMEVD callers, not from the absence of a row.
+
+## Ownership (read before treating a queue as owed work)
+
+The region queue holds **143 open rows** and the missable queue **100 open rows** as of
+2026-09-22. Every verdict recorded so far was made by Codex during evidence passes; no human has
+worked either queue. **Neither queue is a commitment.** They are intake for a reviewer who has not
+been assigned, and until one is, a row in them is a question nobody has been asked. Until an
+owner is named, the working accuracy bar is: region-level logic is authoritative, per-check
+placement is best effort and corrected from reports, quest-gated items are filler until a gate is
+proven. If that bar changes, this section is where the owner and the date go.
+
 ## Operating rules
 
 - Every fix removes an allowlist entry; a stale entry is a warning, so the lists only shrink.

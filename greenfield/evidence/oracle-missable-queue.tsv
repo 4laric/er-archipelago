@@ -14,6 +14,13 @@
 # THIS FILE IS NOT A DEFECT LIST. Two models drew the missable line in different places; a row here
 # is a question. `confirmed-not-missable` is as real an outcome as `missable`.
 #
+# basis: second-source-missable-disagrees               -- OUR questline extraction ALSO sees a
+#          losable root on the award site (our_conditions names it). Our own evidence backs the
+#          question.
+#        second-source-missable-disagrees-no-local-gate -- our extraction sees NO losable root
+#          (our_conditions is empty). If the second source is right, our extractor MISSED the gate,
+#          which is the case that strands a seed; if it is wrong, the row is a modelling difference.
+#          Rule from the award site's ESD/EMEVD callers, not from the absence of a row.
 # our_conditions: OUR questline_conditions.tsv root classes on this award site, '+'-joined. A root
 #   is a gate our extractor SAW, never a proof that the check is missable -- see that file's header.
 # status:   open | confirmed-not-missable | missable
@@ -27,9 +34,15 @@
 # derivation in greenfield/gen_data.py. Never by editing tables/missable_locations.py, and never
 # from this file: it is a review record, not a second missable source.
 flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
+60430	7770021	Liurnia :: Memory Stone - near Manor Lower Level, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f60430]		second-source-missable-disagrees-no-local-gate	open		
 60500	7770025	Roundtable Hold :: Talisman Pouch - from Twin Maiden Husks [f60500]	DIALOGUE_STEP+NPC_STATE	second-source-missable-disagrees	open		
+65430	7773683	Scadu Altus :: Cerulean-Sapping Cracked Tear - defeat Furnace Golem [f65430]		second-source-missable-disagrees-no-local-gate	open		
+65450	7773685	Scadu Altus :: Bloodsucking Cracked Tear - defeat Furnace Golem [f65450]		second-source-missable-disagrees-no-local-gate	open		
+65460	7773686	Cerulean :: Glovewort Crystal Tear - defeat Furnace Golem [f65460]		second-source-missable-disagrees-no-local-gate	open		
 400031	7770557	Liurnia :: Lord of Blood's Favor - m10_01 (1) [f400031]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400036	7770559	Mohgwyn :: Festering Bloody Finger - around Palace Approach Ledge-Road, may be sweep-granted by Mohg, Lord of Blood (m12_05) [f400036]		second-source-missable-disagrees-no-local-gate	open		
 400050	7770561	Limgrave :: Grace Mimic - around Waypoint Ruins Cellar, may be sweep-granted by Mad Pumpkin Head (m60_44_36) [f400050]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400051	7773703	Stormveil :: Gostoc's Bell Bearing - around Castleward Tunnel, may be sweep-granted by Godrick the Grafted (m10_00) [f400051]		second-source-missable-disagrees-no-local-gate	open		
 400073	7770566	Mt. Gelmir :: Letter from Volcano Manor - around Volcano Manor (1), may be sweep-granted by Abductor Virgin (Swinging Sickle) (m16_00) [f400073]	DIALOGUE_STEP+NPC_STATE	second-source-missable-disagrees	open		
 400074	7770567	Mt. Gelmir :: Letter from Volcano Manor - around Volcano Manor (2), may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400074]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400075	7770568	Mt. Gelmir :: Red Letter - around Volcano Manor, may be sweep-granted by Godskin Noble (m16_00) [f400075]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
@@ -40,13 +53,50 @@ flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
 400148	7900010	Liurnia :: Preceptor's Gloves - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400148	7900011	Liurnia :: Preceptor's Trousers - near Royal Moongazing Grounds, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400148]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400149	7770577	Liurnia :: Pidia's Bell Bearing - near Royal Moongazing Grounds, may be sweep-granted by Royal Knight Loretta (m60_35_50) [f400149]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400159	7773710	Ainsel River :: Discarded Palace Key [f400159]		second-source-missable-disagrees-no-local-gate	open		
 400163	7770578	Altus :: Nagakiba with Ash of War: Piercing Fang - m60_39_52 (region unconfirmed), may be sweep-granted by Black Knife Assassin (m60_40_52) [f400163]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400164	7773711	Mountaintops of the Giants :: Iron Kasa - around Zamor Ruins, may be sweep-granted by Black Blade Kindred (m60_49_52) [f400164]		second-source-missable-disagrees-no-local-gate	open		
+400164	7900015	Mountaintops of the Giants :: Ronin's Armor - around Zamor Ruins, may be sweep-granted by Black Blade Kindred (m60_49_52) [f400164]		second-source-missable-disagrees-no-local-gate	open		
+400164	7900016	Mountaintops of the Giants :: Ronin's Gauntlets - around Zamor Ruins, may be sweep-granted by Black Blade Kindred (m60_49_52) [f400164]		second-source-missable-disagrees-no-local-gate	open		
+400164	7900017	Mountaintops of the Giants :: Ronin's Greaves - around Zamor Ruins, may be sweep-granted by Black Blade Kindred (m60_49_52) [f400164]		second-source-missable-disagrees-no-local-gate	open		
+400175	7770580	Farum Azula :: Warrior Jar Shard - near Starscourge Radahn, may be sweep-granted by Godskin Duo (m13_00) [f400175]		second-source-missable-disagrees-no-local-gate	open		
 400180	7770581	Mt. Gelmir :: Letter to Patches - around Volcano Manor, may be sweep-granted by Rykard, Lord of Blasphemy (m16_00) [f400180]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400209	7773713	Liurnia :: Glowstone - around Church of Vows, may be sweep-granted by Bell Bearing Hunter (m60_37_46) [f400209]		second-source-missable-disagrees-no-local-gate	open		
+400209	7900019	Liurnia :: Miriel's Bell Bearing - around Church of Vows, may be sweep-granted by Bell Bearing Hunter (m60_37_46) [f400209]		second-source-missable-disagrees-no-local-gate	open		
+400220	7773714	Stormveil :: Golden Seed - around Lake-Facing Cliffs (region unconfirmed) [f400220]		second-source-missable-disagrees-no-local-gate	open		
+400241	7770586	Liurnia :: Iji's Mirrorhelm - around Road to the Manor, may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f400241]		second-source-missable-disagrees-no-local-gate	open		
 400285	7770591	Roundtable Hold :: [Incantation] Law of Causality - around Table of Lost Grace [f400285]	DIALOGUE_STEP	second-source-missable-disagrees	open		
 400285	7900022	Roundtable Hold :: All-Knowing Greaves - around Table of Lost Grace [f400285]	DIALOGUE_STEP	second-source-missable-disagrees	open		
 400290	7770592	Mt. Gelmir :: Letter to Bernahl - around Volcano Manor, may be sweep-granted by Godskin Noble (m16_00) [f400290]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400291	7770593	Mt. Gelmir :: [Sorcery] Gelmir's Fury - around Volcano Manor, may be sweep-granted by Abductor Virgin (Swinging Sickle) (m16_00) [f400291]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400292	7770594	Farum Azula :: Blasphemous Claw - around Crumbling Beast Grave, may be sweep-granted by Maliketh, the Black Blade (m13_00) [f400292]		second-source-missable-disagrees-no-local-gate	open		
+400309	7770597	Caelid :: [Sorcery] Death Lightning - m60_44_52 (region unconfirmed) [f400309]		second-source-missable-disagrees-no-local-gate	open		
+400309	7900023	Caelid :: Blackguard's Iron Mask - m60_44_52 (region unconfirmed) [f400309]		second-source-missable-disagrees-no-local-gate	open		
+400309	7900024	Caelid :: Blackguard's Bell Bearing - m60_44_52 (region unconfirmed) [f400309]		second-source-missable-disagrees-no-local-gate	open		
+400325	7770602	Haligtree :: Somber Ancient Dragon Smithing Stone - around Caelem Ruins [f400325]		second-source-missable-disagrees-no-local-gate	open		
 400380	7773732	Roundtable Hold :: Sewer-Gaol Key - around Table of Lost Grace (region unconfirmed) [f400380]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+400401	7770618	Raya Lucaria Academy :: Eccentric's Hood - around Church of the Cuckoo, may be sweep-granted by Rennala, Queen of the Full Moon (m14_00) [f400401]		second-source-missable-disagrees-no-local-gate	open		
+400401	7900044	Raya Lucaria Academy :: Eccentric's Armor - around Church of the Cuckoo, may be sweep-granted by Rennala, Queen of the Full Moon (m14_00) [f400401]		second-source-missable-disagrees-no-local-gate	open		
+400401	7900045	Raya Lucaria Academy :: Eccentric's Manchettes - around Church of the Cuckoo, may be sweep-granted by Red Wolf of Radagon (m14_00) [f400401]		second-source-missable-disagrees-no-local-gate	open		
+400401	7900046	Raya Lucaria Academy :: Eccentric's Breeches - around Church of the Cuckoo, may be sweep-granted by Rennala, Queen of the Full Moon (m14_00) [f400401]		second-source-missable-disagrees-no-local-gate	open		
+400412	7773736	Liurnia :: Blue Silver Mail Hood - around Slumbering Wolf's Shack, may be sweep-granted by Omenkiller (m60_35_42) [f400412]		second-source-missable-disagrees-no-local-gate	open		
+400412	7900047	Liurnia :: Blue Silver Mail Armor - around Slumbering Wolf's Shack, may be sweep-granted by Deathbird (m60_37_42) [f400412]		second-source-missable-disagrees-no-local-gate	open		
+400412	7900048	Liurnia :: Blue Silver Bracelets - around Slumbering Wolf's Shack, may be sweep-granted by Omenkiller (m60_35_42) [f400412]		second-source-missable-disagrees-no-local-gate	open		
+400412	7900049	Liurnia :: Blue Silver Mail Skirt - around Slumbering Wolf's Shack, may be sweep-granted by Deathbird (m60_37_42) [f400412]		second-source-missable-disagrees-no-local-gate	open		
+400431	7770621	Caelid :: Lusat's Glintstone Crown - around Sellia Hideaway, may be sweep-granted by Putrid Crystalian (Spear) (m31_11) [f400431]		second-source-missable-disagrees-no-local-gate	open		
+400431	7900050	Caelid :: Lusat's Robe - around Sellia Hideaway, may be sweep-granted by Putrid Crystalian (Spear) (m31_11) [f400431]		second-source-missable-disagrees-no-local-gate	open		
+400431	7900051	Caelid :: Lusat's Manchettes - around Sellia Hideaway, may be sweep-granted by Putrid Crystalian (Spear) (m31_11) [f400431]		second-source-missable-disagrees-no-local-gate	open		
+400431	7900052	Caelid :: Old Sorcerer's Legwraps - around Sellia Hideaway, may be sweep-granted by Putrid Crystalian (Spear) (m31_11) [f400431]		second-source-missable-disagrees-no-local-gate	open		
+400441	7770622	Mt. Gelmir :: Azur's Glintstone Crown - around Primeval Sorcerer Azur, may be sweep-granted by Demi-Human Queen Maggie (m60_37_53) [f400441]		second-source-missable-disagrees-no-local-gate	open		
+400441	7900053	Mt. Gelmir :: Azur's Glintstone Robe - around Primeval Sorcerer Azur, may be sweep-granted by Demi-Human Queen Maggie (m60_37_53) [f400441]		second-source-missable-disagrees-no-local-gate	open		
+400441	7900054	Mt. Gelmir :: Azur's Manchettes - around Primeval Sorcerer Azur, may be sweep-granted by Demi-Human Queen Maggie (m60_37_53) [f400441]		second-source-missable-disagrees-no-local-gate	open		
+400490	7770626	Roundtable Hold :: Royal Remains Helm - around Table of Lost Grace [f400490]		second-source-missable-disagrees-no-local-gate	open		
+400490	7900055	Roundtable Hold :: Royal Remains Armor - around Table of Lost Grace [f400490]		second-source-missable-disagrees-no-local-gate	open		
+400490	7900056	Roundtable Hold :: Royal Remains Gauntlets - around Table of Lost Grace [f400490]		second-source-missable-disagrees-no-local-gate	open		
+400490	7900057	Roundtable Hold :: Royal Remains Greaves - around Table of Lost Grace [f400490]		second-source-missable-disagrees-no-local-gate	open		
+400510	7770628	Altus :: Great Stars - around Bower of Bounty, may be sweep-granted by Sanguine Noble (m60_40_53) [f400510]		second-source-missable-disagrees-no-local-gate	open		
+400594	7770629	Scadu Altus :: Ash of War: Swift Slash - around Shadow Keep Main Gate, may be sweep-granted by Golden Hippopotamus (m21_00) [f400594]		second-source-missable-disagrees-no-local-gate	open		
+400611	7773744	Scadu Altus :: New Cross Map [f400611]		second-source-missable-disagrees-no-local-gate	open		
 400620	7770634	Shadow Keep :: Letter for Freyja - around Storehouse, First Floor, may be sweep-granted by Base Serpent Messmer (m21_01) [f400620]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400661	7773751	Scadu Altus :: Ruins Map (2nd) [f400661]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400661	7900096	Scadu Altus :: Beloved Stardust [f400661]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
@@ -55,5 +105,32 @@ flag	ap_id	our_name	our_conditions	basis	status	reviewer	note
 400720	7770647	Belurat :: Scorpion Stew - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400720]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400721	7770648	Belurat :: [Sorcery] Watchful Spirit - around Belurat, Tower Settlement, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400721]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
 400723	7770650	Belurat :: Gourmet Scorpion Stew - near Theatre of the Divine Beast, may be sweep-granted by Divine Beast Dancing Lion (m20_00) [f400723]	DIALOGUE_STEP+ITEM_POSSESSION+NPC_STATE	second-source-missable-disagrees	open		
+11107900	7771040	Roundtable Hold :: Clinging Bone - around Table of Lost Grace [f11107900]		second-source-missable-disagrees-no-local-gate	open		
+12017999	7771145	Ainsel River :: Alabaster Lord's Sword - around Dragonkin Soldier of Nokstella, may be sweep-granted by Dragonkin Soldier of Nokstella (m12_01) [f12017999]		second-source-missable-disagrees-no-local-gate	open		
+12057950	7771357	Mohgwyn :: White Mask - around Palace Approach Ledge-Road, may be sweep-granted by Mohg, Lord of Blood (m12_05) [f12057950]		second-source-missable-disagrees-no-local-gate	open		
+12057950	7900185	Mohgwyn :: War Surgeon Gown (Altered) - around Palace Approach Ledge-Road, may be sweep-granted by Mohg, Lord of Blood (m12_05) [f12057950]		second-source-missable-disagrees-no-local-gate	open		
+12057950	7900186	Mohgwyn :: War Surgeon Gloves - around Palace Approach Ledge-Road, may be sweep-granted by Mohg, Lord of Blood (m12_05) [f12057950]		second-source-missable-disagrees-no-local-gate	open		
+12057950	7900187	Mohgwyn :: War Surgeon Trousers - around Palace Approach Ledge-Road, may be sweep-granted by Mohg, Lord of Blood (m12_05) [f12057950]		second-source-missable-disagrees-no-local-gate	open		
+16007950	7771719	Mt. Gelmir :: [Incantation] Aspects of the Crucible: Breath - around Volcano Manor, may be sweep-granted by Abductor Virgin (Swinging Sickle) (m16_00) [f16007950]		second-source-missable-disagrees-no-local-gate	open		
+21007320	7771904	Scadu Altus :: Great Grave Glovewort - near Sunken Chapel, may be sweep-granted by Golden Hippopotamus (m21_00) [f21007320]		second-source-missable-disagrees-no-local-gate	open		
+35007993	7772420	Leyndell :: Somber Smithing Stone [7] - around Underground Roadside (2), may be sweep-granted by Mohg, the Omen (m35_00) [f35007993]		second-source-missable-disagrees-no-local-gate	open		
+39207500	7772423	Liurnia :: Bull-Goat Helm - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]		second-source-missable-disagrees-no-local-gate	open		
+39207500	7900222	Liurnia :: Bull-Goat Armor - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]		second-source-missable-disagrees-no-local-gate	open		
+39207500	7900223	Liurnia :: Bull-Goat Gauntlets - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]		second-source-missable-disagrees-no-local-gate	open		
+39207500	7900224	Liurnia :: Bull-Goat Greaves - near Magma Wyrm Makar, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207500]		second-source-missable-disagrees-no-local-gate	open		
+1034517900	7772525	Liurnia :: Snow Witch Hat - near Royal Moongazing Grounds (region unconfirmed), may be sweep-granted by Royal Knight Loretta (m60_35_50) [f1034517900]		second-source-missable-disagrees-no-local-gate	open		
+1034517900	7900231	Liurnia :: Snow Witch Robe - near Royal Moongazing Grounds (region unconfirmed), may be sweep-granted by Royal Knight Loretta (m60_35_50) [f1034517900]		second-source-missable-disagrees-no-local-gate	open		
+1034517900	7900232	Liurnia :: Snow Witch Skirt - near Royal Moongazing Grounds (region unconfirmed), may be sweep-granted by Glintstone Dragon Adula (m60_34_50) [f1034517900]		second-source-missable-disagrees-no-local-gate	open		
+1035467700	7772549	Raya Lucaria Academy :: Ash of War: Raptor of the Mists - around Main Academy Gate, may be sweep-granted by Red Wolf of Radagon (m14_00) [f1035467700]		second-source-missable-disagrees-no-local-gate	open		
+1039487100	7772734	Liurnia :: [Sorcery] Cannon of Haima - near Frenzied Flame Village Outskirts (region unconfirmed), may be sweep-granted by Erdtree Avatar (m60_38_48) [f1039487100]		second-source-missable-disagrees-no-local-gate	open		
+1039487100	7900244	Liurnia :: Gavel of Haima - near Frenzied Flame Village Outskirts (region unconfirmed), may be sweep-granted by Erdtree Avatar (m60_38_48) [f1039487100]		second-source-missable-disagrees-no-local-gate	open		
+1039537700	7772752	Mt. Gelmir :: Crepus's Vial - around Bridge of Iniquity, may be sweep-granted by Demi-Human Queen Maggie (m60_37_53) [f1039537700]		second-source-missable-disagrees-no-local-gate	open		
+1039537700	7900246	Mt. Gelmir :: Black-Key Bolt - around Bridge of Iniquity, may be sweep-granted by Demi-Human Queen Maggie (m60_37_53) [f1039537700]		second-source-missable-disagrees-no-local-gate	open		
+1042397700	7772842	Limgrave :: Hammer Talisman - m60_42_39 (region unconfirmed), may be sweep-granted by Deathbird (m60_42_38) [f1042397700]		second-source-missable-disagrees-no-local-gate	open		
+1048387500	7773012	Caelid :: Sacramental Bud - around Aeonia Swamp Shore, may be sweep-granted by Decaying Ekzykes (m60_48_37) [f1048387500]		second-source-missable-disagrees-no-local-gate	open		
+1051367100	7773116	Caelid :: Smithing Stone [6] - near Redmane Castle Plaza, may be sweep-granted by Crucible Knight (m60_51_36) [f1051367100]		second-source-missable-disagrees-no-local-gate	open		
+2046397060	7773303	Cerulean :: Furnace Visage - defeat Furnace Golem (1), may be sweep-granted by Dancer of Ranah (m61_46_38) [f2046397060]		second-source-missable-disagrees-no-local-gate	open		
 2050407000	7773579	Shadow Keep :: Ring the Finger Ruins of Dheo bell - m61_50_40 [f2050407000]	ITEM_POSSESSION	second-source-missable-disagrees	open		
+2050467500	7773613	Scadu Altus :: Furnace Visage - defeat Furnace Golem (2), may be sweep-granted by Ralva the Great Red Bear (m61_49_45) [f2050467500]		second-source-missable-disagrees-no-local-gate	open		
+2051457700	7773634	Scadu Altus :: Furnace Visage - defeat Furnace Golem (4), may be sweep-granted by Rakshasa (m61_51_44) [f2051457700]		second-source-missable-disagrees-no-local-gate	open		
 2053467600	7773654	Scadu Altus :: Ring the Finger Ruins of Rhia bell - m61_53_46 [f2053467600]	ITEM_POSSESSION	second-source-missable-disagrees	open		
