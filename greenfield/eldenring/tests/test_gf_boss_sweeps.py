@@ -120,8 +120,21 @@ class BossSweepScoping(unittest.TestCase):
         # vanilla award waits on CharacterDead; a host enemy randomizer breaks it). The scoping
         # tests exempt exactly that RELATION -- flag's own trigger, from boss_drops.py -- never an
         # id list. Same shape as test_gf_dungeon_sweep_rungs' own_reward.
+        #
+        # A second, DISJOINT own-drop family lives in boss_reward_lots.py: the scripted
+        # common-event boss-reward-lot drops (handler 1100/1200), which are NpcParam-invisible so
+        # datamine_boss_drops.py cannot see them (see that file's own docstring). Its
+        # BOSS_REWARD_DEFEAT is the exact same shape -- {reward flag: defeat flag} -- for exactly
+        # the same reason: the reward is the boss's own, and its vanilla award chain (common event
+        # 1100/1200, gated on a local event that guards on the defeat flag already being set) is
+        # the fragile one a gen-time sweep admission (_SWEEP_BOSS_REWARD_LOT_GIFTS in gen_data.py)
+        # exists to route around. A field sweep admitting the boss's own weapon is not a filler
+        # leak; it's the same #907 relation from a different vanilla mechanism.
         _bd = _mod("boss_drops")
+        _brl = _mod("boss_reward_lots")
         cls.own_drop_of = dict(getattr(_bd, "BOSS_DROP_ENTITY", {}) or {}) if _bd else {}
+        if _brl:
+            cls.own_drop_of.update(getattr(_brl, "BOSS_REWARD_DEFEAT", {}) or {})
         cls.lt = getattr(_mod("location_tags"), "LOCATION_TAGS", {}) if _mod("location_tags") else {}
         if not (cls.sw and cls.bh and cls.d):
             raise unittest.SkipTest("boss_sweeps/boss_healthbars/data not generated")

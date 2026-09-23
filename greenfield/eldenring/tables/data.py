@@ -4973,7 +4973,7 @@ LOCATIONS = {
         ("Weeping :: Irina's Letter - m60_45_34 (region unconfirmed), may be sweep-granted by Night's Cavalry (m60_44_32) [f400080]", 7773704, 400080),
         ("Weeping :: Nomadic Merchant's Bell Bearing [4] - around Castle Morne Rampart, may be sweep-granted by Deathbird (m60_44_32) [f400904]", 7773769, 400904),
         ("Weeping :: Isolated Merchant's Bell Bearing [1] - around Isolated Merchant's Shack, may be sweep-granted by Ancient Hero of Zamor (m60_42_33) [f400906]", 7773771, 400906),
-        ('Weeping :: Grafted Blade Greatsword - Leonine Misbegotten, Castle Morne Boss [f510800]', 7773800, 510800),
+        ('Weeping :: Grafted Blade Greatsword - Leonine Misbegotten, Castle Morne Boss, may be sweep-granted by Leonine Misbegotten (m60_43_30) [f510800]', 7773800, 510800),
         ('Weeping :: Spelldrake Talisman - around Earthbore Cave [f520310]', 7773821, 520310),
         ('Weeping :: Rusted Anchor - around Morne Tunnel [f520600]', 7773837, 520600),
         ('Weeping :: Golden Rune [2] - m31_02, may be sweep-granted by Miranda Blossom (m31_02) [f31027000]', 7773979, 31027000),
@@ -5572,4 +5572,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:9f75ee0cda8f6c647f75bebc026f9f370ac0cf51496b31bf8e43be2a9651bc37', 'module': 'data.py', 'body_sha256': 'sha256:f991cb00f76082d1b3f705d535fcdb87ba3173e9ce9b0589f56e4070d5725288'}
+_GEN_STAMP = {'inputs_hash': 'sha256:8e91d4f082b8cb20633f9b26a4d1995a90a07e6b9a9dca0529b81467ba2df729', 'module': 'data.py', 'body_sha256': 'sha256:0486c066a2c2ce33d8de2e68253a775634a52cbe069f6839b91c729fdf8828bc'}

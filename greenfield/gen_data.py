@@ -11343,6 +11343,33 @@ _SWEEP_EXCLUDED_FLAGS = {
 _SWEEP_POST_BOSS_GIFTS = {
     11000800: {400001},
 }
+# Boss's OWN reward, but from the SCRIPTED common-event family (boss_reward_lots.py / #445's
+# "handler 1100/1200"), not an NpcParam drop table -- so #907's own-drop admission (_BOSS_DROP_ENTITY,
+# sourced from tools/datamine_boss_drops.py) structurally cannot see it, the same blind spot noted in
+# boss_reward_lots.py's own docstring ("neither NpcParam nor the map-side common-event scan can see
+# them").
+#
+# f510800 Grafted Blade Greatsword (Leonine Misbegotten, Weeping): a player report (2026-09-22) showed
+# the check permanently unpaid despite a clean Weeping clear -- the boss's OWN sweep (trigger 1043300800)
+# fired and granted its other 9 members, but 510800 never did. Read out of the decompiled EMEVD
+# (elden_ring_artifacts/event/m60_43_30_00.emevd.dcx.js + common.emevd.dcx.js, tools/gen_inputs.py
+# --extract):
+#   m60_43_30 $Event(1043302800, RESTART) -- "ボス撃破" -- opens with `EndIf(EventFlag(1043300800))`,
+#   THEN waits on the boss's HP/death, THEN `SetEventFlagID(1043300800, ON); SetEventFlagID(9180, ON)`.
+#   common.emevd $InitializeEvent(80, 1100, 9180, 10800, 0, 510800) feeds $Event(1100), which
+#   WaitFor(EventFlag(9180)) and awards map lot 10800 (getItemFlagId 510800, boss_reward_lots.py:57).
+# The `EndIf(EventFlag(1043300800))` guard is a ONE-SHOT: it exists so the cutscene does not replay on
+# a reload after the boss is already dead, but it means 9180 -- and so 510800 -- is only ever set by
+# THIS thread reaching its own two SetEventFlagID lines under its own steam. Anything that lets
+# 1043300800 read true before that (this project watches and floods that exact flag globally from
+# connect, for the sweep) trips the guard early and strands 9180/510800 for good; no second chance is
+# offered. 1043300800 itself has no such fragility -- it is what the sweep already trusts. Same shape
+# as the Morgott/Rold Medallion row above (boss-kill -> local event -> shared common event -> map-lot
+# award -> flag), just a weapon instead of world progression, which is why it is its own bucket rather
+# than folded into _SWEEP_POST_BOSS_GIFTS.
+_SWEEP_BOSS_REWARD_LOT_GIFTS = {
+    1043300800: {510800},
+}
 _sweep_excluded_hits = []
 _sweep_unspawned_hits = []
 _sweep_nonterminal_hits = []
@@ -11927,6 +11954,35 @@ if BOSS_HEALTHBARS:
         len(_post_boss_added), ", ".join(
             "f%d -> trigger %d" % (_flag, _trigger)
             for _flag, _trigger, _ap in _post_boss_added)))
+
+    # ---- SCRIPTED BOSS-REWARD-LOT GIFTS (own-drop admission's #907 pass cannot see these -- see the
+    # _SWEEP_BOSS_REWARD_LOT_GIFTS docstring above). Same fail-closed assertions as the post-boss
+    # progression gifts above: every declared row must resolve to a live check, share the boss's
+    # region, and not already be swept.
+    _reward_lot_added = []
+    for _trigger, _flags in sorted(_SWEEP_BOSS_REWARD_LOT_GIFTS.items()):
+        assert _trigger in DUNGEON_SWEEPS, (
+            "boss-reward-lot gift trigger %d has no sweep -- the fix is inert" % _trigger)
+        for _flag in sorted(_flags):
+            _ap = _flag_apid.get(_flag)
+            assert _ap is not None, (
+                "boss-reward-lot gift f%d is no longer a live AP check -- re-derive before removing "
+                "it" % _flag)
+            assert _bucket_region.get(_ap) == SWEEP_REGION.get(_trigger), (
+                "boss-reward-lot gift f%d is in %r but trigger %d sweeps %r -- refusing a "
+                "cross-region grant" % (_flag, _bucket_region.get(_ap), _trigger,
+                                         SWEEP_REGION.get(_trigger)))
+            assert _ap not in DUNGEON_SWEEPS[_trigger], (
+                "boss-reward-lot gift f%d is already in trigger %d -- delete the manual admission "
+                "and let the derived route own it" % (_flag, _trigger))
+            DUNGEON_SWEEPS[_trigger] = sorted(set(DUNGEON_SWEEPS[_trigger]) | {_ap})
+            _reward_lot_added.append((_flag, _trigger, _ap))
+    assert len(_reward_lot_added) == sum(map(len, _SWEEP_BOSS_REWARD_LOT_GIFTS.values())), (
+        "boss-reward-lot gift admission count drifted: %r" % (_reward_lot_added,))
+    print("boss_sweeps: scripted boss-reward-lot gifts: %d admitted: %s" % (
+        len(_reward_lot_added), ", ".join(
+            "f%d -> trigger %d" % (_flag, _trigger)
+            for _flag, _trigger, _ap in _reward_lot_added)))
 
     # An exclusion that matches nothing is a lie -- it reads as protection while protecting
     # nothing (the boss_healthbars map string could drift and this would silently stop applying).

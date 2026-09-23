@@ -8,17 +8,18 @@ The narrative — what this project is and what v0.2 brings — lives in
 ### What you need to update
 
 - **Client:** No -- nothing in this window touches the client.
-- **APWorld:** No -- unchanged apart from its version stamp.
+- **APWorld:** Host-only, for newly generated rooms (the sweep fix below).
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
-- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Existing seed/save:** Compatible; no regeneration or save migration required. An already-running
+  seed keeps whatever it already generated -- this only changes new gens.
 - **Profile/assets:** No action; no map or asset changes.
 
 Window opened AT THE TAG of v0.6.1.2 with ZERO commits past it, BY THE WORKFLOW
 (`open_window.py`, #1594). `release/CHANNELS.tsv` promotes `stable` to v0.6.1.2 in that same
 commit; `beta` tracks `main`.
 
-`CONTRACT_HASH` is unmoved at `2aa64f43`, since it hasn't moved since v0.6.0.11 and nothing in
-this window touches the contract at all.
+`CONTRACT_HASH` is unmoved at `2aa64f43`, since it hasn't moved since v0.6.0.11 and this window
+touches no contract key at all.
 
 - **Docs: the matt's-randomizer setup guide was missing a step and a bullet.** Two players in the
   same Discord thread hit this back to back: launching through matt's launcher also needs
@@ -29,6 +30,18 @@ this window touches the contract at all.
   was always a wasted step, just an undocumented one. `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`
   now says both things plainly, including for the upgrade-by-hand path, which needs to repoint
   MapForGoblins the same way it already repoints the client dll.
+- **Fixed: the Grafted Blade Greatsword (Leonine Misbegotten, Weeping) could go permanently
+  unpaid even after a clean region clear.** Player report, log-traced: the boss's own defeat
+  fired correctly and swept its other 9 nearby checks, but this one never fired. Read out of
+  the decompiled EMEVD: the vanilla award runs through a *second* boss-area event
+  (`m60_43_30`'s `1043302800`) whose first instruction is `EndIf(EventFlag(1043300800))` -- a
+  one-shot guard meant only to stop the kill cutscene replaying on a reload. This project
+  watches and floods that same defeat flag globally from connect for its own sweep system, so
+  anything that lets it read true ahead of (or independently of) that one event thread finishing
+  can trip the guard early and permanently strand the reward two hops downstream -- the same
+  `CharacterDead` race #907 already exists to route around, one mechanism further out (a shared
+  common event instead of a raw HP wait). The boss's own weapon now also grants through the
+  sweep, the same reliable path its other 9 checks already use. New seeds only.
 
 ## v0.6.1.2 — 2026-09-21
 
