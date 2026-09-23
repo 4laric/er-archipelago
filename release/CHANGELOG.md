@@ -7,21 +7,28 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** No -- nothing in this window touches the client.
+- **APWorld:** No -- unchanged apart from its version stamp.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible; no regeneration or save migration required.
+- **Profile/assets:** No action; no map or asset changes.
 
-Window opened AT THE TAG of v0.6.1.2 with ZERO commits past it.
+Window opened AT THE TAG of v0.6.1.2 with ZERO commits past it, BY THE WORKFLOW
+(`open_window.py`, #1594). `release/CHANNELS.tsv` promotes `stable` to v0.6.1.2 in that same
+commit; `beta` tracks `main`.
 
-`CONTRACT_HASH` is `2aa64f43`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` is unmoved at `2aa64f43`, since it hasn't moved since v0.6.0.11 and nothing in
+this window touches the contract at all.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
-
-`release/CHANNELS.tsv` promotes `stable` to v0.6.1.2 in this same commit.
-
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+- **Docs: the matt's-randomizer setup guide was missing a step and a bullet.** Two players in the
+  same Discord thread hit this back to back: launching through matt's launcher also needs
+  `MapForGoblins.dll` added as a second dll mod (not `MapForGoblins.upstream.dll`, which sits
+  beside it and is only the `ap.me3` fallback) -- that step wasn't written down at all. And the
+  guide never said outright that `me3` setup from `SETUP.md` doesn't apply on this path; matt's
+  launcher loads both dlls itself and never reads `ap.me3`, so following `SETUP.md` part B here
+  was always a wasted step, just an undocumented one. `ENEMY-AND-STARTING-CLASS-RANDOMIZATION.md`
+  now says both things plainly, including for the upgrade-by-hand path, which needs to repoint
+  MapForGoblins the same way it already repoints the client dll.
 
 ## v0.6.1.2 — 2026-09-21
 
