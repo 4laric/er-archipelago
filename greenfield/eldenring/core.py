@@ -504,7 +504,7 @@ _OPTION_GROUPS = [
     ("Checks & Item Pool", [
         "dungeon_sweep", "protect_missable_locations", "armor_bundles", "vanilla_pool",
         # advanced (hidden from the simple UIs)
-        "full_area_sweeps", "reveal_sweep_boss_names", "reroll_enemy_drops",
+        "full_area_sweeps", "region_sweep", "reveal_sweep_boss_names", "reroll_enemy_drops",
         "reroll_mine_materials", "curated_filler", "pool_builder_intensity",
         "pool_builder_pct_weapons", "pool_builder_pct_armor", "pool_builder_pct_spells",
         "pool_builder_pct_talismans", "pool_builder_pct_ashes_of_war",

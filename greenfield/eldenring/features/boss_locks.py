@@ -38,6 +38,10 @@ try:
     from ..tables.location_tags import LOCATION_TAGS       # ap id -> [surface class, ...]
 except Exception:  # not yet generated -> the per-seed surface cut is a no-op
     LOCATION_TAGS = {}
+try:
+    from ..tables.region_gating_boss import REGION_GATING_BOSS  # hand-curated, see the module docstring
+except Exception:
+    REGION_GATING_BOSS = {}
 
 
 # The half of contract.SURFACE_CLASSES that gen_data ADMITS into a sweep and this side cuts PER
@@ -190,6 +194,74 @@ class FullAreaSweeps(Toggle):
     """
     visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Full Area Sweeps"
+
+
+class RegionSweep(Toggle):
+    """Kill a region's own gating boss and the rest of its checks arrive at once.
+
+    Its gating boss is its Great Rune boss, else its biggest Remembrance boss, else its
+    major boss. Adds to whatever Dungeon Sweep already grants. Never takes another boss's
+    own reward, remembrance or rune, quest-gate keys, or merchant stock. Cannot strand you.
+    No effect if Dungeon Sweep is none.
+    """
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Region Sweep"
+
+
+# The location tags a region-sweep grant never takes, regardless of full_area_sweeps -- the same
+# three carve-outs full_area_sweeps documents (own-boss reward/remembrance/rune, quest keys, shop
+# stock), read directly off LOCATION_TAGS rather than re-deriving them. GreatRune/Remembrance/
+# MajorBoss cover "another boss's own reward"; KeyItem covers quest-gate keys; the Shop* tags cover
+# merchant stock (TAG_COUNTS in location_tags.py: Shop, ShopNonSpell, ShopSlot, EniaShop).
+_REGION_SWEEP_NEVER_TAGS = frozenset({
+    "GreatRune", "Remembrance", "MajorBoss", "KeyItem",
+    "Shop", "ShopNonSpell", "ShopSlot", "EniaShop",
+})
+
+
+def _region_sweep_on(world):
+    """Is this seed's `region_sweep` on? Absent option (or no world) reads OFF -- same convention as
+    `_full_area_sweeps_on`, so every pre-existing synthetic-world test keeps measuring HEAD."""
+    opt = getattr(getattr(world, "options", None), "region_sweep", None)
+    return bool(opt is not None and getattr(opt, "value", 0))
+
+
+def region_sweep_groups(world, kept=None, location_tags=None, region_gating_boss=None):
+    """{gating boss flag: [member ap ids]} for `region_sweep`, one group per KEPT region that has a
+    `REGION_GATING_BOSS` entry.
+
+    Members are every check `tables.locations` lists for the region, minus `_REGION_SWEEP_NEVER_TAGS`
+    and minus this seed's `sweep_surface_cut` (the same per-seed progression-surface cut every other
+    sweep obeys, so `full_area_sweeps` controls this exactly as it controls design 1's sweeps -- see
+    that function's docstring). HUB is never a `REGION_GATING_BOSS` key, so it is excluded by
+    construction rather than by a separate check.
+
+    Empty (not merely absent) when the option is off, so a caller can `dict.update` the result
+    unconditionally. Pure over its inputs (module globals by default) so it unit-tests with synthetic
+    data injected, matching every other function in this file.
+    """
+    if not _region_sweep_on(world):
+        return {}
+    region_gating_boss = REGION_GATING_BOSS if region_gating_boss is None else region_gating_boss
+    if not region_gating_boss:
+        return {}
+    kept = set(world._kept()) if kept is None else set(kept)
+    tags = LOCATION_TAGS if location_tags is None else location_tags
+    locations = getattr(getattr(world, "tables", None), "locations", None) or {}
+    surface_cut = sweep_surface_cut(world, tags)
+    runtime_skips = contract.runtime_sweep_skips()
+    out = {}
+    for region, fl in region_gating_boss.items():
+        if region not in kept or fl in runtime_skips:
+            # The runtime-skip guard should never fire given the curation in §2 of the spec -- kept
+            # anyway so a future table edit cannot silently gate a region on a dead boss.
+            continue
+        members = [ap for (_name, ap, _flag) in locations.get(region, ())
+                   if ap not in surface_cut
+                   and not (_REGION_SWEEP_NEVER_TAGS & set(tags.get(ap, ())))]
+        if members:
+            out[fl] = members
+    return out
 
 
 class RevealSweepBossNames(Toggle):
@@ -467,6 +539,7 @@ def key_gate_map(world):
 class BossLocks(Feature):
     name = "boss_locks"
     OPTIONS = {"dungeon_sweep": DungeonSweep, "full_area_sweeps": FullAreaSweeps,
+               "region_sweep": RegionSweep,
                "reveal_sweep_boss_names": RevealSweepBossNames,
                "boss_lock_placement": BossLockPlacement, "boss_keys": BossKeys}
     ITEMS = {n: ItemClassification.progression for n in _boss_key_names()}
@@ -548,6 +621,12 @@ class BossLocks(Feature):
             # from DarkScript EMEVD (boss_sweeps.py). A small client handler that watches the
             # boss-defeat flag and grants the members activates these in-game (P3b-client).
             _live = enabled_sweeps(world)
+            # region_sweep (SPEC-region-completion-release.md): the region's gating boss additionally
+            # releases the REST of its region, unioned onto whatever design-1 sweep already sits on
+            # that same trigger flag (most gating bosses already own a smaller group here). Only
+            # widens an existing group or adds a new one -- never removes a member design 1 granted.
+            for _fl, _region_members in region_sweep_groups(world, kept).items():
+                _live[_fl] = sorted(set(_live.get(_fl, ())) | set(_region_members))
             # #445: a group is emitted only when BOTH its members' region and its trigger's ARENA
             # region are kept. Dropping it here is what stops the F6 tracker promising "0/104 checks
             # -- waiting on the boss" for a boss this seed can never let the player fight. The
