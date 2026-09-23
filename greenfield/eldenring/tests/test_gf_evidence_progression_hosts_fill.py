@@ -86,7 +86,10 @@ def test_hold_rule_composes_and_bars_every_advancement_class():
 
 def test_trusted_location_preserves_its_existing_rule():
     rejected = _item("Prior rejection witness", 1, ItemClassification.filler)
-    loc = _FakeLocation(next(iter(TRUSTED_PROGRESSION_HOST_APS)),
+    # A LIVE host, not an arbitrary wiki-TRUSTED row: since 2026-09-23 an unswept ledger row is
+    # held, so the ledger table alone no longer names a host.
+    from worlds.eldenring.features.evidence_progression_hosts import trusted_aps
+    loc = _FakeLocation(next(iter(sorted(trusted_aps() & set(TRUSTED_PROGRESSION_HOST_APS)))),
                         prior=lambda item: item is not rejected)
     apply_location_rule(SimpleNamespace(player=1), loc)
     assert not loc.item_rule(rejected)

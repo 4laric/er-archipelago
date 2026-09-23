@@ -318,12 +318,13 @@ if _HAVE_AP:
             lock = f"{reported.parent_region.name} Lock"
             # The old merchant-specific bar must not survive the move. The global evidence ledger
             # is now the only host policy, so each row accepts progression exactly when trusted.
-            from worlds.eldenring.tables.evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
+            from worlds.eldenring.features.evidence_progression_hosts import trusted_aps
+            hosts = trusted_aps()
             probe = self.world.create_item(lock)
             self.assertTrue(probe.advancement)
             for loc in stock:
-                self.assertEqual(loc.item_rule(probe), loc.address in TRUSTED_PROGRESSION_HOST_APS,
-                                 f"{loc.name} disagrees with the evidence-host ledger")
+                self.assertEqual(loc.item_rule(probe), loc.address in hosts,
+                                 f"{loc.name} disagrees with the evidence-host policy")
             # Locks are PRE-PLACED on rollable checks (the lock chain), not pooled -- an
             # "everything except X" state must harvest placed items as well as the pool.
             everything = (list(self.multiworld.itempool)

@@ -170,7 +170,10 @@ class HubMerchantLocationRule(WorldTestBase):
         locations = {loc.address: loc for loc in self.multiworld.get_locations(self.player)}
         present = sorted(set(SHOP_SLOT_PINS.values()) & locations.keys())
         self.assertTrue(present, "this seed contains no vetted wandering-merchant slot")
-        trusted = set(TRUSTED_PROGRESSION_HOST_APS)
+        # The LIVE host policy, not the ledger table: since 2026-09-23 a ledger row hosts only
+        # while some boss sweep grants it, and wandering-merchant stock never is.
+        from ..features.evidence_progression_hosts import trusted_aps
+        trusted = trusted_aps()
         wrong = [locations[ap].name for ap in present
                  if locations[ap].item_rule(item) != (ap in trusted)]
         self.assertFalse(wrong, "wandering merchant evidence policy disagrees with its ledger: %s"

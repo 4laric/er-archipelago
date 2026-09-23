@@ -151,10 +151,11 @@ every step: read his checkout locally, commit only our own flags, names and reas
 
 11. **Corroborated hosts table (2026-09-23).** `--hosts-table` writes
     `tables/oracle_corroborated_hosts.py`: our ap-ids whose flag joins his Event slots and that no
-    committed queue row disputes (4,059 today). `features/evidence_progression_hosts` intersects
-    it with sweep membership and subtracts missable + finale, and promotes the result out of the
-    generated HOLD. Progression hosts go from 1,155 to about 3,600 without any row being trusted
-    on placement alone: under the shipping bar, a swept check is reachable whatever its placement.
+    committed queue row disputes (4,059 today). `features/evidence_progression_hosts` unions it
+    with the wiki-TRUSTED ledger, intersects with sweep membership, subtracts missable + finale,
+    and that (plus the certified list) IS the host set; unswept wiki rows are held now. Hosts go
+    from 1,155 to about 3,650 without any row being trusted on placement alone: under the shipping
+    bar, a swept check is reachable whatever its placement.
     Refresh it whenever the pin moves or a queue verdict changes.
 
 ## Ownership (read before treating a queue as owed work)

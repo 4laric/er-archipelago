@@ -32,10 +32,11 @@ accuracy work should start there and nowhere else.
 
 **Required progression is confined to hosts the bar makes safe.** Every location that is not on
 a trusted allow-list refuses advancement items from every world. Since 2026-09-23 that allow-list
-is the union of three sources: the two-family wiki ledger (1,155 checks), the maintainer-certified
-list, and the sweep-backed corroborated set: checks that thefifthmatt's table also carries with no
-review queue disputing them, that some boss sweep grants, and that are not missable (about 3,600).
-A required item can therefore never sit on a play-at-your-own-risk check. See
+is the maintainer-certified list plus every check that is corroborated by some second source (the
+two-family wiki ledger, or thefifthmatt's table with no review queue disputing it), that some boss
+sweep grants, and that is not missable: about 3,650 hosts. Corroboration admits a check; the sweep
+is what makes it a host. A required item can therefore never sit on a play-at-your-own-risk check,
+and the hub, whose rows no boss sweeps, hosts nothing. See
 `features/evidence_progression_hosts.oracle_sweep_aps` and `tables/oracle_corroborated_hosts.py`;
 the table is refreshed with the oracle pin (`tools/matt_oracle.py --hosts-table`).
 

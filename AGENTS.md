@@ -791,11 +791,14 @@ Region assignment, missable tagging, shop granularity and DLC membership are **r
   allowlists; not a regen_all step because it needs the checkout. It is NOT a hosting rule by
   itself: `features/evidence_progression_hosts.oracle_sweep_aps` intersects it with
   `boss_sweeps.DUNGEON_SWEEPS` membership and subtracts `MISSABLE_LOCATIONS` and the finale
-  bar, and THAT set is the third promotion source out of the generated HOLD (beside the
-  two-family wiki ledger and `certified_progression_hosts`). Rationale (2026-09-23): the
-  shipping accuracy bar is "sweep-granted is reachable", so a corroborated, swept, non-missable
-  check cannot strand progression through a placement error. ~3,600 hosts against the ledger's
-  1,155, which is what lets `progression_surface: []` actually scatter.
+  bar, and the SAME sweep filter now applies to the two-family wiki ledger: since 2026-09-23 the
+  live host set (`trusted_aps`) is `certified_progression_hosts` plus `(wiki-TRUSTED or
+  oracle-corroborated) and swept and not missable and not finale`. Corroboration admits a row;
+  a boss sweep is what makes it a host. Rationale: the shipping accuracy bar is "sweep-granted is
+  reachable, everything else is play at your own risk", and required progression may not sit on
+  an at-your-own-risk check -- the old ledger let it (a 2026-09-23 seed put three Locks and a
+  Great Rune on unswept merchant stock). ~3,650 hosts against the ledger's 1,155, which is what
+  lets `progression_surface: []` actually scatter; the hub hosts nothing now.
 - **I. UNCOVERED ROWS** — report-only, and the honest denominator for everything above. Every
   other class starts from HIS slots; this one starts from OURS and counts the rows with no
   Event-scope counterpart in his table at all (640 of 4,932, 13%, on 2026-09-22), classified

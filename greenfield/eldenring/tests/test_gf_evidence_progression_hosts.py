@@ -57,47 +57,69 @@ def test_certification_promotes_generated_hold_but_not_finale(monkeypatch):
     monkeypatch.setattr(policy, "_generated_sets", lambda: ({11}, frozenset({12, 13})))
     monkeypatch.setattr(policy, "certified_aps", lambda: frozenset({12, 13}))
     monkeypatch.setattr(policy, "_always_hold_aps", lambda: frozenset({13}))
-    monkeypatch.setattr(policy, "oracle_sweep_aps", lambda: frozenset())
+    # The wiki row 11 is only a host while swept: pin that here so the test's expectation is
+    # about certification alone.
+    monkeypatch.setattr(policy, "_swept_aps", lambda: frozenset({11}))
+    monkeypatch.setattr(policy, "_missable_aps", lambda: frozenset())
+    monkeypatch.setattr(policy, "_oracle_corroborated_aps", lambda: frozenset())
     assert policy.hold_aps(None, candidates={11, 12, 13, 14}) == {13, 14}
 
 
+def test_wiki_trust_without_a_sweep_is_held(monkeypatch):
+    """2026-09-23: the two-family ledger ADMITS a row; only a boss sweep makes it a host. An
+    unswept wiki-trusted row is play at your own risk and is held like any other."""
+    monkeypatch.setattr(policy, "_generated_sets", lambda: ({11, 12}, frozenset({13})))
+    monkeypatch.setattr(policy, "certified_aps", lambda: frozenset())
+    monkeypatch.setattr(policy, "_always_hold_aps", lambda: frozenset())
+    monkeypatch.setattr(policy, "_oracle_corroborated_aps", lambda: frozenset())
+    monkeypatch.setattr(policy, "_missable_aps", lambda: frozenset())
+    monkeypatch.setattr(policy, "_swept_aps", lambda: frozenset({11, 13}))
+    # 11: wiki + swept -> host. 12: wiki, unswept -> held. 13: swept but corroborated by nobody.
+    assert policy.trusted_aps() == {11}
+    assert policy.hold_aps(None, candidates={11, 12, 13}) == {12, 13}
+
+
 def test_sweep_backed_corroboration_promotes_generated_hold_but_not_finale(monkeypatch):
-    """The third promotion source behaves exactly like certification: it lifts a row out of the
-    generated HOLD complement and out of the fail-closed complement, and never past the finale
-    lifecycle bar."""
+    """The oracle table is a second admission source beside the wiki ledger: a swept row it
+    carries leaves the generated HOLD complement and the fail-closed complement, and never
+    passes the finale lifecycle bar."""
     monkeypatch.setattr(policy, "_generated_sets", lambda: ({11}, frozenset({12, 13, 14})))
     monkeypatch.setattr(policy, "certified_aps", lambda: frozenset())
     monkeypatch.setattr(policy, "_always_hold_aps", lambda: frozenset({13}))
-    monkeypatch.setattr(policy, "oracle_sweep_aps", lambda: frozenset({12, 13, 15}))
-    # 12 promoted; 13 promoted by the table but held by the finale bar; 14 stays generated HOLD;
-    # 15 is not in the generated partition at all (fail-closed complement) and is promoted too.
+    monkeypatch.setattr(policy, "_oracle_corroborated_aps", lambda: frozenset({12, 13, 15}))
+    monkeypatch.setattr(policy, "_missable_aps", lambda: frozenset())
+    monkeypatch.setattr(policy, "_swept_aps", lambda: frozenset({11, 12, 13, 15, 16}))
+    # 11 wiki+swept; 12 promoted; 13 promoted by the table but held by the finale bar; 14 stays
+    # generated HOLD (unswept, uncorroborated by the oracle); 15 is outside the generated
+    # partition (fail-closed complement) and is promoted; 16 is swept but nobody corroborates it.
     assert policy.hold_aps(None, candidates={11, 12, 13, 14, 15, 16}) == {13, 14, 16}
-    assert policy.trusted_aps() == {11, 12, 13, 15}
+    assert policy.trusted_aps() == {11, 12, 15}
 
 
-def test_oracle_sweep_aps_is_the_three_way_intersection(monkeypatch):
-    """Corroborated AND swept AND NOT missable AND NOT finale, from the tables alone."""
-    import sys
-    import types
-    pkg = "worlds.eldenring.tables"
-    saved = {k: sys.modules.get(k) for k in (pkg + ".oracle_corroborated_hosts",
-                                             pkg + ".boss_sweeps", pkg + ".missable_locations")}
-    try:
-        corr = types.ModuleType(pkg + ".oracle_corroborated_hosts")
-        corr.ORACLE_CORROBORATED_APS = frozenset({1, 2, 3, 4, 5})
-        sweeps = types.ModuleType(pkg + ".boss_sweeps")
-        sweeps.DUNGEON_SWEEPS = {100: [1, 2, 3, 9], 200: [4]}
-        miss = types.ModuleType(pkg + ".missable_locations")
-        miss.MISSABLE_LOCATIONS = {3: "questline"}
-        for m in (corr, sweeps, miss):
-            sys.modules[m.__name__] = m
-        monkeypatch.setattr(policy, "_always_hold_aps", lambda: frozenset({4}))
-        monkeypatch.setattr(policy, "__package__", "worlds.eldenring.features")
-        # 1, 2: corroborated, swept, clean. 3: missable. 4: finale. 5: not swept. 9: not corroborated.
-        assert policy.oracle_sweep_aps() == {1, 2}
-    finally:
-        for k, v in saved.items():
-            if v is None:
-                sys.modules.pop(k, None)
-            else:
-                sys.modules[k] = v
+def test_sweep_backed_aps_is_the_intersection(monkeypatch):
+    """(wiki OR oracle) AND swept AND NOT missable AND NOT finale."""
+    monkeypatch.setattr(policy, "_generated_sets", lambda: ({1, 6}, frozenset()))
+    monkeypatch.setattr(policy, "_oracle_corroborated_aps", lambda: frozenset({1, 2, 3, 4, 5}))
+    monkeypatch.setattr(policy, "_swept_aps", lambda: frozenset({1, 2, 3, 4, 9}))
+    monkeypatch.setattr(policy, "_missable_aps", lambda: frozenset({3}))
+    monkeypatch.setattr(policy, "_always_hold_aps", lambda: frozenset({4}))
+    # 1, 2: corroborated, swept, clean. 3: missable. 4: finale. 5: not swept. 6: wiki, unswept.
+    # 9: swept, corroborated by nobody.
+    assert policy.sweep_backed_aps() == {1, 2}
+
+
+def test_sweep_backed_aps_reads_the_real_tables():
+    """Against the shipped tables: every host is swept, none missable, none finale, and the set
+    is large enough that an empty progression surface can actually scatter. Uses the INSTALLED
+    module, because the by-path `policy` above has no package and its relative table imports
+    resolve to nothing (fail-closed), which is a property, not a witness."""
+    import pytest
+    live = pytest.importorskip("worlds.eldenring.features.evidence_progression_hosts")
+    hosts = live.sweep_backed_aps()
+    assert len(hosts) > 3000, len(hosts)
+    assert hosts <= live._swept_aps()
+    assert hosts.isdisjoint(live._missable_aps())
+    assert hosts.isdisjoint(live._always_hold_aps())
+    assert hosts <= (live._generated_sets()[0] | live._oracle_corroborated_aps())
+    # And the by-path copy really is fail-closed without a package.
+    assert policy.sweep_backed_aps() == frozenset()

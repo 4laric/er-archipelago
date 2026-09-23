@@ -264,7 +264,8 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
         from ..certified_progression_hosts import CERTIFIED_PROGRESSION_HOST_APS
         from ..core import _NO_PROGRESSION_APS
         from ..tables.evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
-        from ..features.evidence_progression_hosts import _always_hold_aps, oracle_sweep_aps
+        from ..features.evidence_progression_hosts import _always_hold_aps, trusted_aps
+        from ..tables.evidence_progression_hosts import TRUSTED_PROGRESSION_HOST_APS
         from ..features.progression_surface import (
             _world_barred_aps, collapsed_lift_aps, missable_barred_aps)
         from ..tables.location_tags import ERDTREE_BURN_APS, SURFACE_EXCLUDE_APS
@@ -274,11 +275,13 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
             options=SimpleNamespace(protect_missable_locations=SimpleNamespace(value=1)))
         lift = collapsed_lift_aps(world)
         missable = missable_barred_aps(world)
-        # The two promotion sources out of the generated HOLD: direct certification and the
-        # sweep-backed corroborated set (2026-09-23). Both are named here so a third one cannot
-        # arrive undocumented.
-        evidence_hold = (HOLD_PROGRESSION_HOST_APS - CERTIFIED_PROGRESSION_HOST_APS
-                         - oracle_sweep_aps())
+        # 2026-09-23: the evidence hold is the complement of the LIVE host set over the generated
+        # partition -- certified rows, and corroborated rows some boss sweep grants. An unswept
+        # wiki-TRUSTED row is held; a swept oracle-corroborated HOLD row is not. Spelled from the
+        # tables rather than from hold_aps() so that a drift in the policy shows up here.
+        self.assertTrue(CERTIFIED_PROGRESSION_HOST_APS <= trusted_aps())
+        evidence_hold = ((HOLD_PROGRESSION_HOST_APS | TRUSTED_PROGRESSION_HOST_APS)
+                         - trusted_aps())
         self.assertEqual(
             _world_barred_aps(world),
             ((frozenset(_NO_PROGRESSION_APS) - lift) | missable
