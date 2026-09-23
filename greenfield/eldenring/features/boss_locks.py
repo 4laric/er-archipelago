@@ -197,13 +197,12 @@ class FullAreaSweeps(Toggle):
 
 
 class RegionSweep(Toggle):
-    """Kill the region's own gating boss (its Great Rune boss, else its biggest Remembrance boss,
-    else its major boss) and the REST of that region's checks arrive at once, on top of whatever
-    Dungeon Sweep already grants.
+    """Kill a region's own gating boss and the rest of its checks arrive at once.
 
-    The same three things a sweep never takes stay untaken: another boss's own reward/remembrance/
-    Great Rune, quest-gate key items, and merchant stock. Cannot strand you -- the region was already
-    one you could reach. No effect if Dungeon Sweep is none. See SPEC-region-completion-release.md.
+    Its gating boss is its Great Rune boss, else its biggest Remembrance boss, else its
+    major boss. Adds to whatever Dungeon Sweep already grants. Never takes another boss's
+    own reward, remembrance or rune, quest-gate keys, or merchant stock. Cannot strand you.
+    No effect if Dungeon Sweep is none.
     """
     visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Region Sweep"
