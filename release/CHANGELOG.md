@@ -8,8 +8,10 @@ The narrative — what this project is and what v0.2 brings — lives in
 ### What you need to update
 
 - **Client:** No -- nothing in this window touches the client.
-- **APWorld:** Host-only, for newly generated rooms (the sweep fix below).
-- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **APWorld:** Host-only, for newly generated rooms (the sweep fix below, and the new
+  `region_sweep` option).
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.** `region_sweep` is optional
+  and defaults to off.
 - **Existing seed/save:** Compatible; no regeneration or save migration required. An already-running
   seed keeps whatever it already generated -- this only changes new gens.
 - **Profile/assets:** No action; no map or asset changes.
@@ -42,6 +44,18 @@ touches no contract key at all.
   `CharacterDead` race #907 already exists to route around, one mechanism further out (a shared
   common event instead of a raw HP wait). The boss's own weapon now also grants through the
   sweep, the same reliable path its other 9 checks already use. New seeds only.
+- **New option: `region_sweep`** (off by default, #1600). Kill a region's own gating boss --
+  its Great Rune boss, else its biggest Remembrance boss, else its major boss -- and the rest
+  of that region's checks arrive at once, on top of whatever Dungeon Sweep already grants. Asked
+  for on Discord (DivinePuma, an all-regions race against a much smaller game) and confirmed as
+  something this project used to do before Dungeon Sweep's per-boss ladder replaced it. The
+  region's gating boss is a new hand-curated table (`REGION_GATING_BOSS`,
+  `SPEC-region-completion-release.md`), not the existing per-boss `SWEEP_REGION` divvying design
+  1 already does; the two compose, so turning this on only ever widens what a kill grants. Same
+  carve-outs as `full_area_sweeps`: another boss's own reward/remembrance/rune, quest-gate keys
+  and merchant stock are never swept, and the per-seed Progression Surface cut applies exactly as
+  it does everywhere else. No client change needed -- the client already treats every sweep group
+  generically.
 
 ## v0.6.1.2 — 2026-09-21
 
