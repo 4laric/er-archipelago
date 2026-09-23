@@ -175,6 +175,19 @@ Elden Ring:
   # Values: true or false (default false)
   full_area_sweeps: false
 
+  # Region Sweep
+  #
+  # Kill the region's own gating boss (its Great Rune boss, else its biggest Remembrance
+  # boss, else its major boss) and the REST of that region's checks arrive at once, on top
+  # of whatever Dungeon Sweep already grants.
+  #
+  # The same three things a sweep never takes stay untaken: another boss's own reward/
+  # remembrance/Great Rune, quest-gate key items, and merchant stock. Cannot strand you --
+  # the region was already one you could reach. No effect if Dungeon Sweep is none.
+  #
+  # Values: true or false (default false)
+  region_sweep: false
+
   # Reveal Hidden Sweep Boss Names
   #
   # The F6 tracker shows boss names for sweeps in regions that are still locked.

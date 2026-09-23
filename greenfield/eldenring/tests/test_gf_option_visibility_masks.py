@@ -44,7 +44,7 @@ COMPAT_KEYS = frozenset({
 ADVANCED_KEYS = frozenset({
     "curated_filler", "spawn_traps", "num_regions_order", "start_region_selection",
     "death_link_amnesty_inbound", "death_link_amnesty_outbound", "full_area_sweeps",
-    "reveal_sweep_boss_names", "keep_local_rune_cap", "pool_builder_intensity",
+    "region_sweep", "reveal_sweep_boss_names", "keep_local_rune_cap", "pool_builder_intensity",
     "capital_reconciler", "coop_difficulty", "scale_rune_rewards", "enable_dlc_gear",
     "scadutree_blessing_scope", "dlc_blessing_catchup", "grace_attunement",
     "grace_attunement_anchor", "reroll_enemy_drops", "reroll_mine_materials",
