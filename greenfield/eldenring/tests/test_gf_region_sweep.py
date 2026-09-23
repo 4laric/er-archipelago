@@ -107,6 +107,7 @@ def test_region_sweep_never_gates_on_a_dead_boss():
     or that region could never complete."""
     from worlds.eldenring import contract
     from worlds.eldenring.tables.region_gating_boss import REGION_GATING_BOSS
+    assert REGION_GATING_BOSS, "REGION_GATING_BOSS is empty -- the scan below would vacuously pass"
     skips = contract.runtime_sweep_skips()
     bad = {region: fl for region, fl in REGION_GATING_BOSS.items() if fl in skips}
     assert not bad, "region(s) gated on a dead/unspawned boss, can never complete: %r" % bad
@@ -117,6 +118,7 @@ def test_region_sweep_covers_every_named_region():
     silently does nothing there."""
     from worlds.eldenring.tables.boss_sweeps import SWEEP_REGION
     from worlds.eldenring.tables.region_gating_boss import REGION_GATING_BOSS
+    assert SWEEP_REGION, "SWEEP_REGION is empty -- the scan below would vacuously pass"
     missing = sorted(set(SWEEP_REGION.values()) - set(REGION_GATING_BOSS))
     assert not missing, "region(s) with sweep triggers but no REGION_GATING_BOSS entry: %s" % missing
 
@@ -125,6 +127,7 @@ def test_region_sweep_gating_bosses_are_real_flags():
     """Every REGION_GATING_BOSS flag must be a real, named boss (boss_healthbars), not a typo'd id."""
     from worlds.eldenring.tables.boss_healthbars import BOSS_HEALTHBARS
     from worlds.eldenring.tables.region_gating_boss import REGION_GATING_BOSS
+    assert REGION_GATING_BOSS, "REGION_GATING_BOSS is empty -- the scan below would vacuously pass"
     unknown = {region: fl for region, fl in REGION_GATING_BOSS.items() if fl not in BOSS_HEALTHBARS}
     assert not unknown, "REGION_GATING_BOSS flag(s) with no boss_healthbars entry: %r" % unknown
 
