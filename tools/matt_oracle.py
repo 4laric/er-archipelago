@@ -327,6 +327,8 @@ def _excluded_by_tags(tags):
 # ---------------------------------------------------------------------------
 # DebugText lines look like `<Vanilla Item Name> - lot 10010[...]` / `... - shop 100[...]`.
 _NAME_RE = re.compile(r"^'?(.+?) - (?:lot|shop) \d+\[")
+# `... 1x for 800 runes - flag 100120` on a shop DebugText line: the shop row's own event flag.
+_DEBUG_FLAG_RE = re.compile(r" - flag (\d+)\b")
 
 SCOPE_EVENT = 0        # LocationData.ScopeType.Event -- UniqueID is the item-lot/shop event flag
 SCOPE_SHOP_INFINITE = 3
@@ -345,11 +347,17 @@ def parse_itemslots(path):
         # "keyed on shop lineup ids, not on a flag" -- out of scope for both checks here.
         key = slot["Key"].split(",", 1)[1]
         stype, uid, shops, lots = key.split(":")
-        names = []
+        names, debug_flags = [], set()
         for line in slot.get("DebugText") or []:
             m = _NAME_RE.match(line.strip())
             if m:
                 names.append(m.group(1).strip().strip("'"))
+            # Shop-only slots carry flag 0 in the key, but each DebugText line names the shop
+            # row's own ShopLineupParam eventFlag (`... - flag 100180`). That number is a game
+            # fact read out of the params, not his prose, and it is the ONLY join we have onto
+            # our shop rows (section I). Lot lines carry no flag suffix, so this is shop-only.
+            for f in _DEBUG_FLAG_RE.findall(line):
+                debug_flags.add(int(f))
         rows.append(
             {
                 "stype": int(stype),
@@ -357,6 +365,7 @@ def parse_itemslots(path):
                 "shop_ids": [int(x) for x in shops.split(",") if x],
                 "tags": frozenset((slot.get("Tags") or "").split()),
                 "item_names": names,
+                "debug_flags": frozenset(debug_flags),
                 # 🛑 `area` is his area TOKEN, held in memory as a PARTITION LABEL only -- the same
                 # standing `tags` already has as filter vocabulary. It is never printed, never
                 # written to JSON and never written to the queue tsv: check_region_queue folds it
@@ -689,6 +698,11 @@ def write_region_queue(path, queue, previous):
 # ---------------------------------------------------------------------------
 MISSABLE_TAG = "missable"
 BASIS_MISSABLE = "second-source-missable-disagrees"
+# The same disagreement, but OUR OWN questline extraction sees no losable root on the award site.
+# Queued (2026-09-22) because "our extractor missed the gate" is the failure that strands a seed,
+# and the intersection above cannot contain it by construction. `our_conditions` is empty here.
+BASIS_MISSABLE_UNGATED = "second-source-missable-disagrees-no-local-gate"
+MISSABLE_BASES = (BASIS_MISSABLE, BASIS_MISSABLE_UNGATED)
 
 # The three questline-condition root classes that describe a PERMANENTLY LOSABLE gate. Every other
 # root class in questline_conditions.tsv (BOSS_KILL, REGION_ACCESS, FLAG_BAND, ...) describes a
@@ -735,12 +749,20 @@ def questline_condition_classes(repo=REPO, classes=MISSABLE_CONDITION_CLASSES):
     return {flag: tuple(sorted(cls)) for flag, cls in out.items()}
 
 
-def check_missable_queue(rows, by_flag, repo=REPO, missable_aps=None, conditions=None):
+def check_missable_queue(rows, by_flag, repo=REPO, missable_aps=None, conditions=None,
+                         include_ungated=False):
     """(queue, theirs, ours, joinable). Queue entries are OURS ONLY:
     {flag, ap_id, our_name, our_conditions, basis}.
 
     `missable_aps` / `conditions` are injectable so the tests can drive this without loading the
     real tables; both default to ours on disk.
+
+    `include_ungated=True` ALSO queues the his-only flags on which our questline extraction sees
+    NO losable root, under BASIS_MISSABLE_UNGATED with an empty `our_conditions`. Those are the
+    rows where, if he is right, our extractor MISSED the gate entirely -- the class that strands a
+    seed, and the one the three-way intersection excludes by construction. The default stays the
+    intersection so the two bases are never confused: a reviewer can see at a glance whether our
+    own evidence backs the question or not.
     """
     if missable_aps is None:
         missable_aps = load_missable_aps(repo)
@@ -765,11 +787,12 @@ def check_missable_queue(rows, by_flag, repo=REPO, missable_aps=None, conditions
         # tsv is byte-diffed in CI, and a reordered cell would read as a real change.
         classes = tuple(sorted(c for c in conditions.get(flag, ())
                                if c in MISSABLE_CONDITION_CLASSES))
-        if not classes:
+        if not classes and not include_ungated:
             continue                      # no losable gate visible on OUR side: nothing to review
+        basis = BASIS_MISSABLE if classes else BASIS_MISSABLE_UNGATED
         for _region, name, ap_id in entries:
             queue[(flag, ap_id)] = {"flag": flag, "ap_id": ap_id, "our_name": name,
-                                    "our_conditions": "+".join(classes), "basis": BASIS_MISSABLE}
+                                    "our_conditions": "+".join(classes), "basis": basis}
     return [queue[k] for k in sorted(queue)], len(theirs), len(missable_aps), joinable
 
 
@@ -789,6 +812,13 @@ MISSABLE_QUEUE_HEADER = """# oracle-missable-queue.tsv -- HUMAN REVIEW QUEUE for
 # THIS FILE IS NOT A DEFECT LIST. Two models drew the missable line in different places; a row here
 # is a question. `confirmed-not-missable` is as real an outcome as `missable`.
 #
+# basis: second-source-missable-disagrees               -- OUR questline extraction ALSO sees a
+#          losable root on the award site (our_conditions names it). Our own evidence backs the
+#          question.
+#        second-source-missable-disagrees-no-local-gate -- our extraction sees NO losable root
+#          (our_conditions is empty). If the second source is right, our extractor MISSED the gate,
+#          which is the case that strands a seed; if it is wrong, the row is a modelling difference.
+#          Rule from the award site's ESD/EMEVD callers, not from the absence of a row.
 # our_conditions: OUR questline_conditions.tsv root classes on this award site, '+'-joined. A root
 #   is a gate our extractor SAW, never a proof that the check is missable -- see that file's header.
 # status:   open | confirmed-not-missable | missable
@@ -806,6 +836,55 @@ MISSABLE_QUEUE_HEADER = """# oracle-missable-queue.tsv -- HUMAN REVIEW QUEUE for
 
 def write_missable_queue(path, queue, previous):
     return write_queue(path, queue, previous, MISSABLE_QUEUE_HEADER, MISSABLE_QUEUE_COLUMNS)
+
+
+# ---------------------------------------------------------------------------
+# I. UNCOVERED ROWS -- OUR rows the second source has no counterpart for (report-only).
+#
+# Every class above starts from HIS slots and asks what we do with them. This one starts from
+# OUR rows and asks whether he has anything to say at all. A row with no counterpart gets no
+# second opinion from any section of this tool, and the identity figure in section A is
+# agreement WITHIN the joinable set, not accuracy of the table -- so the size and shape of this
+# set is the honest denominator. It is classified from OUR OWN location names and flag bands only.
+# ---------------------------------------------------------------------------
+UNCOVERED_CLASSES = ("shop-flag-join", "gesture", "sweep-granted", "common-event-400k", "other")
+_GESTURE_FLAG_BAND = (60800, 60899)      # our gesture award flags; he does not model gestures
+_SWEEP_GRANTED = "may be sweep-granted by"
+
+
+def _uncovered_class(name, flag, shop_flags):
+    """One of UNCOVERED_CLASSES, from OUR name and flag only."""
+    if flag in shop_flags:
+        return "shop-flag-join"
+    if _GESTURE_FLAG_BAND[0] <= flag <= _GESTURE_FLAG_BAND[1] or "gesture" in name.lower():
+        return "gesture"
+    if _SWEEP_GRANTED in name:
+        return "sweep-granted"
+    if 400000 <= flag < 500000:
+        return "common-event-400k"
+    return "other"
+
+
+def check_uncovered(rows, by_flag):
+    """(entries, event_joined). Entries are OURS ONLY: {flag, ap_id, region, name, cls}.
+
+    A row is uncovered when its flag matches NO Event-scope slot of his. `shop-flag-join` marks
+    the subset whose flag a shop DebugText line of his names (see parse_itemslots): those rows
+    HAVE a counterpart, keyed differently, and are the cheapest to bring under section A later.
+    """
+    event = {r["flag"] for r in rows if r["stype"] == SCOPE_EVENT and r["flag"]}
+    shop_flags = set()
+    for r in rows:
+        shop_flags |= r["debug_flags"]
+    out, joined = [], 0
+    for flag in sorted(by_flag):
+        if flag in event:
+            joined += len(by_flag[flag])
+            continue
+        for region, name, ap_id in by_flag[flag]:
+            out.append({"flag": flag, "ap_id": ap_id, "region": region, "name": name,
+                        "cls": _uncovered_class(name, flag, shop_flags)})
+    return out, joined
 
 
 def stale_entries(dis_flags, by_flag):
@@ -1056,15 +1135,19 @@ def main(argv=None):
     print()
 
     # --- H (report-only) ---
-    mq, mq_theirs, mq_ours, mq_joinable = check_missable_queue(rows, by_flag, args.repo)
+    mq, mq_theirs, mq_ours, mq_joinable = check_missable_queue(rows, by_flag, args.repo,
+                                                               include_ungated=True)
+    mq_gated = sum(1 for e in mq if e["basis"] == BASIS_MISSABLE)
     print("== H. MISSABLE (report-only; the second human review queue) ==")
     print("his missable-tagged Event flags %d (%d joinable to ours); OUR MISSABLE_LOCATIONS %d "
-          "checks: %d queued" % (mq_theirs, mq_joinable, mq_ours, len(mq)))
+          "checks: %d queued (%d with a losable root of our own, %d with none)"
+          % (mq_theirs, mq_joinable, mq_ours, len(mq), mq_gated, len(mq) - mq_gated))
     print("  by OUR questline-condition classes: " + (", ".join(
-        "%s %d" % (c, n) for c, n in sorted(Counter(e["our_conditions"] for e in mq).items()))
-        or "-"))
-    print("  🛑 a tag disagreement alone is NOT queued: a row is here only when OUR OWN "
-          "questline_conditions.tsv also shows a %s root." % "/".join(MISSABLE_CONDITION_CLASSES))
+        "%s %d" % (c or "(none)", n)
+        for c, n in sorted(Counter(e["our_conditions"] for e in mq).items())) or "-"))
+    print("  🛑 two bases: `%s` rows carry a %s root of our own; `%s` rows do not, and are the "
+          "case where our extractor may have MISSED the gate."
+          % (BASIS_MISSABLE, "/".join(MISSABLE_CONDITION_CLASSES), BASIS_MISSABLE_UNGATED))
     if args.missable_queue:
         previous = read_queue(args.missable_queue)
         kept, added, droppedq = write_missable_queue(args.missable_queue, mq, previous)
@@ -1073,6 +1156,26 @@ def main(argv=None):
         for k in droppedq:
             print("    resolved: flag %d ap%d (was %s)"
                   % (k[0], k[1], previous[k].get("status", "?")))
+    print()
+
+    # --- I (report-only) ---
+    unc, unc_joined = check_uncovered(rows, by_flag)
+    n_ours = sum(len(v) for v in by_flag.values())
+    print("== I. UNCOVERED ROWS (report-only) -- OUR rows with no counterpart in his table ==")
+    print("our rows %d: %d join an Event-scope slot of his, %d (%.1f%%) do not -- section A's "
+          "agreement is over the first set only"
+          % (n_ours, unc_joined, len(unc), 100.0 * len(unc) / max(1, n_ours)))
+    print("  by class:  " + ", ".join(
+        "%s %d" % (c, n) for c, n in Counter(e["cls"] for e in unc).most_common()))
+    print("  by region: " + ", ".join(
+        "%s %d" % (r, n) for r, n in Counter(e["region"] for e in unc).most_common()))
+    print("  shop-flag-join rows have a counterpart keyed on the shop row's flag, not the slot's;"
+          " gesture / sweep-granted rows are classes he does not model.")
+    if args.report:
+        for e in unc:
+            if e["cls"] == "other":
+                print("  [other] flag %d ap%d  %s :: %s" % (e["flag"], e["ap_id"], e["region"],
+                                                              e["name"][:70]))
     print()
 
     stale = stale_entries({d_["flag"] for d_ in dis}, by_flag)
@@ -1115,6 +1218,15 @@ def main(argv=None):
                 "rows": mq,
             },
             "stale_allowlist": [{"list": w, "flag": f} for w, f, _ in stale],
+            "uncovered": {
+                "our_rows": n_ours,
+                "joined": unc_joined,
+                "uncovered": len(unc),
+                "by_class": dict(Counter(e["cls"] for e in unc)),
+                "by_region": dict(Counter(e["region"] for e in unc)),
+                # OUR flag/ap_id/region/name only.
+                "rows": unc,
+            },
         }
         if taxonomy_report is not None:
             payload["boss_taxonomy"] = taxonomy_report

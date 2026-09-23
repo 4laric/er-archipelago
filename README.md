@@ -103,6 +103,9 @@ release. `release/DISTRIBUTION.md` explains why.
 - **`me3/`** -- the local ModEngine3 staging dir `build.ps1 -Me3Deploy` writes.
 - **`greenfield/`** (above `eldenring/`) -- generation inputs, region curation
   tables, and `gen_data.py`, which derives the world's data.
+- **`docs/HANDOFF-CHECK-ACCURACY.md`** -- the state of per-check accuracy, the
+  bar it ships at (sweep-granted means reachable), and every open review queue
+  with instructions for picking it up. Start there if you want to work on checks.
 
 ---
 

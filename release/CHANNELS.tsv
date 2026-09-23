@@ -91,3 +91,5 @@ stable	v0.6.1	2026-09-18	the v0.6.1 release: new rooms roll a four-Great-Runes d
 beta	main	2026-09-18	the open v0.6.1.1 window
 stable	v0.6.1.1	2026-09-21	the v0.6.1.1 release: Shorter, plainer option tooltips (apworld); A short first page (apworld); Ready-made starting points (apworld, docs); Clearer option names (apworld); A floor on flask upgrades (apworld); `start_region_pool` no longer sets how big the seed is (apworld); Cross-game Locks land abroad again with an empty `progression_surface` (apworld); Talisman Pouch is now useful, not filler (apworld); and 3 more. Drafted from that release's CHANGELOG section by open_window.py, so the promotion does not wait on the next window's prose; sharpen it in this PR if it misses the point.
 beta	main	2026-09-21	the open v0.6.1.2 window
+stable	v0.6.1.2	2026-09-22	the v0.6.1.2 release: `!scaling [seed|off|0..19]`; Dismissible log legend. Drafted from that release's CHANGELOG section by open_window.py, so the promotion does not wait on the next window's prose; sharpen it in this PR if it misses the point.
+beta	main	2026-09-22	the open v0.6.1.3 window
