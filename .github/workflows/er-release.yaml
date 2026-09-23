@@ -52,9 +52,15 @@ on:
         description: "allow release/MFG-VERSION.json to trail the MapForGoblins fork's head"
         type: boolean
         default: false
+      dry_run:
+        description: "exercise signing/attestation/publish steps without calling Azure or touching the release (requires tag)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 concurrency:
   group: er-release-${{ github.event.inputs.tag || (github.ref == 'refs/heads/main' && 'dev' || github.ref) }}
@@ -67,6 +73,7 @@ jobs:
   # -----------------------------------------------------------------------------------------------
   client-dll:
     runs-on: windows-latest
+    environment: release-signing
     steps:
       - uses: actions/checkout@v4
         with:
@@ -100,6 +107,81 @@ jobs:
       - name: Build the client
         working-directory: from-software-archipelago-clients
         run: cargo build --release -p eldenring-archipelago
+
+      # Only a real release ships a signed .dll -- the moving `main` dev channel and unofficial
+      # workflow_dispatch builds rebuild on every push and would burn Azure Trusted Signing quota
+      # for a bundle nobody submits to a release. Same test `bundle`'s "Attach to the release"
+      # step uses to decide whether this run publishes at all.
+      #
+      # dry_run (workflow_dispatch only) is the deliberate exception: it targets a real tag so the
+      # rest of the pipeline runs as it would for a release, but skips Azure entirely -- no login,
+      # no signing call, no quota spent -- so the plumbing (build, pack, pairing check) can be
+      # proven on a throwaway tag before the first real one goes through the signer for real.
+      - id: should-sign
+        shell: bash
+        run: |
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            echo "sign=false" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref }}" == refs/tags/v* || -n "${{ github.event.inputs.tag }}" ]]; then
+            echo "sign=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "sign=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Dry run - signing skipped
+        if: github.event.inputs.dry_run == 'true'
+        shell: bash
+        run: echo "::notice::dry_run is set -- the client .dll will NOT be Authenticode-signed and this run will NOT publish to the release"
+
+      - name: Azure login for Artifact Signing
+        if: steps.should-sign.outputs.sign == 'true'
+        uses: azure/login@8216e11d8cd9b42fe925c852af8e76311ff067ac
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Authenticode-sign the client .dll
+        if: steps.should-sign.outputs.sign == 'true'
+        uses: azure/artifact-signing-action@c0ae2c1d0c1847ab81ac0ab8521bee597cfedd30
+        with:
+          endpoint: ${{ vars.ARTIFACT_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ vars.ARTIFACT_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ vars.ARTIFACT_SIGNING_CERTIFICATE_PROFILE_NAME }}
+          files: |
+            ${{ github.workspace }}\from-software-archipelago-clients\target\release\eldenring_archipelago.dll
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          exclude-environment-credential: true
+          exclude-workload-identity-credential: true
+          exclude-managed-identity-credential: true
+          exclude-shared-token-cache-credential: true
+          exclude-visual-studio-credential: true
+          exclude-visual-studio-code-credential: true
+          exclude-azure-cli-credential: false
+          exclude-azure-powershell-credential: true
+          exclude-azure-developer-cli-credential: true
+          exclude-interactive-browser-credential: true
+
+      - name: Verify the client .dll signature
+        if: steps.should-sign.outputs.sign == 'true'
+        shell: pwsh
+        env:
+          EXPECTED_SIGNER_SUBJECT: ${{ vars.ARTIFACT_SIGNING_EXPECTED_SUBJECT }}
+        run: |
+          $path = "from-software-archipelago-clients\target\release\eldenring_archipelago.dll"
+          $signature = Get-AuthenticodeSignature -LiteralPath $path
+          if ($signature.Status -ne "Valid") {
+            throw "Authenticode verification failed for ${path}: $($signature.Status) $($signature.StatusMessage)"
+          }
+          if (-not $signature.TimeStamperCertificate) {
+            throw "Authenticode timestamp is missing for $path"
+          }
+          if ($env:EXPECTED_SIGNER_SUBJECT -and $signature.SignerCertificate.Subject -ne $env:EXPECTED_SIGNER_SUBJECT) {
+            throw "Unexpected signer for ${path}: $($signature.SignerCertificate.Subject)"
+          }
+          Write-Host "VERIFIED $path | $($signature.SignerCertificate.Subject) | timestamp $($signature.TimeStamperCertificate.Subject)"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -343,9 +425,22 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      # Only a real tag publishes. A workflow_dispatch run leaves the artifact and stops.
+      # Provenance for the bundle carrying the signed .dll -- same scope as the signing step in
+      # client-dll: a real tag or dispatch-with-tag release, never the moving dev channel, and never
+      # a dry run (dry_run proves the pipeline, not the release's provenance record).
+      - name: Attest the release artifacts
+        if: (startsWith(github.ref, 'refs/tags/v') || github.event.inputs.tag != '') && github.event.inputs.dry_run != 'true'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/*.zip
+            dist/*.apworld
+
+      # Only a real tag publishes. A workflow_dispatch run leaves the artifact and stops. dry_run
+      # stops here too -- it built, packed and (skipped-)signed the exact bundle a real tag would,
+      # but never touches the actual GitHub release.
       - name: Attach to the release
-        if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.tag != ''
+        if: (startsWith(github.ref, 'refs/tags/v') || github.event.inputs.tag != '') && github.event.inputs.dry_run != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
@@ -353,6 +448,13 @@ jobs:
           make_latest: ${{ contains(github.event.inputs.tag || github.ref_name, '-') && 'false' || ((github.event.inputs.tag || github.ref_name) == 'v0.6.0' && 'true' || 'legacy') }}
           files: dist/*.zip
           fail_on_unmatched_files: true
+
+      - name: Dry run - release not published
+        if: (startsWith(github.ref, 'refs/tags/v') || github.event.inputs.tag != '') && github.event.inputs.dry_run == 'true'
+        shell: bash
+        run: |
+          echo "::notice::dry_run is set -- dist/*.zip built and packed successfully but was NOT attached to any release"
+          ls -la dist/
 
       - name: Publish the moving development channel
         if: github.ref == 'refs/heads/main' && github.event.inputs.tag == ''

@@ -43,10 +43,16 @@ on:
         description: "1 if this tag deliberately trails client main"
         required: false
         default: "0"
+      dry_run:
+        description: "build and catalog the apworld without calling Azure or touching the release"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
   issues: write        # pin-record files an issue when the tag's record is wrong
+  id-token: write
+  attestations: write
 
 jobs:
   # ---------------------------------------------------------------------------------------------
@@ -89,7 +95,7 @@ jobs:
       # A YAML block scalar and a shell heredoc do not mix -- the terminator has to sit at column
       # zero and that ends the block. Build the body with printf into a file instead.
       - name: File an issue -- this tag's record of its client is wrong
-        if: failure()
+        if: failure() && github.event.inputs.dry_run != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
@@ -205,7 +211,145 @@ jobs:
       - name: Package optional offline tools
         run: python tools/package_offline_tools.py --directory dist
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-dist
+          path: |
+            dist/eldenring.apworld
+            dist/Optional-Offline-Tools.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------------------------
+  # `eldenring.apworld` is a zip, not a PE file, so Authenticode has nothing on it to sign directly
+  # (see er-release.yaml's client-dll signing for the .dll case, where it does). The standard way to
+  # extend Authenticode trust to non-PE content is the same one Windows itself uses for driver
+  # packages: a security catalog (.cat) that records the file's hash, which IS a PE-adjacent format
+  # Authenticode can sign. `makecat` builds it, `signtool`/Get-AuthenticodeSignature build and check
+  # it, both from the Windows SDK already on windows-latest. A host verifies the apworld by checking
+  # the shipped .cat's signature and confirming it lists a matching SHA-256 of the apworld -- the
+  # same two-step verification Windows uses for a signed driver.
+  sign-apworld:
+    runs-on: windows-latest
+    needs: assets
+    environment: release-signing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-dist
+          path: dist
+
+      - name: Locate signtool and makecat from the Windows SDK
+        id: sdk-tools
+        shell: pwsh
+        run: |
+          $root = "C:\Program Files (x86)\Windows Kits\10\bin"
+          $signtool = Get-ChildItem -Path $root -Recurse -Filter signtool.exe -ErrorAction Stop |
+            Where-Object { $_.FullName -match "x64" } | Select-Object -First 1 -ExpandProperty DirectoryName
+          $makecat = Get-ChildItem -Path $root -Recurse -Filter makecat.exe -ErrorAction Stop |
+            Where-Object { $_.FullName -match "x64" } | Select-Object -First 1 -ExpandProperty DirectoryName
+          if (-not $signtool) { throw "signtool.exe not found under $root" }
+          if (-not $makecat) { throw "makecat.exe not found under $root" }
+          "$signtool" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          "$makecat" | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+
+      - name: Build the catalog for the bare apworld
+        shell: pwsh
+        run: |
+          @"
+          [CatalogHeader]
+          Name=eldenring.apworld.cat
+          ResultDir=.
+          PublicVersion=0x0000001
+          CatalogVersion=2
+          HashAlgorithms=SHA256
+
+          [CatalogFiles]
+          <hash>eldenring.apworld=dist\eldenring.apworld
+          "@ | Set-Content -Path eldenring.apworld.cdf -Encoding ascii
+          makecat -v eldenring.apworld.cdf
+          if ($LASTEXITCODE -ne 0) { throw "makecat failed" }
+          if (-not (Test-Path eldenring.apworld.cat)) { throw "makecat produced no catalog" }
+
+      # dry_run proves the catalog builds and the workflow plumbs correctly on a throwaway tag
+      # without spending an Azure Trusted Signing call or touching the release -- the catalog is
+      # left unsigned and every step past it that needs a real signature or a real release is
+      # skipped in favour of a report.
+      - name: Dry run - catalog built but not signed
+        if: github.event.inputs.dry_run == 'true'
+        shell: pwsh
+        run: |
+          Write-Host "::notice::dry_run is set -- eldenring.apworld.cat will NOT be signed and nothing will be attached to any release"
+          $hash = (Get-FileHash -LiteralPath dist\eldenring.apworld -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "apworld SHA-256: $hash"
+          Get-Item eldenring.apworld.cat | Format-List Name, Length, LastWriteTime
+
+      - name: Azure login for Artifact Signing
+        if: github.event.inputs.dry_run != 'true'
+        uses: azure/login@8216e11d8cd9b42fe925c852af8e76311ff067ac
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Authenticode-sign the apworld catalog
+        if: github.event.inputs.dry_run != 'true'
+        uses: azure/artifact-signing-action@c0ae2c1d0c1847ab81ac0ab8521bee597cfedd30
+        with:
+          endpoint: ${{ vars.ARTIFACT_SIGNING_ENDPOINT }}
+          signing-account-name: ${{ vars.ARTIFACT_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ vars.ARTIFACT_SIGNING_CERTIFICATE_PROFILE_NAME }}
+          files: |
+            ${{ github.workspace }}\eldenring.apworld.cat
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
+          exclude-environment-credential: true
+          exclude-workload-identity-credential: true
+          exclude-managed-identity-credential: true
+          exclude-shared-token-cache-credential: true
+          exclude-visual-studio-credential: true
+          exclude-visual-studio-code-credential: true
+          exclude-azure-cli-credential: false
+          exclude-azure-powershell-credential: true
+          exclude-azure-developer-cli-credential: true
+          exclude-interactive-browser-credential: true
+
+      - name: Verify the catalog signature and its apworld hash
+        if: github.event.inputs.dry_run != 'true'
+        shell: pwsh
+        env:
+          EXPECTED_SIGNER_SUBJECT: ${{ vars.ARTIFACT_SIGNING_EXPECTED_SUBJECT }}
+        run: |
+          $signature = Get-AuthenticodeSignature -LiteralPath eldenring.apworld.cat
+          if ($signature.Status -ne "Valid") {
+            throw "Authenticode verification failed for eldenring.apworld.cat: $($signature.Status) $($signature.StatusMessage)"
+          }
+          if (-not $signature.TimeStamperCertificate) { throw "Authenticode timestamp is missing for eldenring.apworld.cat" }
+          if ($env:EXPECTED_SIGNER_SUBJECT -and $signature.SignerCertificate.Subject -ne $env:EXPECTED_SIGNER_SUBJECT) {
+            throw "Unexpected signer for eldenring.apworld.cat: $($signature.SignerCertificate.Subject)"
+          }
+          # A signed catalog that lists the wrong hash is worse than no catalog: it is a trust
+          # signal pointing at nothing. `/c <catalog> <file>` asks signtool to look the file's hash
+          # up IN that catalog, not just check the catalog's own signature -- so this fails if the
+          # apworld this job downloaded doesn't match what got hashed into the catalog above.
+          & signtool verify /pa /v /c eldenring.apworld.cat dist\eldenring.apworld
+          if ($LASTEXITCODE -ne 0) { throw "eldenring.apworld does not match a member of eldenring.apworld.cat" }
+          $hash = (Get-FileHash -LiteralPath dist\eldenring.apworld -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "VERIFIED eldenring.apworld.cat | $($signature.SignerCertificate.Subject) | timestamp $($signature.TimeStamperCertificate.Subject)"
+          Write-Host "apworld SHA-256: $hash"
+
+      - name: Attest the release artifacts
+        if: github.event.inputs.dry_run != 'true'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            dist/eldenring.apworld
+            dist/Optional-Offline-Tools.zip
+            eldenring.apworld.cat
+
       - name: Attach to the release
+        if: github.event.inputs.dry_run != 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
@@ -214,4 +358,5 @@ jobs:
           files: |
             dist/eldenring.apworld
             dist/Optional-Offline-Tools.zip
+            eldenring.apworld.cat
           fail_on_unmatched_files: true
