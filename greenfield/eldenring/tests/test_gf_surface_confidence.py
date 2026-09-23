@@ -264,7 +264,7 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
         from ..certified_progression_hosts import CERTIFIED_PROGRESSION_HOST_APS
         from ..core import _NO_PROGRESSION_APS
         from ..tables.evidence_progression_hosts import HOLD_PROGRESSION_HOST_APS
-        from ..features.evidence_progression_hosts import _always_hold_aps
+        from ..features.evidence_progression_hosts import _always_hold_aps, oracle_sweep_aps
         from ..features.progression_surface import (
             _world_barred_aps, collapsed_lift_aps, missable_barred_aps)
         from ..tables.location_tags import ERDTREE_BURN_APS, SURFACE_EXCLUDE_APS
@@ -274,7 +274,11 @@ class SurfaceConfidencePinsTheRealBarStack(unittest.TestCase):
             options=SimpleNamespace(protect_missable_locations=SimpleNamespace(value=1)))
         lift = collapsed_lift_aps(world)
         missable = missable_barred_aps(world)
-        evidence_hold = HOLD_PROGRESSION_HOST_APS - CERTIFIED_PROGRESSION_HOST_APS
+        # The two promotion sources out of the generated HOLD: direct certification and the
+        # sweep-backed corroborated set (2026-09-23). Both are named here so a third one cannot
+        # arrive undocumented.
+        evidence_hold = (HOLD_PROGRESSION_HOST_APS - CERTIFIED_PROGRESSION_HOST_APS
+                         - oracle_sweep_aps())
         self.assertEqual(
             _world_barred_aps(world),
             ((frozenset(_NO_PROGRESSION_APS) - lift) | missable

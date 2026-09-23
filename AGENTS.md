@@ -784,6 +784,18 @@ It gates two classes and reports the rest:
 Region assignment, missable tagging, shop granularity and DLC membership are **report-only**
 (`--report`): the two models differ structurally there, so equality would be noise, not signal.
 
+- **J. CORROBORATED HOSTS** — the one GENERATED TABLE this tool writes:
+  `tables/oracle_corroborated_hosts.py` (`--hosts-table`), bare ap-ids of OURS whose flag joins
+  one of his Event slots and that no committed queue row disputes (status other than
+  `confirmed-ours` / `confirmed-not-missable`). Refreshed by hand with the pin, like the
+  allowlists; not a regen_all step because it needs the checkout. It is NOT a hosting rule by
+  itself: `features/evidence_progression_hosts.oracle_sweep_aps` intersects it with
+  `boss_sweeps.DUNGEON_SWEEPS` membership and subtracts `MISSABLE_LOCATIONS` and the finale
+  bar, and THAT set is the third promotion source out of the generated HOLD (beside the
+  two-family wiki ledger and `certified_progression_hosts`). Rationale (2026-09-23): the
+  shipping accuracy bar is "sweep-granted is reachable", so a corroborated, swept, non-missable
+  check cannot strand progression through a placement error. ~3,600 hosts against the ledger's
+  1,155, which is what lets `progression_surface: []` actually scatter.
 - **I. UNCOVERED ROWS** — report-only, and the honest denominator for everything above. Every
   other class starts from HIS slots; this one starts from OURS and counts the rows with no
   Event-scope counterpart in his table at all (640 of 4,932, 13%, on 2026-09-22), classified
@@ -835,6 +847,7 @@ Region assignment, missable tagging, shop granularity and DLC membership are **r
 python tools/matt_oracle.py --souls-rando-dir <checkout>   # exit 1 on a NEW disagreement
 SOULS_RANDO_DIR=<checkout> python tools/matt_oracle.py --report --json oracle.json
 SOULS_RANDO_DIR=<checkout> python tools/matt_oracle.py --region-queue   # refresh the queue tsv
+SOULS_RANDO_DIR=<checkout> python tools/matt_oracle.py --hosts-table     # refresh tables/oracle_corroborated_hosts.py
 python tools/matt_oracle.py                                # no checkout -> "SKIP: ...", exit 0
 ```
 

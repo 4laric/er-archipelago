@@ -149,6 +149,14 @@ every step: read his checkout locally, commit only our own flags, names and reas
     `our_conditions`, beside the 30 gated ones. A reviewer rules them from the award site's
     ESD/EMEVD callers, not from the absence of a row.
 
+11. **Corroborated hosts table (2026-09-23).** `--hosts-table` writes
+    `tables/oracle_corroborated_hosts.py`: our ap-ids whose flag joins his Event slots and that no
+    committed queue row disputes (4,059 today). `features/evidence_progression_hosts` intersects
+    it with sweep membership and subtracts missable + finale, and promotes the result out of the
+    generated HOLD. Progression hosts go from 1,155 to about 3,600 without any row being trusted
+    on placement alone: under the shipping bar, a swept check is reachable whatever its placement.
+    Refresh it whenever the pin moves or a queue verdict changes.
+
 ## Ownership (read before treating a queue as owed work)
 
 **2026-09-22: handed off.** Per-check accuracy work is stopped. [HANDOFF-CHECK-ACCURACY.md](HANDOFF-CHECK-ACCURACY.md)

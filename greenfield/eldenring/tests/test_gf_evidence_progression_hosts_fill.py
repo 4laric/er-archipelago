@@ -63,7 +63,11 @@ def _item(name, player, classification):
 def test_hold_rule_composes_and_bars_every_advancement_class():
     """Boss Keys/Unlocks bypass the older Lock predicate; foreign items use another fill path."""
     rejected_by_prior = _item("Prior rejection witness", 1, ItemClassification.filler)
-    loc = _FakeLocation(next(iter(HOLD_PROGRESSION_HOST_APS)),
+    # A generated-HOLD row that is STILL held once the promotion sources (certified, sweep-backed
+    # corroborated) are applied -- an arbitrary HOLD row may now be a trusted host.
+    still_held = hold_aps(None, candidates=HOLD_PROGRESSION_HOST_APS)
+    assert still_held, "every generated HOLD row was promoted; the bar has no witness"
+    loc = _FakeLocation(next(iter(sorted(still_held))),
                         prior=lambda item: item is not rejected_by_prior)
     apply_location_rule(SimpleNamespace(player=1), loc)
 

@@ -57,6 +57,7 @@ GENERATED_MODULES: Tuple[str, ...] = (
     "location_tags",
     "mine_material_data",
     "missable_locations",
+    "oracle_corroborated_hosts",
     "region_graces",
     "region_open_flags",
     "region_play_ids",

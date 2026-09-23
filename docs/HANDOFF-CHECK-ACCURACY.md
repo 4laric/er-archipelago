@@ -30,6 +30,15 @@ Roundtable Hold (178, mostly NPC stock), Liurnia (118), Caelid (81), Limgrave (8
 The unswept set is the only set where a placement error can cost a player anything. Any future
 accuracy work should start there and nowhere else.
 
+**Required progression is confined to hosts the bar makes safe.** Every location that is not on
+a trusted allow-list refuses advancement items from every world. Since 2026-09-23 that allow-list
+is the union of three sources: the two-family wiki ledger (1,155 checks), the maintainer-certified
+list, and the sweep-backed corroborated set: checks that thefifthmatt's table also carries with no
+review queue disputing them, that some boss sweep grants, and that are not missable (about 3,600).
+A required item can therefore never sit on a play-at-your-own-risk check. See
+`features/evidence_progression_hosts.oracle_sweep_aps` and `tables/oracle_corroborated_hosts.py`;
+the table is refreshed with the oracle pin (`tools/matt_oracle.py --hosts-table`).
+
 ## What "accurate" was measured against
 
 Our tables are generated from vanilla game data (`greenfield/gen_data.py`, inputs under
