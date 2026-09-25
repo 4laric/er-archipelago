@@ -4020,7 +4020,6 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7774002		unresolved	critical	all
 7774003		unresolved	critical	all
 7774004		unresolved	critical	all
-7774005		unresolved	critical	all
 7774006		unresolved	critical	all
 7774007		unresolved	critical	all
 7774008		unresolved	critical	all
@@ -4116,8 +4115,6 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7774098		unresolved	critical	all
 7774099		unresolved	critical	all
 7774100		unresolved	critical	all
-7774101		unresolved	critical	all
-7774102		unresolved	critical	all
 7774103		unresolved	critical	all
 7774104		unresolved	critical	all
 7774105		unresolved	critical	all
@@ -4323,8 +4320,6 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7774305		unresolved	critical	all
 7774306		unresolved	critical	all
 7774307		unresolved	critical	all
-7774308		unresolved	critical	all
-7774309		unresolved	critical	all
 7774310		unresolved	critical	all
 7774311		unresolved	critical	all
 7774312		unresolved	critical	all
@@ -4380,7 +4375,6 @@ check_id	access_claim_id	disposition	risk	option_set	reason	review_issue	owner	r
 7774362		unresolved	critical	all
 7774363		unresolved	critical	all
 7774364		unresolved	critical	all
-7774365		unresolved	critical	all
 7774366		unresolved	critical	all
 7774367		unresolved	critical	all
 7774368		unresolved	critical	all

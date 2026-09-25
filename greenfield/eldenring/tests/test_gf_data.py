@@ -125,6 +125,33 @@ class GreenfieldDataInvariants(unittest.TestCase):
         names = [n for n, _a, _f in self.locs]
         self.assertEqual(len(names), len(set(names)), "duplicate location names")
 
+    def test_tombstones_match_the_ledger_and_name_no_live_check(self):
+        """#1521: data.TOMBSTONES is the emitted copy of greenfield/tombstones.tsv, and a burned id
+        must belong to a flag that is NOT a location any more (the whole point of burning it)."""
+        emitted = getattr(self.d, "TOMBSTONES", None)
+        self.assertIsNotNone(emitted, "data.py has no TOMBSTONES table -- regen with the ledger")
+        ledger = {}
+        for p in (os.path.join(GF_PKG, "tombstones.tsv"),
+                  os.path.join(os.path.dirname(GF_PKG), "tombstones.tsv")):
+            if os.path.exists(p):
+                with open(p, encoding="utf-8") as fh:
+                    for ln in fh:
+                        if not ln.strip() or ln.startswith("#") or ln.startswith("ap_id"):
+                            continue
+                        c = ln.rstrip(chr(10)).split(chr(9))
+                        ledger[int(c[0])] = int(c[1])
+                break
+        self.assertTrue(ledger, "WITNESS: no tombstones.tsv found beside data.py or in greenfield/")
+        self.assertEqual({ap: fl for ap, (fl, _d, _r) in emitted.items()}, ledger,
+                         "data.TOMBSTONES and tombstones.tsv disagree -- regen")
+        live_flags = {f for _n, _a, f in self.locs}
+        live_aps = {a for _n, a, _f in self.locs}
+        for ap, (fl, retired, reason) in emitted.items():
+            self.assertNotIn(fl, live_flags, f"tombstone {ap} burns flag {fl}, which is still a location")
+            self.assertNotIn(ap, live_aps, f"tombstone {ap} is still emitted as a location")
+            self.assertRegex(retired, r"^\d{4}-\d{2}-\d{2}$")
+            self.assertTrue(reason.strip(), f"tombstone {ap} carries no reason")
+
     def test_ap_ids_unique_contiguous_from_base(self):
         ids = sorted(a for _n, a, _f in self.locs)
         self.assertEqual(len(ids), len(set(ids)), "duplicate ap ids")
@@ -137,8 +164,15 @@ class GreenfieldDataInvariants(unittest.TestCase):
         co = [i for i in ids if i >= COCHECK_BASE]
         self.assertTrue(main, "no positional ap-ids below COCHECK_BASE -- id space misconfigured")
         self.assertEqual(main[0], BASE_AP, f"ap-id space shifted (min={main[0]}, expected {BASE_AP})")
-        self.assertEqual(main, list(range(BASE_AP, BASE_AP + len(main))),
-                         "positional ap ids are not contiguous (gen_data assigns them sequentially)")
+        # #1521: a retired check BURNS its id (data.TOMBSTONES, greenfield/tombstones.tsv), so the
+        # band is contiguous once the burned ids are put back -- and only those.
+        burned = sorted(getattr(self.d, "TOMBSTONES", {}))
+        for b in burned:
+            self.assertTrue(BASE_AP <= b < COCHECK_BASE, f"tombstone {b} outside the positional band")
+            self.assertNotIn(b, ids, f"tombstoned ap {b} is still emitted as a location")
+        self.assertEqual(sorted(main + burned), list(range(BASE_AP, BASE_AP + len(main) + len(burned))),
+                         "positional ap ids are not contiguous once tombstones are counted "
+                         "(gen_data assigns them sequentially, skipping only burned ids)")
         if co:
             registered = _registered_cocheck_ids()
             self.assertTrue(registered,

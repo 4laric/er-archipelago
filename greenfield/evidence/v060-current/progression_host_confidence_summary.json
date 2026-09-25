@@ -1,17 +1,17 @@
 {
   "by_confidence": {
-    "hold": 3777,
+    "hold": 3771,
     "trusted_identity_region": 1155
   },
   "by_external_family_count": {
-    "0": 2814,
-    "1": 963,
+    "0": 2809,
+    "1": 962,
     "2": 942,
     "3": 208,
     "4": 5
   },
-  "checks_total": 4932,
-  "content_sha256": "4a4e56b225ee15ddff70253680bd3139d5e19e6703daca4506366a44d65bef8a",
+  "checks_total": 4926,
+  "content_sha256": "fc3eb83b1b94d38626dbf279d6b9976f5b2173b729c7b6a314cfd5026f9cc602",
   "input_files": {
     "dlc-blessing-collectible-check-leads.tsv": "b54365752dc02e8997f8ba72bf7fe5d10ce0bfa9f35773a7ce39db3529e4360a",
     "dlc-sparse-region-check-leads.tsv": "af64f68169218e5b8951183a33bdbc17a9235efdccf2a1c4db7de98e0cfdc4f1",

@@ -23,7 +23,11 @@ def test_hub_unattributed_census_is_nonempty_and_exact():
     # #1538: 50 -> 49. Exactly AP7773851 / f520800 (Bloodfiend Hexer ashes)
     # leaves the hub for Rivermouth Cave / Gravesite on native lot and event evidence.
     # It retains its DEFAULTED progression bar; no other member changes.
-    assert len(expected) == 49, "re-measure the regenerated untagged-hub census"
+    # #1522: 49 -> 47. Exactly AP7774101 / f99997020 (Cracked Pot x15) and AP7774102 /
+    # f99997030 (Perfume Bottle x5) leave: common-event lots no event, talk script or NpcParam
+    # row awards, on a flag block the game does not allocate. Retired via tombstones.tsv, so
+    # no other member's ap id moved.
+    assert len(expected) == 47, "re-measure the regenerated untagged-hub census"
 
 
 def test_hub_unattributed_checks_are_permanently_barred():

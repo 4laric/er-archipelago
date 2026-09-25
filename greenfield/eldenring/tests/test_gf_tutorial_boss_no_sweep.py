@@ -649,8 +649,14 @@ def test_the_sweep_corpus_did_not_shrink():
     # thread completing under its own steam, the guard trips early and 9180/510800 are stranded
     # for good. A new hand-curated table, `_SWEEP_BOSS_REWARD_LOT_GIFTS` in gen_data.py (same
     # fail-closed assertions as `_SWEEP_POST_BOSS_GIFTS` beside it), admits it the same way.
-    assert total == 4135, (
-        "sweep corpus is %d, expected 4135. If a sweep was legitimately added or removed, say WHY "
+    # 2026-09-25 (#1522), measured by (trigger, flag) against HEAD~1: 4135 -> 4131. REMOVED 4,
+    # ADDED 0, RE-OWNED 0: f39207170 Sacred Tear left trigger 39200800 (Magma Wyrm Makar);
+    # f1042377100 Assassin's Crimson Dagger and f1042377110 Storm Stomp left 1042370800
+    # (Crucible Knight, Gatefront); f1044357050 Flame Sling left 1044350800 (Darriwil). All four
+    # are phantom map lots (no MSB, no coordinate, no award route; the real items are awarded
+    # elsewhere) retired via greenfield/tombstones.tsv, so no surviving member's ap id moved.
+    assert total == 4131, (
+        "sweep corpus is %d, expected 4131. If a sweep was legitimately added or removed, say WHY "
         "here -- do not just re-baseline the number." % total)
 
 
@@ -1049,6 +1055,8 @@ def test_the_sweep_OWNERSHIP_did_not_churn():
     # can be permanently stranded by the same CharacterDead-race shape #907 exists to route
     # around. ZERO region crossings -- SWEEP_REGION is 'Weeping' for 1043300800 and the check's
     # own region alike, so #1059 holds.
-    assert (digest, n) == ("89af6dba5e5f6cb7", 4135), (
-        "sweep OWNERSHIP changed: (%s, %d), expected (89af6dba5e5f6cb7, 4135). The total alone will "
+    # 2026-09-25 (#1522): digest 89af6dba5e5f6cb7 -> 1588a14f6618b7e6, n 4135 -> 4131. REMOVED 4,
+    # ADDED 0, RE-OWNED 0 -- the four phantom map lots named in the corpus-total docstring above.
+    assert (digest, n) == ("1588a14f6618b7e6", 4131), (
+        "sweep OWNERSHIP changed: (%s, %d), expected (1588a14f6618b7e6, 4131). The total alone will "
         "not tell you what moved -- diff by (trigger, flag), never by ap id." % (digest, n))

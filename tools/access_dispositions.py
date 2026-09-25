@@ -15,6 +15,12 @@ corpus, and add default `unresolved/critical/all` rows for any flag that entered
 below catches both halves if you get it wrong -- the population check and the claim-id pairing check
 are the two tripwires. (Learned on world#1515/#1518, 2026-09-08, the first removal since this table
 was bootstrapped: 10 checks left and 58 curated rows had to move with their flags.)
+
+SINCE 2026-09-25 (#1521) A REMOVAL DOES NOT RENUMBER. `greenfield/tombstones.tsv` burns the retired
+check's ap id and gen_data's positional walk skips it, so every other id stays put. The migration
+above is then just the population half: delete the tombstoned ids' rows (their flag left the corpus)
+and nothing re-points. `validate()` still runs both tripwires; a renumbering can only come from a
+removal that was NOT tombstoned, which is the thing to fix rather than migrate around.
 """
 from __future__ import annotations
 

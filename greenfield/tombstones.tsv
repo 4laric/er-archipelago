@@ -1,0 +1,17 @@
+# tombstones.tsv -- APPEND-ONLY ledger of BURNED positional ap ids (issue #1521).
+#
+# ap ids are BASE_AP + position in gen_data's `rows`, so dropping a check used to renumber every
+# check after it. A row here says: this ap id belonged to `flag`, the check was retired, and the
+# positional walk SKIPS the id so every later check keeps the id it had. Ids are never reused and
+# rows are never deleted; retract a mistaken tombstone by restoring the row AND removing the
+# tombstone in the same regen (gen_data FATALs while both exist).
+#
+# `ap_id` must be the id the check HAD in the last data.py that carried it (git show
+# <base>:greenfield/eldenring/tables/data.py). `reason` names the issue and the evidence class.
+ap_id	flag	retired	reason
+7774005	39207170	2026-09-25	#1522 flag_tile-only map lot (Sacred Tear, Ruin-Strewn Precipice): no MSB, no coordinate, no award route
+7774101	99997020	2026-09-25	#1522 common-event lot 9990120 (Cracked Pot x15) awarded by nothing; flag block 9999xxxx does not exist in game
+7774102	99997030	2026-09-25	#1522 common-event lot 9990130 (Perfume Bottle x5) awarded by nothing; flag block 9999xxxx does not exist in game
+7774308	1042377100	2026-09-25	#1522 flag_tile-only map lot (Assassin's Crimson Dagger, m60_42_37): no MSB, no coordinate, no award route
+7774309	1042377110	2026-09-25	#1522 flag_tile-only map lot (Ash of War: Storm Stomp, m60_42_37): no MSB, no coordinate, no award route
+7774365	1044357050	2026-09-25	#1522 flag_tile-only map lot (Flame Sling, m60_44_35): no MSB, no coordinate, no award route

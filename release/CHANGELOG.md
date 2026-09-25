@@ -56,6 +56,19 @@ touches no contract key at all.
   and merchant stock are never swept, and the per-seed Progression Surface cut applies exactly as
   it does everywhere else. No client change needed -- the client already treats every sweep group
   generically.
+- **Fixed: six checks nobody could ever take are gone from new seeds** (#1522, and the tombstone
+  mechanism from #1521 that let them go without renumbering anything). Player report: a
+  `Roundtable Hold :: Cracked Pot` check with nothing to do for it. Traced: the game defines an
+  item lot for 15 Cracked Pots (and one for 5 Perfume Bottles) that no event, talk script or
+  enemy ever awards, and whose flag sits in a block the game does not even allocate -- the client's
+  `!setflag` on it reads back false. Our unplaced-globals datamine had counted a map tile *decoded
+  from the flag number* as an observation of the pickup, so the flag vouched for itself and the
+  row shipped. Same circular signature on four map lots (a 13th Sacred Tear no wiki lists, and
+  three m60_42_37 / m60_44_35 lots for items the game actually awards elsewhere): all retired.
+  The datamine now ignores that decode source. **AP ids did not move:** each retired check's id
+  is burned in `greenfield/tombstones.tsv` and the generator skips it, so every other check keeps
+  the id it had. New seeds only; a running room keeps its rows (the host can `send_location` the
+  phantom if a player has it).
 
 ## v0.6.1.2 — 2026-09-21
 

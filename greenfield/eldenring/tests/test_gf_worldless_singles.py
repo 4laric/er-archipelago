@@ -80,7 +80,9 @@ class WorldlessSingles(unittest.TestCase):
             sys.path.insert(0, REPO)
         from tools.audit_worldless_checks import audit
         cls.a = audit()
-        cls.frozen = _gen_literal("_WORLDLESS_SINGLES")
+        # 2026-09-25 (#1522): _FLAG_TILE_ONLY_LOTS carries the same signature (map-shaped, no
+        # placement, no award route) under its own _NR_RULES reason; the rule below derives both.
+        cls.frozen = _gen_literal("_WORLDLESS_SINGLES") | _gen_literal("_FLAG_TILE_ONLY_LOTS")
         cls.rada = _gen_literal("_RADA_WORLDLESS")
         from ..tables import data
         cls.flags = {int(flag) for rows in data.LOCATIONS.values() for (_n, _a, flag) in rows}
@@ -164,7 +166,11 @@ class WorldlessSingles(unittest.TestCase):
         # 86 -> 78 (2026-08-19, same day): #898's audited unplaced_global_tiles.tsv placed 8 of
         # them -- the derivation below now subtracts that corpus, which is exactly the shrink
         # this message asks to be named.
-        self.assertEqual(len(self.frozen), 71,
+        # 71 -> 79 (2026-09-25, #1522): the frozen class now includes _FLAG_TILE_ONLY_LOTS (8):
+        # its four #1515 rows, which the audited-tile subtraction had been hiding from this test,
+        # plus 39207170, 1042377100, 1042377110 and 1044357050, released when the datamine stopped
+        # counting a flag_tile decode as an observation.
+        self.assertEqual(len(self.frozen), 79,
                          "the cull corpus moved (was 71 after five M4G recoveries and the furnace sibling, ruled 2026-08-19; EMEVD screen -40, audited tiles -8, "
                          "RULED_LIVE -1 off the original 126). A shrink after a "
                          "census improvement is the loop working -- name the released rows; a "

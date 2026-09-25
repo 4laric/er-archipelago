@@ -61,6 +61,8 @@ FILE_INPUTS = [
     "greenfield/flag_lots.tsv",                    # faithful flag->lots capture (co-check families;
                                                    # tools/datamine_flag_lots.py -- SPEC-flag-lot-item-model)
     "greenfield/co_check_ids.tsv",                 # append-only co-check ap_id registry; a hand-edited
+    "greenfield/tombstones.tsv",                   # append-only burned-ap ledger (#1521): a new row moves
+                                                   # every positional consumer, so it is a declared input
                                                    # or stale registry must invalidate the stamp
     "greenfield/nearest_grace.tsv",                # layer-4 location descriptions ("near <grace>").
                                                    # gen_data CONSUMES it, so a change here changes

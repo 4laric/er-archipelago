@@ -8928,8 +8928,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770076,
@@ -20648,8 +20647,7 @@
         7770060,
         7770061,
         7773688,
-        7773689,
-        7774101
+        7773689
       ],
       "candidate_ids": [
         7770048,
@@ -22637,6 +22635,65 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w41-30"
+    },
+    {
+      "all_candidate_ids": [
+        7772583,
+        7772625,
+        7772708,
+        7772742,
+        7772765,
+        7772784,
+        7772879,
+        7772915,
+        7772956,
+        7773075,
+        7773132,
+        7773203
+      ],
+      "candidate_ids": [
+        7772583,
+        7772625,
+        7772708,
+        7773075
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Sacred Tear"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w3-6",
+      "item_name": "Sacred Tear",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7772708
+      ],
+      "observation_id": "walkthrough:c30cb797b9ba2c54599e",
+      "reason": "area_only",
+      "regions": [
+        "Caelid",
+        "Liurnia"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7772708
+      ],
+      "section": "early-liurnia",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w3-6"
     },
     {
       "all_candidate_ids": [
@@ -30768,68 +30825,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w12-42"
-    },
-    {
-      "all_candidate_ids": [
-        7772583,
-        7772625,
-        7772708,
-        7772742,
-        7772765,
-        7772784,
-        7772879,
-        7772915,
-        7772956,
-        7773075,
-        7773132,
-        7773203,
-        7774005
-      ],
-      "candidate_ids": [
-        7772583,
-        7772625,
-        7772708,
-        7773075,
-        7774005
-      ],
-      "competing_observation_count": 1,
-      "context_labels": [
-        "Sacred Tear"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w3-6",
-      "item_name": "Sacred Tear",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7772708,
-        7774005
-      ],
-      "observation_id": "walkthrough:c30cb797b9ba2c54599e",
-      "reason": "area_only",
-      "regions": [
-        "Caelid",
-        "Liurnia"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7772708
-      ],
-      "section": "early-liurnia",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w3-6"
     },
     {
       "all_candidate_ids": [
@@ -49082,6 +49077,73 @@
     },
     {
       "all_candidate_ids": [
+        7770070,
+        7770071,
+        7770072,
+        7770073,
+        7770074,
+        7770075,
+        7770076,
+        7773692,
+        7773693,
+        7773694
+      ],
+      "candidate_ids": [
+        7770070,
+        7770071,
+        7770072,
+        7770073,
+        7770074,
+        7770075,
+        7770076,
+        7773692,
+        7773693,
+        7773694
+      ],
+      "competing_observation_count": 6,
+      "context_labels": [
+        "Perfume Bottle"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w37-4",
+      "item_name": "Perfume Bottle",
+      "matched_on": [
+        "item_name"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770070,
+        7770071,
+        7770072,
+        7770076,
+        7773692,
+        7773693,
+        7773694
+      ],
+      "observation_id": "walkthrough:eb58a191bec0778aea08",
+      "reason": "region_disagreement",
+      "regions": [
+        "Mountaintops of the Giants"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [
+        7770076
+      ],
+      "section": "forbidden-lands",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w37-4"
+    },
+    {
+      "all_candidate_ids": [
         7770257,
         7770754,
         7770775,
@@ -51704,76 +51766,6 @@
       "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
       "status": "needs_review",
       "step": "w40-42"
-    },
-    {
-      "all_candidate_ids": [
-        7770070,
-        7770071,
-        7770072,
-        7770073,
-        7770074,
-        7770075,
-        7770076,
-        7773692,
-        7773693,
-        7773694,
-        7774102
-      ],
-      "candidate_ids": [
-        7770070,
-        7770071,
-        7770072,
-        7770073,
-        7770074,
-        7770075,
-        7770076,
-        7773692,
-        7773693,
-        7773694,
-        7774102
-      ],
-      "competing_observation_count": 6,
-      "context_labels": [
-        "Perfume Bottle"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w37-4",
-      "item_name": "Perfume Bottle",
-      "matched_on": [
-        "item_name"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770070,
-        7770071,
-        7770072,
-        7770076,
-        7773692,
-        7773693,
-        7773694,
-        7774102
-      ],
-      "observation_id": "walkthrough:eb58a191bec0778aea08",
-      "reason": "region_disagreement",
-      "regions": [
-        "Mountaintops of the Giants"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [
-        7770076
-      ],
-      "section": "forbidden-lands",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w37-4"
     },
     {
       "all_candidate_ids": [
@@ -108335,6 +108327,49 @@
     },
     {
       "all_candidate_ids": [
+        7770684
+      ],
+      "candidate_ids": [
+        7770684
+      ],
+      "competing_observation_count": 1,
+      "context_labels": [
+        "Assassin's Crimson Dagger",
+        "Black Knife Assassin"
+      ],
+      "family": "gameplay-guide:redmaw",
+      "file": "walkthrough.html",
+      "game_version": "unknown",
+      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w5-34",
+      "item_name": "Assassin's Crimson Dagger",
+      "matched_on": [
+        "item_name",
+        "guide_area"
+      ],
+      "mentioned_quantities": [],
+      "missing_evidence": [
+        "exact_landmark",
+        "exact_acquisition",
+        "quantity_or_position"
+      ],
+      "new_family_candidate_ids": [
+        7770684
+      ],
+      "observation_id": "walkthrough:da1aa8e4470ca3c9a629",
+      "reason": "area_only",
+      "regions": [
+        "Limgrave"
+      ],
+      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
+      "second_family_candidate_ids": [],
+      "section": "north-limgrave",
+      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
+      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
+      "status": "needs_review",
+      "step": "w5-34"
+    },
+    {
+      "all_candidate_ids": [
         7773724
       ],
       "candidate_ids": [
@@ -121293,8 +121328,7 @@
         7770060,
         7770061,
         7773688,
-        7773689,
-        7774101
+        7773689
       ],
       "candidate_ids": [
         7770061,
@@ -129012,8 +129046,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770071,
@@ -132393,52 +132426,6 @@
     },
     {
       "all_candidate_ids": [
-        7770684,
-        7774308
-      ],
-      "candidate_ids": [
-        7770684,
-        7774308
-      ],
-      "competing_observation_count": 1,
-      "context_labels": [
-        "Assassin's Crimson Dagger",
-        "Black Knife Assassin"
-      ],
-      "family": "gameplay-guide:redmaw",
-      "file": "walkthrough.html",
-      "game_version": "unknown",
-      "guide_url": "https://eldenring.redmaw.dev/sheets/walkthrough#w5-34",
-      "item_name": "Assassin's Crimson Dagger",
-      "matched_on": [
-        "item_name",
-        "guide_area"
-      ],
-      "mentioned_quantities": [],
-      "missing_evidence": [
-        "exact_landmark",
-        "exact_acquisition",
-        "quantity_or_position"
-      ],
-      "new_family_candidate_ids": [
-        7770684,
-        7774308
-      ],
-      "observation_id": "walkthrough:da1aa8e4470ca3c9a629",
-      "reason": "area_only",
-      "regions": [
-        "Limgrave"
-      ],
-      "revision": "7281cb6f7f067e71856f12d5e7083b97ad081bb1",
-      "second_family_candidate_ids": [],
-      "section": "north-limgrave",
-      "source_id": "wiki:redmaw:walkthroughs:7281cb6f",
-      "source_url": "https://github.com/rdmaw/elden-ring-completion-sheets/blob/7281cb6f7f067e71856f12d5e7083b97ad081bb1/sheets/walkthrough.html",
-      "status": "needs_review",
-      "step": "w5-34"
-    },
-    {
-      "all_candidate_ids": [
         7772026,
         7772028,
         7772032,
@@ -135412,8 +135399,7 @@
         7770060,
         7770061,
         7773688,
-        7773689,
-        7774101
+        7773689
       ],
       "candidate_ids": [
         7770046,
@@ -136138,8 +136124,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770070,
@@ -162375,8 +162360,7 @@
         7770060,
         7770061,
         7773688,
-        7773689,
-        7774101
+        7773689
       ],
       "candidate_ids": [
         7770057,
@@ -162540,8 +162524,7 @@
         7770060,
         7770061,
         7773688,
-        7773689,
-        7774101
+        7773689
       ],
       "candidate_ids": [
         7770057,
@@ -162892,8 +162875,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770073,
@@ -163213,8 +163195,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770073,
@@ -169814,8 +169795,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770073,
@@ -170514,8 +170494,7 @@
         7770060,
         7770061,
         7773688,
-        7773689,
-        7774101
+        7773689
       ],
       "candidate_ids": [
         7770051,
@@ -171246,8 +171225,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770073,
@@ -171469,8 +171447,7 @@
         7770076,
         7773692,
         7773693,
-        7773694,
-        7774102
+        7773694
       ],
       "candidate_ids": [
         7770073,
@@ -224565,8 +224542,8 @@
       "shared_landmark": 4,
       "source_area_unmapped": 76
     },
-    "held_checks_with_new_family_candidates": 2661,
-    "item_mentions": 4211,
+    "held_checks_with_new_family_candidates": 2658,
+    "item_mentions": 4210,
     "limitations": "Suggestions only. Linked items can be mentions, not acquisitions. Guide area and catalog anchors are not independent proof of AP ownership. No quantity, position, mechanism or access is inferred.",
     "one_source_checks_with_second_family_candidates": 351,
     "review_observations": 2852,
