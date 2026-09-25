@@ -7,7 +7,7 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** No. The client half of this window is a version stamp only (clients #717); a v0.6.1 / v0.6.1.x client keeps working on these seeds.
+- **Client:** Optional, recommended for anyone sharing a slot: clients #718 makes MapForGoblins pins agree across players on one slot (below). Any v0.6.1 / v0.6.1.x client still connects (clients #717 is the version stamp).
 - **APWorld:** Host-only, for newly generated rooms (the phantom-check retirement below).
 - **YAML:** **No new YAML required.** Existing YAMLs remain valid.
 - **Existing seed/save:** Compatible. A running room keeps its rows; the host can `/send_location` a phantom check if a player holds one.
@@ -17,12 +17,21 @@ Window opened 2 commit(s) PAST the v0.6.1.3 tag.
 
 `CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading contract.py): every client on the 0.6.1 line handshakes with these seeds, and this apworld with theirs.
 
-The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #717, version stamp only, pinned by the gitlink in the same commit as this bump.
+The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #717, version stamp only, pinned by the gitlink in the same commit as this bump. clients #718 (map-pin sync) lands in the same window.
 
 `stable` was already promoted to v0.6.1.3 by hand on 2026-09-24 (see `release/CHANNELS.tsv`); this window owes no promotion.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Fixed (client): two players on one slot now see the same MapForGoblins pins** (clients #718).
+  Report: two people playing the same slot had different maps. Both inputs to the pin filter were
+  local to each install. A pin only disappeared once *that save* had the pickup flag, so a
+  check your partner already sent stayed pinned for you; and "in logic" tested the region Lock
+  flag on the local save, so a fresh character still replaying its item ledger showed regions
+  locked that the room had opened. Now the server's checked list decides which pins are gone,
+  and a region counts as open once its Lock has been *received* (the local flag still counts
+  too). The client also logs one `map pins:` line whenever the published set changes, so the
+  next "our maps differ" report is answerable from a single log.
 - **Fixed: six checks nobody could ever take are gone from new seeds** (#1522, and the tombstone
   mechanism from #1521 that let them go without renumbering anything). Player report: a
   `Roundtable Hold :: Cracked Pot` check with nothing to do for it. Traced: the game defines an

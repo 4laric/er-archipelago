@@ -5,17 +5,26 @@ only moment anyone remembers why it mattered._
 
 ## Can I update the client during a run?
 
-**Yes, trivially.** `CONTRACT_HASH` is unmoved at `2aa64f43`, and the only client change in this window is the version stamp. Any client from the 0.6.1 line (v0.6.1 through v0.6.1.3) keeps working on these seeds, and your save is not touched.
+**Yes.** `CONTRACT_HASH` is unmoved at `2aa64f43`; any client from the 0.6.1 line (v0.6.1 through v0.6.1.3) keeps working on these seeds, and your save is not touched. The new client is worth taking mid-run if you share a slot with someone: it is what makes your two maps agree.
 
 ## What you need to update
 
-- **Client:** No -- version stamp only; keep the one you have.
+- **Client:** Optional; recommended if two people play one slot (map pins sync). Otherwise keep the one you have.
 - **APWorld:** Host-only, for newly generated rooms.
 - **YAML:** **No new YAML required. Existing YAMLs remain valid.**
 - **Existing seed/save:** Compatible; no regeneration or save migration required.
 - **Profile/assets:** No action; no map or asset changes.
 
 ## What is in it so far
+
+**If two of you play one slot, your maps now match.** Report from a shared slot: different
+MapForGoblins pins on two machines. The pin filter was reading two things off the local save
+that should have come from the room: whether a check was already done (so your partner's
+checks stayed pinned for you until you physically picked the item up), and whether a region
+was open (a fresh character still catching up on its item ledger showed regions locked that
+the room had opened). Both now come from the server first. The client also writes one
+`map pins:` line to its log whenever the published set changes, so the next time two maps
+disagree one log says why.
 
 **Six checks that could never be taken are out of the pool.** A player asked what to do for
 `Roundtable Hold :: Cracked Pot`. Nothing: the game has an item lot for it that nothing ever
