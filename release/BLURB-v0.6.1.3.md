@@ -61,17 +61,6 @@ reconciler that watches for this class of stall directly, rather than admitting 
 sweeps one at a time as they're found) is tracked as its own follow-up, not squeezed into this
 window.
 
-**Six checks that could never be taken are out of the pool.** A player asked what to do for
-`Roundtable Hold :: Cracked Pot`. Nothing: the game has an item lot for it that nothing ever
-awards, on a flag the game doesn't even allocate. It was in the pool because a datamine had
-treated a map tile decoded from the flag number as evidence the pickup exists -- the flag vouching
-for itself. That decode source no longer counts, which also retired a phantom Sacred Tear and
-three more lots with the same signature. None of them could hold a required item, so no seed was
-ever blocked by them; they were just dead checks. Their AP ids are burned rather than reused
-(`greenfield/tombstones.tsv`), so nothing else renumbered -- the first use of the mechanism #1521
-asked for. If someone in a running room still has one of these, the host clears it with
-`/send_location`.
-
 ## What carried over from v0.6.1.2
 
 Nothing is owed on the contract or client side -- this window opened at the v0.6.1.2 tag with
