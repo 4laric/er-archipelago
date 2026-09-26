@@ -39,13 +39,18 @@ class MfgRecoveredPickups(unittest.TestCase):
         original = sorted((1039527700 if (flag, aid) == (400162, 7774244) else flag, aid)
                           for flag, values in by_flag.items() for _, _, aid in values
                           if aid <= 7774625 or aid >= 7900000)
-        self.assertEqual(len(original), 4915)
+        # 2026-09-25 (#1522): 4915 -> 4909, six tombstoned phantoms; ids did NOT move.
+        self.assertEqual(len(original), 4909)
         # 2026-09-08 (world#1515/#1518): 0c479eea.../4925 -> 17fbf2b3.../4915. The hash is over
         # (flag, ap id) pairs, so it moves on any corpus change. Diffed as a FLAG multiset against
         # main: exactly the ten removed rows leave (550000, 550050, 550210, 550220, 550270, 550280,
         # 1033457100, 1035477000, 1036437010, 1038447100) and ZERO flags enter. Nothing else moved.
         self.assertEqual(hashlib.sha256(json.dumps(original, separators=(",", ":")).encode()).hexdigest(),
-                         "17fbf2b3150b1a366145a46d0aab54d0663dbbfe8caf13af27af1cd5d148f3f4")
+                         # 2026-09-25 (#1522): 17fbf2b3.../4915 -> 56c159b3.../4909. Diffed as a FLAG
+                         # multiset against HEAD~1: exactly the six tombstoned rows leave (39207170,
+                         # 99997020, 99997030, 1042377100, 1042377110, 1044357050), ZERO flags enter,
+                         # and -- new with tombstones.tsv -- ZERO surviving (flag, ap id) pairs moved.
+                         "56c159b31f58163c749f1df0eb2bc1a3d48c241e93b6d074977121d7284053f6")
         for row in evidence["rows"]:
             flag, pin, item = row["flag"], row["pin"], row["item"]
             with self.subTest(flag=flag):

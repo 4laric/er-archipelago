@@ -535,7 +535,12 @@ def test_full_area_sweeps_delta_is_exactly_the_surface_cut():
     # it joins m28_00's own map-local sweep, and being `Revered`-tagged it lands in exactly this
     # cuttable band. The default-surface cut therefore takes it straight back and only
     # full_area_sweeps restores it, which is what this number counts.
-    assert dict(gained) == {"Fragment": 40, "Seedtree": 38, "Revered": 23, "Church": 13}, (
+    # 2026-09-25 (#1522): Church 13 -> 12, and that one row is the whole delta. f39207170, the
+    # "Sacred Tear around Ruin-Strewn Precipice", was a phantom map lot (no MSB, no coordinate,
+    # no award route; its only placement evidence was its own flag decoded to a tile) and is
+    # retired via greenfield/tombstones.tsv. It sat in Magma Wyrm Makar's sweep as a `Church`
+    # cuttable, so full_area_sweeps restored one Church row fewer. Fragment/Seedtree/Revered unmoved.
+    assert dict(gained) == {"Fragment": 40, "Seedtree": 38, "Revered": 23, "Church": 12}, (
         "the measured default-surface delta moved: %s. This is a corpus fact, so a regen may "
         "legitimately move it -- re-measure, re-state the WHY, and never re-baseline it to make a "
         "red go away." % dict(gained))

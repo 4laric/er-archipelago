@@ -709,7 +709,6 @@ check_id	category	region	item_name	flag	map_id	review_status	external_family_cou
 7770721	unique_field_pickup	Limgrave	Ash of War: Ground Slam	540116	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770722	unique_field_pickup	Limgrave	Ash of War: Sacred Blade	540118	m60_45_39	remaining_unreviewed	0		first_independent_identity_region_source
 7770723	unique_field_pickup	Limgrave	Ash of War: Stamp (Sweep)	540120	m60_42_38	trusted	2	gameplay-guide:redmaw;gameplay-wiki:fextralife	none_identity_region_trusted
-7774309	unique_field_pickup	Limgrave	Ash of War: Storm Stomp	1042377110	m60_42_37	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770717	unique_field_pickup	Limgrave	Ash of War: Storm Wall	540100	m60_42_37	remaining_unreviewed	0		first_independent_identity_region_source
 7770720	unique_field_pickup	Limgrave	Ash of War: Unsheathe	540112	m60_44_36	audited_one_family	1	gameplay-guide:redmaw	second_independent_identity_region_source
 7770718	unique_field_pickup	Limgrave	Ash of War: Wild Strikes	540104	m60_42_38	remaining_unreviewed	0		first_independent_identity_region_source

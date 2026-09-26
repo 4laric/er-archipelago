@@ -618,8 +618,6 @@ check_id	region	item_name	flag	detection_mechanism	map_tile	route_anchor	partiti
 7771534	Raya Lucaria Academy	Smithing Stone [4]	14007670	ItemLotParam_map.getItemFlagId		near Church of the Cuckoo	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771514	Raya Lucaria Academy	Stonesword Key	14007380	ItemLotParam_map.getItemFlagId		near Schoolhouse Classroom	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7771517	Raya Lucaria Academy	Stonesword Key	14007420	ItemLotParam_map.getItemFlagId		near Schoolhouse Classroom	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7774101	Roundtable Hold	Cracked Pot	99997020	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
-7774102	Roundtable Hold	Perfume Bottle	99997030	ItemLotParam_map.getItemFlagId			ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773520	Scadu Altus	Blessed Bone Shard	2049437210	ItemLotParam_map.getItemFlagId		near Fort of Reprimand	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773530	Scadu Altus	Blessed Bone Shard	2049437310	ItemLotParam_map.getItemFlagId		near Fort of Reprimand	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed
 7773544	Scadu Altus	Blessed Bone Shard	2049437920	ItemLotParam_map.getItemFlagId		around Moorth Highway, South	ambiguous_map_lot	hold	0		same-name candidates survive the committed anchor/tile joins; player ruling needed

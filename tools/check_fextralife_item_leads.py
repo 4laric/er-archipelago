@@ -49,6 +49,7 @@ def main() -> int:
     current = {str(ap_id): (region, ap_item_name(location))
                for region, checks in mod.LOCATIONS.items()
                for location, ap_id, _flag in checks}
+    retired = {str(ap_id) for ap_id in getattr(mod, "TOMBSTONES", {})}  # #1521, see the browser
     ids = [row["lead_id"] for row in leads]
     subjects = [row["subject_id"] for row in leads]
     assert ids == sorted(ids) and len(ids) == len(set(ids))
@@ -56,6 +57,8 @@ def main() -> int:
     for row in leads:
         assert row["subject_kind"] == "check"
         assert row["claim_kind"] in {"identity", "identity_region"}
+        if row["subject_id"] in retired:
+            continue
         assert row["subject_id"] in current and row["source_ids"] in sources
         assert row["independence_families"] == "gameplay-wiki:fextralife"
         assert row["disposition"] == "lead_only" and row["game_version"] == "unknown"

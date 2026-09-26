@@ -347,6 +347,18 @@ cp greenfield/region_map.csv "$AP/worlds/eldenring/region_map.csv"   # gen INPUT
 cd "$AP" && AP_NONINTERACTIVE=1 SKIP_REQUIREMENTS_UPDATE=1 "$PY" -m pytest -q -p no:cacheprovider worlds/eldenring/tests/
 ```
 
+**Retiring a check: `greenfield/tombstones.tsv` (issue #1521, 2026-09-25).** AP ids are positional
+(`BASE_AP` + index into gen_data's `rows`), so deleting a row used to renumber every check after
+it — 553 ids moved on a six-row removal, against ~20 hand-maintained tables, a feature module and
+17 test files that pin ids. The ledger is APPEND-ONLY: one row per burned id (`ap_id`, `flag`,
+`retired`, `reason`), and the positional walk skips each one, so the rows after a retired check
+keep their ids. To retire a check: exclude its flag in `gen_data.py` (the usual `EXCLUDE_FLAGS`
+classes) **and** append a tombstone carrying the ap id it HAD in the previous `data.py`, in the
+same commit. gen_data FATALs if a tombstoned flag is still a live row, if an id is burned twice, or
+if a tombstone sits past the end of the band; `data.TOMBSTONES` is emitted so the browser and the
+contiguity test (`test_gf_data`) can account for the holes. Never reuse a burned id and never
+delete a row from the ledger. It is a declared generator input (`gen_manifest.FILE_INPUTS`).
+
 Generated files (`eldenring/tables/data.py`, `boss_data.py`, `boss_sweeps.py`, `region_open_flags.py`,
 `item_ids.py`, `location_tags.py`, `region_play_ids.py`, …) all live in **`greenfield/eldenring/tables/`**
 since #1464 — `core.py` reads them through `eldenring/table_loader.py` (`world.tables`), never by

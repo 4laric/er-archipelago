@@ -174,8 +174,6 @@ LOCATIONS = {
         ('Roundtable Hold :: Sewer-Gaol Key - around Table of Lost Grace (region unconfirmed) [f400380]', 7773732, 400380),
         ('Roundtable Hold :: Blessing of Marika (region unconfirmed) [f530950]', 7773876, 530950),
         ('Roundtable Hold :: Smithing Stone [1] (region unconfirmed) [f540500]', 7773887, 540500),
-        ('Roundtable Hold :: Cracked Pot - m99_99 (region unconfirmed) [f99997020]', 7774101, 99997020),
-        ('Roundtable Hold :: Perfume Bottle - m99_99 (region unconfirmed) [f99997030]', 7774102, 99997030),
         ('Roundtable Hold :: Great Arrow - from Patches or Thiollier (region unconfirmed) [f110150]', 7774565, 110150),
         ('Roundtable Hold :: Ballista Bolt - from Patches or Thiollier (region unconfirmed) [f110160]', 7774566, 110160),
         ('Roundtable Hold :: Great Arrow - from Patches (region unconfirmed) [f110200]', 7774567, 110200),
@@ -2700,8 +2698,6 @@ LOCATIONS = {
         ('Limgrave :: Golden Seed - near Stormhill Shack, may be sweep-granted by Crucible Knight (m60_42_37) [f1041387100]', 7774293, 1041387100),
         ('Limgrave :: Bloodrose - near Stormhill Shack, may be sweep-granted by Deathbird (m60_42_38) [f1041387200]', 7774294, 1041387200),
         ('Limgrave :: Lump of Flesh - near Stormhill Shack (region unconfirmed), may be sweep-granted by Bell Bearing Hunter (m60_42_38) [f1041397000]', 7774295, 1041397000),
-        ("Limgrave :: Assassin's Crimson Dagger - around Gatefront, may be sweep-granted by Crucible Knight (m60_42_37) [f1042377100]", 7774308, 1042377100),
-        ('Limgrave :: Ash of War: Storm Stomp - around Gatefront, may be sweep-granted by Crucible Knight (m60_42_37) [f1042377110]', 7774309, 1042377110),
         ("Limgrave :: Beast Crest Heater Shield - near Warmaster's Shack (region unconfirmed), may be sweep-granted by Deathbird (m60_42_38) [f1042397900]", 7774310, 1042397900),
         ('Limgrave :: Ash of War: Gravitas - around Seaside Ruins, may be sweep-granted by Mad Pumpkin Head (m60_44_36) [f1043357500]', 7774335, 1043357500),
         ("Limgrave :: Fire Grease - near Murkwater Cave, may be sweep-granted by Night's Cavalry (m60_43_37) [f1043377010]", 7774336, 1043377010),
@@ -2715,7 +2711,6 @@ LOCATIONS = {
         ('Limgrave :: Golden Rune [1] - near Agheel Lake South (1), may be sweep-granted by Bloodhound Knight Darriwil (m60_44_35) [f1044357020]', 7774362, 1044357020),
         ('Limgrave :: Sliver of Meat - near Agheel Lake South, may be sweep-granted by Bloodhound Knight Darriwil (m60_44_35) [f1044357030]', 7774363, 1044357030),
         ('Limgrave :: Crab Eggs - near Agheel Lake South, may be sweep-granted by Bloodhound Knight Darriwil (m60_44_35) [f1044357040]', 7774364, 1044357040),
-        ('Limgrave :: [Incantation] Flame Sling - around Agheel Lake South, may be sweep-granted by Bloodhound Knight Darriwil (m60_44_35) [f1044357050]', 7774365, 1044357050),
         ('Limgrave :: Golden Rune [1] - near Agheel Lake South (2), may be sweep-granted by Bloodhound Knight Darriwil (m60_44_35) [f1044357060]', 7774366, 1044357060),
         ('Limgrave :: Starlight Shards - near Agheel Lake South, may be sweep-granted by Bloodhound Knight Darriwil (m60_44_35) [f1044357070]', 7774367, 1044357070),
         ('Limgrave :: Great Epee - near Agheel Lake South, may be sweep-granted by Bloodhound Knight Darriwil (m60_44_35) [f1044357900]', 7774368, 1044357900),
@@ -3199,7 +3194,6 @@ LOCATIONS = {
         ('Liurnia :: Smithing Stone [3] - near Ruin-Strewn Precipice (1), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207140]', 7774002, 39207140),
         ('Liurnia :: Smithing Stone [3] - near Ruin-Strewn Precipice (2), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207150]', 7774003, 39207150),
         ('Liurnia :: Lightning Grease - near Ruin-Strewn Precipice, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207160]', 7774004, 39207160),
-        ('Liurnia :: Sacred Tear - around Ruin-Strewn Precipice, may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207170]', 7774005, 39207170),
         ('Liurnia :: Golden Rune [6] - around Ruin-Strewn Precipice (1), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207970]', 7774006, 39207970),
         ('Liurnia :: Golden Rune [6] - around Ruin-Strewn Precipice (2), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207980]', 7774007, 39207980),
         ('Liurnia :: Golden Rune [6] - around Ruin-Strewn Precipice (3), may be sweep-granted by Magma Wyrm Makar (m39_20) [f39207990]', 7774008, 39207990),
@@ -5462,6 +5456,7 @@ NOT_RANDOMIZED = {
     35007750: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     35007920: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     35007960: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
+    39207170: "flag_tile_only_lot: map-table lot with zero MSB placement (the outlier value for map flags -- 90.2% carry one), zero item-grace coordinate and no EMEVD/ESD award route. Its only 'placed' evidence is a check_maps row whose source is flag_tile: the tile DECODED FROM THE FLAG ID, i.e. the flag restated, not a world object holding it (#1515, the #1077 signature on long flags)",
     39207200: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1032500030: 'phantom_flag: acquisition flag exists in NO game data (invented upstream); it can never fire, so it must not be a check (phantom-flag guard)',
     1033457100: "flag_tile_only_lot: map-table lot with zero MSB placement (the outlier value for map flags -- 90.2% carry one), zero item-grace coordinate and no EMEVD/ESD award route. Its only 'placed' evidence is a check_maps row whose source is flag_tile: the tile DECODED FROM THE FLAG ID, i.e. the flag restated, not a world object holding it (#1515, the #1077 signature on long flags)",
@@ -5479,8 +5474,11 @@ NOT_RANDOMIZED = {
     1039527700: 'unused_reward_copy: replaced by the live invasion award at the same AP id (#1437)',
     1042337200: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     1042377020: "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)",
+    1042377100: "flag_tile_only_lot: map-table lot with zero MSB placement (the outlier value for map flags -- 90.2% carry one), zero item-grace coordinate and no EMEVD/ESD award route. Its only 'placed' evidence is a check_maps row whose source is flag_tile: the tile DECODED FROM THE FLAG ID, i.e. the flag restated, not a world object holding it (#1515, the #1077 signature on long flags)",
+    1042377110: "flag_tile_only_lot: map-table lot with zero MSB placement (the outlier value for map flags -- 90.2% carry one), zero item-grace coordinate and no EMEVD/ESD award route. Its only 'placed' evidence is a check_maps row whose source is flag_tile: the tile DECODED FROM THE FLAG ID, i.e. the flag restated, not a world object holding it (#1515, the #1077 signature on long flags)",
     1042377111: 'phantom_flag: acquisition flag exists in NO game data (invented upstream); it can never fire, so it must not be a check (phantom-flag guard)',
     1043317500: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
+    1044357050: "flag_tile_only_lot: map-table lot with zero MSB placement (the outlier value for map flags -- 90.2% carry one), zero item-grace coordinate and no EMEVD/ESD award route. Its only 'placed' evidence is a check_maps row whose source is flag_tile: the tile DECODED FROM THE FLAG ID, i.e. the flag restated, not a world object holding it (#1515, the #1077 signature on long flags)",
     1044397010: "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)",
     1045377040: "item_nonexistent: every item its lot awards resolves to no in-game name (no param row, or FromSoft's '[ERROR]'/'%null%' cut content); the flag may never fire (item-existence guard)",
     1046397001: 'phantom_flag: acquisition flag exists in NO game data (invented upstream); it can never fire, so it must not be a check (phantom-flag guard)',
@@ -5494,6 +5492,17 @@ NOT_RANDOMIZED = {
     2049437911: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     2049437912: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
     2050457510: "worldless_single: map-encoded ground-lot flag with no world reference in ANY corpus, judged against a zero-blind-map census (Alaric's cull ruling 2026-08-19, the #330 rule generalized); stays a vanilla row",
+}
+
+# BURNED ap ids (issue #1521, greenfield/tombstones.tsv): a retired check keeps consuming its
+# positional id so nothing after it renumbers. ap -> (flag, retired, reason). Never reused.
+TOMBSTONES = {
+    7774005: (39207170, '2026-09-25', '#1522 flag_tile-only map lot (Sacred Tear, Ruin-Strewn Precipice): no MSB, no coordinate, no award route'),
+    7774101: (99997020, '2026-09-25', '#1522 common-event lot 9990120 (Cracked Pot x15) awarded by nothing; flag block 9999xxxx does not exist in game'),
+    7774102: (99997030, '2026-09-25', '#1522 common-event lot 9990130 (Perfume Bottle x5) awarded by nothing; flag block 9999xxxx does not exist in game'),
+    7774308: (1042377100, '2026-09-25', "#1522 flag_tile-only map lot (Assassin's Crimson Dagger, m60_42_37): no MSB, no coordinate, no award route"),
+    7774309: (1042377110, '2026-09-25', '#1522 flag_tile-only map lot (Ash of War: Storm Stomp, m60_42_37): no MSB, no coordinate, no award route'),
+    7774365: (1044357050, '2026-09-25', '#1522 flag_tile-only map lot (Flame Sling, m60_44_35): no MSB, no coordinate, no award route'),
 }
 
 # THE FINALE (SPEC-ashen-capital-lock; see gen_data._finale_derive).
@@ -5572,4 +5581,4 @@ GESTURE_AWARD_FLAGS = {
     60864: (115, 1075750828, 'O Mother'),
 }
 
-_GEN_STAMP = {'inputs_hash': 'sha256:8e91d4f082b8cb20633f9b26a4d1995a90a07e6b9a9dca0529b81467ba2df729', 'module': 'data.py', 'body_sha256': 'sha256:0486c066a2c2ce33d8de2e68253a775634a52cbe069f6839b91c729fdf8828bc'}
+_GEN_STAMP = {'inputs_hash': 'sha256:61fe73a91a89b3bdb263ef70a2012ea6781f5b5afd58f71b7735494853948876', 'module': 'data.py', 'body_sha256': 'sha256:e9790b1dfa984dc8f0112abda6a16380b73a8b8694a4072aec37bee2072a2b80'}

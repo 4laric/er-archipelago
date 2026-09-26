@@ -112,6 +112,24 @@ class FixtureContractTests(unittest.TestCase):
                          ["gameplay-guide:first", "gameplay-guide:second"])
 
 
+    def test_a_lead_on_a_tombstoned_check_is_unbound_not_an_error(self):
+        tables = BUILDER.normalized_tables(BUILDER.FIXTURE)
+        sources, leads = BUILDER.wiki_tables()
+        lead = copy.deepcopy(leads[0])
+        lead["lead_id"] = "fixture-retired-check-7779999"
+        lead["subject_id"] = "7779999"
+        with self.assertRaises(ValueError):
+            BUILDER.transform(tables, external_sources=sources, external_leads=[lead])
+        data = BUILDER.transform(
+            tables, external_sources=sources, external_leads=[lead],
+            tombstones={7779999: (123456, "2026-09-25", "#1522 fixture")})
+        self.assertEqual([], [c for check in data["checks"] for c in check["external_leads"]
+                              if c["lead_id"] == lead["lead_id"]])
+        rendered = next(c for c in data["unbound_external_leads"] if c["lead_id"] == lead["lead_id"])
+        self.assertIn("retired 2026-09-25", rendered["limitations"])
+        self.assertIn("#1522 fixture", rendered["limitations"])
+
+
 @unittest.skipUnless(RUNNING_FROM_REPO, REPO_ONLY_REASON)
 class OfflineArtifactTests(unittest.TestCase):
     def test_wiki_leads_are_total_and_partitioned_without_changing_core_status(self):
@@ -130,8 +148,18 @@ class OfflineArtifactTests(unittest.TestCase):
             sorted(lead["lead_id"] for lead in linked + unbound),
             sorted(row["lead_id"] for row in registry),
         )
-        self.assertEqual(len(linked), sum(row["subject_kind"] == "check" for row in registry))
-        self.assertEqual(len(unbound), sum(row["subject_kind"] != "check" for row in registry))
+        # #1521: a lead on a RETIRED check (data.TOMBSTONES) is real evidence about a row we no
+        # longer ship; it is kept, unbound, rather than raising a population error.
+        retired = BUILDER.tombstoned_checks()
+        on_retired = [row for row in registry
+                      if row["subject_kind"] == "check" and int(row["subject_id"]) in retired]
+        self.assertEqual(len(linked),
+                         sum(row["subject_kind"] == "check" for row in registry) - len(on_retired))
+        self.assertEqual(len(unbound),
+                         sum(row["subject_kind"] != "check" for row in registry) + len(on_retired))
+        for row in on_retired:
+            lead = next(l for l in unbound if l["lead_id"] == row["lead_id"])
+            self.assertIn("retired", lead["limitations"])
         self.assertTrue(all(lead["disposition"] == "lead_only" for lead in linked + unbound))
         self.assertTrue(all(lead["game_version"] == "unknown" for lead in linked + unbound))
         self.assertEqual(
@@ -287,7 +315,7 @@ class OfflineArtifactTests(unittest.TestCase):
         by_id = {c["check_id"]: c for c in data["checks"]}
         self.assertTrue(by_id[7772820]["player"]["positions"])  # Gatefront carriage
         self.assertFalse(by_id[7770000]["player"]["positions"])  # interior Dark Moon Ring
-        self.assertEqual(len(by_id), 4932)
+        self.assertEqual(len(by_id), 4926)  # -6 #1522 tombstones, 2026-09-25
         self.assertGreater(sum(bool(c["player"]["positions"]) for c in by_id.values()), 2000)
         self.assertEqual(set(data["player_maps"]), {"m60", "m61"})
         for check in by_id.values():

@@ -55,6 +55,9 @@ if not os.path.isfile(AUDIT) and _ROOT:
 # 51 -> 74 (2026-08-19, #218): 22 exact item entities plus the Sacred Tower painting's map-event
 # flag+lot call became available as placement evidence. A stricter ESD join also retired three
 # false talk-number matches and admitted three actual AwardItemLot sites; the table's net is +23.
+# 88 -> 78 (2026-09-25, #1522): the ONE other sanctioned shrink -- ten `observed` rows whose only
+# observation was a check_maps `flag_tile` decode (the flag restated) left when the reader began
+# honouring that source column. Every other corpus is intact; the floor stays where it was measured.
 MIN_ROWS = 74
 
 
@@ -134,6 +137,35 @@ class UnplacedGlobals(unittest.TestCase):
                                 "unplaced_global_tiles.tsv has %d rows, below the %d measured on "
                                 "2026-08-04. A SHRINKING derivation must be explained, not "
                                 "rebaselined -- did a corpus go missing?" % (len(rows), MIN_ROWS))
+
+    def test_a_flag_tile_decode_is_not_an_observation(self):
+        """#1522: check_maps.tsv rows with source=flag_tile are the flag restated, not a world
+        object. The PRODUCTION reader must drop them when asked, and resolve() must ask."""
+        import inspect
+        import tempfile
+        dug = _dug()
+        self.assertIn("flag_tile", dug._CIRCULAR_CHECK_MAP_SOURCES)
+        src = inspect.getsource(dug.resolve)
+        self.assertIn('_tsv("check_maps.tsv", skip_sources=_CIRCULAR_CHECK_MAP_SOURCES)', src)
+        with tempfile.TemporaryDirectory() as tmp:
+            body = ["# banner", "flag" + chr(9) + "map_id" + chr(9) + "source" + chr(9) + "detail",
+                    "11" + chr(9) + "m60_11_11" + chr(9) + "flag_tile" + chr(9) + "decoded from the flag id",
+                    "12" + chr(9) + "m60_12_12" + chr(9) + "msb" + chr(9) + "treasure",
+                    "13" + chr(9) + "m99_99" + chr(9) + "flag_tile" + chr(9) + "decoded from the flag id",
+                    "13" + chr(9) + "m10_00" + chr(9) + "merchant" + chr(9) + "kale"]
+            with open(os.path.join(tmp, "cm.tsv"), "w", encoding="utf-8") as fh:
+                fh.write(chr(10).join(body) + chr(10))
+            old_gf = dug.GF
+            dug.GF = tmp
+            try:
+                kept, present = dug._tsv("cm.tsv", skip_sources=dug._CIRCULAR_CHECK_MAP_SOURCES)
+                naive, _ = dug._tsv("cm.tsv")
+            finally:
+                dug.GF = old_gf
+        self.assertTrue(present)
+        self.assertEqual(dict(kept), {"12": {"m60_12_12"}, "13": {"m10_00"}})
+        # WITNESS: the naive read DOES see the decode, so the assertion above is not vacuous.
+        self.assertEqual(naive["11"], {"m60_11_11"})
 
     def test_no_common_bucket_is_treated_as_a_place(self):
         """`m60_00_00_00` / `m61_00_00_00` / `m00_00_00_00` are where the talk ESD files an award

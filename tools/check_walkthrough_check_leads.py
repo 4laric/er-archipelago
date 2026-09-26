@@ -31,6 +31,9 @@ def main() -> int:
     mod = importlib.util.module_from_spec(spec); assert spec.loader; spec.loader.exec_module(mod)
     current = {str(ap_id): (region, name) for region, checks in mod.LOCATIONS.items()
                for name, ap_id, _flag in checks}
+    # #1521: a lead on a RETIRED check (data.TOMBSTONES) is kept -- the browser files it as an
+    # unbound lead -- but it names no current check, so it is skipped by the per-row checks.
+    retired = {str(ap_id) for ap_id in getattr(mod, "TOMBSTONES", {})}
 
     ids = [row["lead_id"] for row in rows]
     subjects = [row["subject_id"] for row in rows]
@@ -39,6 +42,8 @@ def main() -> int:
     assert len(rows) >= 1220, "walkthrough coverage unexpectedly collapsed below the pinned corpus"
     for row in rows:
         assert row["subject_kind"] == "check" and row["claim_kind"] == "identity_region"
+        if row["subject_id"] in retired:
+            continue
         assert row["subject_id"] in current, f"walkthrough lead names missing check {row['subject_id']}"
         assert row["source_ids"] in source_ids
         assert row["independence_families"] == "gameplay-guide:redmaw"

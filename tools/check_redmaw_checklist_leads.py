@@ -35,6 +35,7 @@ def main() -> int:
     spec.loader.exec_module(module)
     current = {str(ap_id): name for locations in module.LOCATIONS.values()
                for name, ap_id, _flag in locations}
+    retired = {str(ap_id) for ap_id in getattr(module, "TOMBSTONES", {})}  # #1521, see the browser
 
     lead_ids = [row["lead_id"] for row in rows]
     subjects = [row["subject_id"] for row in rows]
@@ -43,6 +44,8 @@ def main() -> int:
     assert len(rows) >= 1350, "Redmaw checklist coverage collapsed below the 1367-check pilot"
     for row in rows:
         assert row["subject_kind"] == "check" and row["claim_kind"] == "identity"
+        if row["subject_id"] in retired:
+            continue
         assert row["subject_id"] in current
         assert row["source_ids"] in source_ids
         assert row["independence_families"] == "gameplay-guide:redmaw"

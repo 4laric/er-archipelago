@@ -75,9 +75,12 @@ class TestTheMotivatingCase(unittest.TestCase):
             # pays filler for the copies that cannot fit beside the pinned start loadout.
             # #1097 removes one shop rewrite of a starting-kit pot. It was not an independent
             # pickup, so the physical pool correctly returns from 20 to 19 copies.
-            "Cracked Pot": (19, 10, 19),
+            # #1522 (2026-09-25): six phantom rows retired via greenfield/tombstones.tsv; one of them was the flag-99997020
+            # lot 9990120 "Cracked Pot" row nothing awards (18 <- 19), and the sibling
+            # 99997030 / 9990130 was the phantom "Perfume Bottle" copy (10 <- 11 below).
+            "Cracked Pot": (19, 10, 18),
             "Ritual Pot": (9, 4, 10),
-            "Perfume Bottle": (9, 9, 11),
+            "Perfume Bottle": (9, 9, 10),
             "Hefty Cracked Pot": (10, 9, 10),
         }
         pool = _pool_copies()
@@ -102,9 +105,9 @@ class TestTheMotivatingCase(unittest.TestCase):
                     budget[nm] -= 1
         # #218 adds 2/2/3/5 exact fixed pickups respectively. The clamp is doing more work because
         # the pool got bigger, not because a ceiling or start loadout moved (both pinned above).
-        self.assertEqual(clamped.get("Cracked Pot"), 10)
+        self.assertEqual(clamped.get("Cracked Pot"), 9)  # 10 -> 9, #1522 (2026-09-25): six phantom rows retired via greenfield/tombstones.tsv
         self.assertEqual(clamped.get("Ritual Pot"), 5)
-        self.assertEqual(clamped.get("Perfume Bottle"), 11)
+        self.assertEqual(clamped.get("Perfume Bottle"), 10)  # 11 -> 10, #1522 phantom copy retired
         self.assertEqual(clamped.get("Hefty Cracked Pot"), 9)
 
     def test_after_the_clamp_nothing_is_undeliverable(self):
@@ -178,7 +181,7 @@ class TestTheClampDoesNotEatDeliberateDuplicates(unittest.TestCase):
             # Hefty Cracked Pot, their pool alone now exceeds the safe hold ceiling; the excess
             # locations remain randomized and pay filler rather than an undeliverable vanilla item.
             "Ritual Pot": (10, 9),
-            "Perfume Bottle": (11, 9),
+            "Perfume Bottle": (10, 9),  # (11, 9) -> (10, 9), #1522 (2026-09-25): six phantom rows retired via greenfield/tombstones.tsv
             # #1097 also removes the duplicate shop-reference copies of the three Notes that used
             # to appear here. Their real world pickups remain; only the false second copies leave.
             # 🛑 "Rya's Necklace": (2, 1) WAS pinned here on 2026-08-07 and is now GONE, because

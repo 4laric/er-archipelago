@@ -71,7 +71,15 @@ _CORROBORATED_TALK_AWARD_MAP = {
 }
 
 
-def _tsv(name, cols=2):
+def _tsv(name, cols=2, skip_sources=()):
+    """flag -> {map_id}. `skip_sources` drops rows whose THIRD column (`source`) is listed.
+
+    check_maps.tsv carries a `source` column, and one of its values -- `flag_tile`, "decoded from
+    the flag id" -- is not an observation at all: the tile is computed FROM the flag, so a row with
+    that source is the flag restated. Before 2026-09-25 this reader discarded the column and
+    resolve() unioned those decodes into the same `observed` bucket as a real msb_flag_region row
+    (issue #1522: circular evidence, ten rows, three of them released into the corpus on it).
+    """
     out = collections.defaultdict(set)
     p = os.path.join(GF, name)
     if not os.path.isfile(p):
@@ -80,9 +88,16 @@ def _tsv(name, cols=2):
         if ln.startswith("#") or not ln.strip():
             continue
         c = ln.rstrip("\n").split("\t")
-        if c and c[0].isdigit() and len(c) >= cols and c[1].strip():
-            out[c[0]].add(c[1].strip())
+        if not (c and c[0].isdigit() and len(c) >= cols and c[1].strip()):
+            continue
+        if skip_sources and len(c) > 2 and c[2].strip() in skip_sources:
+            continue
+        out[c[0]].add(c[1].strip())
     return out, True
+
+
+# check_maps.tsv sources that are NOT evidence of a world object holding the flag (#1522).
+_CIRCULAR_CHECK_MAP_SOURCES = frozenset({"flag_tile"})
 
 
 def _gen_data_excludes():
@@ -349,7 +364,7 @@ def event_award_index(lots):
 
 def resolve(cands):
     obs_msb, _ = _tsv("msb_flag_region.tsv")
-    obs_cm, _ = _tsv("check_maps.tsv")
+    obs_cm, _ = _tsv("check_maps.tsv", skip_sources=_CIRCULAR_CHECK_MAP_SOURCES)
     lots, _have_lots = _tsv("flag_lots.tsv", cols=3)
     lots = collections.defaultdict(set)
     for ln in open(os.path.join(GF, "flag_lots.tsv"), encoding="utf-8"):

@@ -289,6 +289,23 @@ def location_names(path: str = GENERATED_DATA) -> dict[int, str]:
     return names
 
 
+def tombstoned_checks(path: str = GENERATED_DATA) -> dict[int, tuple]:
+    """Read data.TOMBSTONES (issue #1521: burned ap ids of RETIRED checks) without importing the
+    world. An external lead that names one of these is evidence about a check that no longer
+    exists; it is kept as an UNBOUND lead rather than treated as a population error. Absent on a
+    data.py from before the ledger existed."""
+    module = ast.parse(Path(path).read_text(encoding="utf-8"), filename=path)
+    assignment = next(
+        (node for node in module.body if isinstance(node, ast.Assign)
+         and any(isinstance(target, ast.Name) and target.id == "TOMBSTONES"
+                 for target in node.targets)),
+        None,
+    )
+    if assignment is None:
+        return {}
+    return {int(k): tuple(v) for k, v in ast.literal_eval(assignment.value).items()}
+
+
 def location_tags(path: str = GENERATED_LOCATION_TAGS) -> dict[int, list[str]]:
     """Read generated check-family tags without importing the Archipelago world."""
     module = ast.parse(Path(path).read_text(encoding="utf-8"), filename=path)
@@ -335,6 +352,7 @@ def transform(
     check_names: dict[int, str] | None = None,
     check_tags: dict[int, list[str]] | None = None,
     host_confidence: dict[int, dict] | None = None,
+    tombstones: dict[int, tuple] | None = None,
 ) -> dict:
     """Explicit normalized-TSV -> browser payload boundary; no status is derived here."""
     sources = {row["source_id"]: row for row in tables["sources.tsv"]}
@@ -418,9 +436,18 @@ def transform(
         }
         if row["subject_kind"] == "check":
             try:
-                external_by_check.setdefault(int(row["subject_id"]), []).append(lead)
+                subject = int(row["subject_id"])
             except ValueError as exc:
                 raise ValueError(f"external check subject is not an AP id: {row['lead_id']}") from exc
+            if tombstones and subject in tombstones:
+                # #1521: the check was retired and its id burned. The lead is real evidence about
+                # a row we no longer ship; keep it visible, unbound, and say why.
+                _fl, _retired, _reason = tombstones[subject]
+                lead["limitations"] = (lead["limitations"] + " | " if lead["limitations"] else "") + (
+                    f"check {subject} (flag {_fl}) retired {_retired}: {_reason}")
+                unbound_external.append(lead)
+            else:
+                external_by_check.setdefault(subject, []).append(lead)
         else:
             unbound_external.append(lead)
     if host_confidence is not None and set(host_confidence) != set(by_check):
@@ -765,6 +792,7 @@ def load_ledger(path: str = CURRENT, wiki_path: str | None = None) -> dict:
         location_tags() if os.path.abspath(path) == os.path.abspath(CURRENT) else None,
         progression_host_confidence()
         if os.path.abspath(path) == os.path.abspath(CURRENT) else None,
+        tombstoned_checks() if os.path.abspath(path) == os.path.abspath(CURRENT) else None,
     )
     if os.path.abspath(path) == os.path.abspath(CURRENT):
         contract["bulk_review"] = json.loads(

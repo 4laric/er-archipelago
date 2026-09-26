@@ -31,14 +31,14 @@
       "uniquely_anchored_collectibles": 23
     },
     "sacred_tear": {
-      "audited": 13,
+      "audited": 12,
       "audited_one_family": 3,
       "conflicted": 0,
-      "held": 5,
-      "remaining_unreviewed": 2,
+      "held": 4,
+      "remaining_unreviewed": 1,
       "repeated_material_rows": 0,
       "trusted": 8,
-      "uniquely_anchored_collectibles": 13
+      "uniquely_anchored_collectibles": 12
     },
     "scadutree_fragment": {
       "audited": 46,
@@ -70,10 +70,10 @@
   "schema_version": 1,
   "scope": "upgrade materials, flask upgrades, and DLC blessing collectibles",
   "totals": {
-    "audited": 795,
+    "audited": 794,
     "conflicted": 2,
-    "held": 698,
-    "remaining_unreviewed": 593,
+    "held": 697,
+    "remaining_unreviewed": 592,
     "trusted": 97
   }
 }

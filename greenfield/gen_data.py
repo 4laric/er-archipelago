@@ -2069,6 +2069,9 @@ _WORLDLESS_SINGLES = frozenset({
     # 39207170 (the Sacred Tear), 1033457100, 1036437010, 1038447100, 1039527700 (Eleonora's
     # Poleblade), 1042377100/110, 1044357050 -- an OBSERVED/audited tile IS a world reference,
     # so the tsv is a corpus this rule must consult (the keeper test now subtracts it).
+    # 2026-09-25 (#1522): every one of those eight "observations" was a flag_tile decode -- the
+    # flag restated -- and the datamine no longer counts those. They are culled again, via
+    # _FLAG_TILE_ONLY_LOTS below (the keeper test treats that set as part of this class).
     39207200, 1036477100, 1036487100, 1037487100,
     1038467400, 1038477100, 1042337200, 1043317500,
     1047557040, 1052557040,  # 2048467701 released by c5170 lot-group witness (#1543).
@@ -2103,7 +2106,21 @@ _WORLDLESS_SHORT_LOTS = frozenset({540504, 540614, 540616, 540632, 540650})
 # move rows well outside this report, so it is filed, not folded in.)
 #
 # Same disposition as #1077's five: stay VANILLA rows rather than advertise a check nobody can take.
-_FLAG_TILE_ONLY_LOTS = frozenset({1033457100, 1035477000, 1036437010, 1038447100})
+# 2026-09-25 (#1522): the circular evidence is FIXED at the source -- datamine_unplaced_globals now
+# drops check_maps rows whose source is flag_tile before they can count as "observed" -- and the
+# re-emit released six more rows with the same signature. Two (99997020 Cracked Pot x15, 99997030
+# Perfume Bottle x5: 9990120/9990130, common-event lots no EMEVD, talk ESD or NpcParam row awards)
+# are not map-shaped and simply stay unplaced. The other four are map-shaped and land HERE:
+#   39207170  Sacred Tear, "around Ruin-Strewn Precipice" -- the 13th tear the wikis have never
+#             listed; already barred from hosting progression on 2026-07-31 for this reason.
+#   1042377100 Assassin's Crimson Dagger, 1042377110 Ash of War: Storm Stomp (m60_42_37), and
+#   1044357050 Flame Sling (m60_44_35): real lot rows, zero MSB placement, zero coordinate, no
+#             award route; 1042377110 appears in common.emevd only as an argument to the flag-OR
+#             helper 65810, which reads flags and awards nothing.
+_FLAG_TILE_ONLY_LOTS = frozenset({
+    1033457100, 1035477000, 1036437010, 1038447100,
+    39207170, 1042377100, 1042377110, 1044357050,
+})
 # ---- ENIA IS VANILLA (Alaric, 2026-08-24, world#1013) ---------------------------------------------
 # Finger Reader Enia's shop is EXCLUDED FROM RANDOMIZATION -- none of her rows is a check. This
 # restores the rule 8c53e955 ("remove enia from big ticket") kept only half of: that took her rows
@@ -2343,6 +2360,8 @@ _SURFACE_EXCLUDE_FLAGS = frozenset({
     # --- 2026-07-31, Alaric, ON SUSPICION. Both stay ordinary collectable checks; they are barred
     # only from HOSTING progression, which is the cheap direction: the cost of being wrong here is a
     # filler item somewhere awkward, the cost of being wrong the other way is a stranded run.
+    # 2026-09-25: 39207170 is no longer a check at all (_FLAG_TILE_ONLY_LOTS, #1522) -- the
+    # suspicion below was right. Its entry is kept as history and is inert.
     39207170,   # Liurnia :: Sacred Tear -- "around Ruin-Strewn Precipice". Our LOWEST-confidence
                 # placement of the 13 Sacred Tears, on three independent signals: it is the only one
                 # on an INTERIOR lot flag (the other 12 are 10xxxxxxx overworld tiles); check_maps
@@ -6178,6 +6197,50 @@ if len(_furnace_restored) != 1:
     raise ValueError("Furnace Visage sibling recovery must yield exactly one row")
 rows = [r for r in rows if int(r['flag']) != 2048467701] + _furnace_restored
 
+# ---- TOMBSTONES (issue #1521): retire a check WITHOUT renumbering the positional band ----------
+# ap ids are BASE_AP + position in `rows`, so dropping a row used to shift every id after it (553
+# ids moved on the 2026-09-25 six-row removal alone), and ~20 hand-maintained tables, a feature
+# module and 17 test files pin ids. greenfield/tombstones.tsv is the APPEND-ONLY ledger of BURNED
+# ids: the positional walk below skips each one, so the rows after a retired check keep the ids
+# they had. A tombstone names the ap the check HAD, its flag and the ruling; the id is never reused.
+def _load_tombstones():
+    _p = os.path.join(HERE, "tombstones.tsv")
+    _out = {}
+    if not os.path.isfile(_p):
+        return _out
+    with open(_p, encoding="utf-8") as _fh:
+        for _ln in _fh:
+            if _ln.startswith("#") or not _ln.strip() or _ln.startswith("ap_id"):
+                continue
+            _c = _ln.rstrip(chr(10)).split(chr(9))
+            if len(_c) < 4 or not (_c[0].isdigit() and _c[1].isdigit()):
+                raise SystemExit(f"FATAL: tombstones.tsv malformed row: {_ln!r}")
+            _ap, _fl = int(_c[0]), int(_c[1])
+            if _ap in _out:
+                raise SystemExit(f"FATAL: tombstones.tsv burns ap {_ap} twice")
+            if not (BASE_AP <= _ap < COCHECK_BASE):
+                raise SystemExit(f"FATAL: tombstones.tsv ap {_ap} is outside the positional band")
+            _out[_ap] = (_fl, _c[2].strip(), _c[3].strip())
+    return _out
+TOMBSTONES = _load_tombstones()
+_live_flags_now = {int(r["flag"]) for r in rows}
+for _tap, (_tfl, _tdate, _treason) in sorted(TOMBSTONES.items()):
+    if _tfl in _live_flags_now:
+        raise SystemExit(f"FATAL: tombstones.tsv burns ap {_tap} for flag {_tfl}, but that flag is "
+                         "still a live row -- retire it (EXCLUDE_FLAGS et al.) or drop the tombstone")
+_AP_OF_ROW = []
+_next_ap = BASE_AP
+for _ in rows:
+    while _next_ap in TOMBSTONES:
+        _next_ap += 1
+    _AP_OF_ROW.append(_next_ap)
+    _next_ap += 1
+for _tap in TOMBSTONES:
+    if _tap >= _next_ap:
+        raise SystemExit(f"FATAL: tombstones.tsv burns ap {_tap} beyond the end of the positional "
+                         f"band ({_next_ap - 1}) -- a tombstone must sit where a row WAS")
+print(f"tombstones: {len(TOMBSTONES)} burned ap id(s) skipped by the positional walk")
+
 apid=BASE_AP; _name_pending=[]   # (reg, base_name, apid, flag); finalized with ordinals after the loop
 # These checks ARE the two Finger Ruins bell interactions: the bell event awards the talisman lot and
 # flips the check flag as one operation. Name the action the player performs rather than the contents
@@ -6186,7 +6249,8 @@ _BELL_CHECK_LABEL = {
     2050407000: "Ring the Finger Ruins of Dheo bell",
     2053467600: "Ring the Finger Ruins of Rhia bell",
 }
-for r in rows:
+for _ri, r in enumerate(rows):
+    apid=_AP_OF_ROW[_ri]
     reg=region_of(r); flag=int(r['flag'])
     # region_map's name first, then the params-derived one, then the honest placeholder.
     item=_BELL_CHECK_LABEL.get(flag) or r['item_name'] or _DERIVED_NAMES.get(flag) or 'check'
@@ -6316,7 +6380,6 @@ for r in rows:
         surface_excluded_aps.append(apid)
     if flag in _REGION_CONFIRMED_FLAGS:
         region_confirmed_aps.append(apid)
-    apid+=1
 
 # ---- collision ordinals (desc_sources "layer 6"): guarantee every location NAME is unique ---------
 # When several checks share an identical base name (same region+item+descriptor -- e.g. Scadutree
@@ -6803,6 +6866,13 @@ with open(OUT,"w",encoding="utf-8") as f:
     f.write("NOT_RANDOMIZED = {\n")
     for _fl3 in sorted(NOT_RANDOMIZED):
         f.write(f"    {_fl3}: {ascii(NOT_RANDOMIZED[_fl3])},\n")
+    f.write("}\n")
+    f.write("\n# BURNED ap ids (issue #1521, greenfield/tombstones.tsv): a retired check keeps consuming its\n")
+    f.write("# positional id so nothing after it renumbers. ap -> (flag, retired, reason). Never reused.\n")
+    f.write("TOMBSTONES = {\n")
+    for _tap in sorted(TOMBSTONES):
+        _tfl, _tdate, _treason = TOMBSTONES[_tap]
+        f.write(f"    {_tap}: ({_tfl}, {_tdate!r}, {ascii(_treason)}),\n")
     f.write("}\n")
     f.write("\n# THE FINALE (SPEC-ashen-capital-lock; see gen_data._finale_derive).\n")
     f.write("# LOCATIONS[FINALE_REGION] is NOT in REGIONS: the Ashen Capital is never ROLLED (num_regions\n")
@@ -7598,7 +7668,7 @@ print(f"region_play_ids: {len(_RPI)} regions, {sum(len(v) for v in _RPI.values()
 # ---- Phase 3 region bosses: the 25 major bosses (method=boss_arena), joined to greenfield ap-ids
 # by FLAG (matt-free). Members-per-dungeon sweeps need a boss-kill-flag enrichment the backbone
 # lacks (SPEC-PARITY.md P3), so only the labeled region bosses are emitted here.
-_flag2apid = {int(r["flag"]): BASE_AP + i for i, r in enumerate(rows)}
+_flag2apid = {int(r["flag"]): _AP_OF_ROW[i] for i, r in enumerate(rows)}
 _region_bosses = defaultdict(list)
 for r in rows:
     if r["method"] == "boss_arena":
@@ -7941,7 +8011,7 @@ for _i, _r in enumerate(rows):
         _fl = int(_r["flag"])
     except (KeyError, ValueError):
         continue
-    _aid = BASE_AP + _i
+    _aid = _AP_OF_ROW[_i]
     SHOP_ROW_FLAGS[str(_aid)] = _fl
     # ShopLineupParam row ids whose eventFlag_forStock == this flag (client writes this flag
     # onto those rows). Usually one; a flag shared across rows lists them all (all get asserted).
@@ -8738,18 +8808,18 @@ for _i, _r in enumerate(rows):
     try: _mf = int(_r["flag"])
     except (KeyError, ValueError): continue
     if _mf in DEATHROOT_FLAGS:
-        _MISSABLE[BASE_AP + _i] = "deathroot"
+        _MISSABLE[_AP_OF_ROW[_i]] = "deathroot"
     elif _mf in DRAGONHEART_FLAGS:
         # Label carries the COST TYPE so the currency families stay distinguishable (costType 1 =
         # Dragon Heart, 5 = believed Bayle's Heart). "all alt-currency slots are missable" is the
         # rule today; "at most K from one currency" needs to know which currency.
-        _MISSABLE[BASE_AP + _i] = _alt_currency_label(_mf)
+        _MISSABLE[_AP_OF_ROW[_i]] = _alt_currency_label(_mf)
     elif _mf in QUEST_GATED_FLAGS:
-        _MISSABLE[BASE_AP + _i] = _quest_gated_reason(_mf)
+        _MISSABLE[_AP_OF_ROW[_i]] = _quest_gated_reason(_mf)
     elif _mf in GESTURE_AWARD_MISSABLE:
-        _MISSABLE[BASE_AP + _i] = "gesture_award"
+        _MISSABLE[_AP_OF_ROW[_i]] = "gesture_award"
     elif _mf in QUESTLINE_ITEM_FLAGS:
-        _MISSABLE[BASE_AP + _i] = "questline_item"
+        _MISSABLE[_AP_OF_ROW[_i]] = "questline_item"
 # CO-CHECK members inherit their flag's missability (same physical acquisition -- a group must never
 # mix "missable" and "not": AP could then require the un-missable member of a pickup the player can
 # no longer perform). None of the seeded four qualifies; kept general for the allowlist widening.
@@ -8827,8 +8897,8 @@ for _i, _r in enumerate(rows):
             _unresolved_named.append((_r.get("flag"), _r.get("item_name")))
         continue
     ITEM_CATALOG[_base] = _full                  # catalog keyed by canonical base name
-    LOCATION_ITEM[BASE_AP + _i] = _base          # annotated locations -> base catalog name
-    _LOC_FULL[BASE_AP + _i] = (_full, _r.get("flag"), None)
+    LOCATION_ITEM[_AP_OF_ROW[_i]] = _base          # annotated locations -> base catalog name
+    _LOC_FULL[_AP_OF_ROW[_i]] = (_full, _r.get("flag"), None)
 if _unresolved_named:
     print("item names: %d row(s) carry a NON-BLANK item_name that does not resolve:" % len(_unresolved_named))
     for _fl6, _nm6 in _unresolved_named:
@@ -9766,7 +9836,7 @@ else:
 # The classification needs _field_openers/_ap2flag (merchant_shops.tsv), built with the ShopSlot
 # funnel below -- so it lives THERE, beside the loop it gates.
 _SPELL_RE = re.compile(r"^\s*\[(Sorcery|Incantation)\]", re.I)
-_ap_rawitem = {BASE_AP + _i: (_r.get("item_name") or "") for _i, _r in enumerate(rows)}
+_ap_rawitem = {_AP_OF_ROW[_i]: (_r.get("item_name") or "") for _i, _r in enumerate(rows)}
 _ap_blk = {int(_aps): _rows2[0] // 100 for _aps, _rows2 in SHOP_ROW_IDS.items() if _rows2}
 _ap_is_spell = {_a: bool(_SPELL_RE.match(_ap_rawitem.get(_a, ""))) for _a in _ap_blk}
 
@@ -10912,10 +10982,10 @@ for _i, _r in enumerate(rows):
              # this gate, and a `global_filler` on m61_46_46 passed none of the branches above, so
              # the DLC field pass ran over an empty grid and claimed exactly 0 checks.
              or _OVERWORLD_TILE_RE.match(_r["map"] or ""))
-        and not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(BASE_AP + _i, ()))))
+        and not (_FIELD_EXCLUDE_TAGS & set(loc_tags.get(_AP_OF_ROW[_i], ()))))
     if not _swept:
         continue
-    _ap = BASE_AP + _i; _reg = region_of(_r); _mp = _swept_map_prefix(_r)
+    _ap = _AP_OF_ROW[_i]; _reg = region_of(_r); _mp = _swept_map_prefix(_r)
     _ap_region[_ap] = _reg
     # A map anchored to an overworld tile (its own boss is cut content) joins the FIELD pass and
     # nothing else. Same shape as the `_rec_tile` branch below, and for the same reason: it must not
@@ -10942,7 +11012,7 @@ for _i, _r in enumerate(rows):
         _mem_tile[_mt.group(1)].append(_ap)
 
 # ---- CO-CHECK SIBLINGS INHERIT THEIR PRIMARY'S SWEEP MEMBERSHIP (#191) ----------------------------
-# The member loop above walks `rows` POSITIONALLY (`_ap = BASE_AP + _i`), so a registry ap_id in the
+# The member loop above walks `rows` POSITIONALLY (`_ap = _AP_OF_ROW[_i]`), so a registry ap_id in the
 # COCHECK band is structurally invisible to it -- which is why no co-check has ever been a sweep
 # member, including the original five. A sibling is the SAME PHYSICAL ACQUISITION as its primary:
 # if killing the boss sweeps the primary, the player has already picked the sibling up off the same
