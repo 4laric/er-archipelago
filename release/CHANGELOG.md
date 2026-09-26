@@ -17,7 +17,7 @@ Window opened 2 commit(s) PAST the v0.6.1.3 tag.
 
 `CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading contract.py): every client on the 0.6.1 line handshakes with these seeds, and this apworld with theirs.
 
-The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #717, version stamp only, pinned by the gitlink in the same commit as this bump. clients #718 (map-pin sync) lands in the same window.
+The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #717, version stamp only, pinned by the gitlink in the same commit as this bump. clients #718 (map-pin sync) and #719 (crash logger no longer reports the renderer's guarded probe reads) land in the same window; the gitlink pins client main 15bd5b1c6787.
 
 `stable` was already promoted to v0.6.1.3 by hand on 2026-09-24 (see `release/CHANNELS.tsv`); this window owes no promotion.
 
