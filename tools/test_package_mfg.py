@@ -100,7 +100,7 @@ class AdapterPackageTests(MfgPackageTests):
         upstream_hash = hashlib.sha256(raw).hexdigest()
         self.enterContext(patch.object(package_mfg, 'UPSTREAM_SHA256', upstream_hash))
         lock = json.loads(self.lock.read_text())
-        lock.update(schema_version=2, upstream_version='2.1.3', upstream_sha256=upstream_hash)
+        lock.update(schema_version=2, upstream_version=package_mfg.UPSTREAM_VERSION, upstream_sha256=upstream_hash)
         self.lock.write_text(json.dumps(lock))
         (self.artifact / 'MapForGoblins.upstream.dll').write_bytes(raw)
         (self.artifact / 'MapForGoblins.AP.ini').write_text('[AP]\nchecks_only=1\nprogression_only=0\nin_logic_only=1\n')
