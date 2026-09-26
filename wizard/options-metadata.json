@@ -430,7 +430,7 @@
    "class": "LockedAbilities",
    "compatibility_only": false,
    "display_name": "Locked Abilities",
-   "description": "A challenge: switches off actions such as rolling, jumping, attacking or healing.\n\nNames: jump, crouch, roll, r1, r2, l1, l2, heal. R1, R2, L1 and L2 are the attack\nbuttons (spells cast on them too), so locking all four leaves no way to attack. Heal\nstops flasks healing. Crouch is untested and may lock the wrong input. Default: none.\nEach returns as an Unlock item; Ability Lock Mode and Ability Unlocks Needed to Finish\ncan change that.",
+   "description": "A challenge: switches off actions such as rolling, jumping, attacking or healing.\n\nNames: jump, crouch, roll, r1, r2, l1, l2, heal. R1, R2, L1 and L2 are the attack\nbuttons (spells cast on them too). Lock all four and Unlock: R1 is placed early. Heal\nstops flasks healing. Crouch is untested and may lock the wrong input. Default: none.\nEach returns as an Unlock item; Ability Lock Mode and Ability Unlocks Needed to Finish\ncan change that.",
    "kind": "set",
    "base": "OptionSet",
    "default": [],
