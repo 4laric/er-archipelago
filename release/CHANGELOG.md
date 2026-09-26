@@ -3,6 +3,42 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.1.5 — 2026-09-26
+
+### What you need to update
+
+- **Client:** Optional, recommended. This is the bundle that actually carries clients #716, #718 and #719 (below); the v0.6.1.4 zip was built from the older client. Any v0.6.1 / v0.6.1.x client still connects.
+- **APWorld:** No. Unchanged apart from its version stamp.
+- **YAML:** **No new YAML required.** Existing YAMLs remain valid.
+- **Existing seed/save:** Compatible. No regeneration or save migration.
+- **Profile/assets:** Reinstall or replace both map DLLs from the bundle's `me3/` folder (`MapForGoblins.dll` and `MapForGoblins.upstream.dll`); keep your `MapForGoblins.ini` -- 2.1.5 adds its new options itself.
+
+Window opened AT THE TAG of v0.6.1.4 with ZERO commits past it.
+
+`CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading contract.py): every client on the 0.6.1 line handshakes with these seeds, and this apworld with theirs.
+
+The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #721, version stamp only (Cargo 0.6.1+f5), pinned by the gitlink in the same commit as this bump -- which also moves the pin past #716/#718/#719 to client main.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.1.4 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Map engine: MapForGoblins 2.1.5** (fork PR ERR-MapForGoblins-DLL#18). VirusAlex's 2.1.5
+  brings faster map opens, a fixed `require_map_fragments` setting, restored missing icons (287
+  markers in three new categories) and a much smaller DLL. Our AP adapter hooks the upstream DLL
+  directly, so it was re-ported to the new build; 2.1.5 now builds its marker table at startup,
+  and the adapter reads it on the first map open instead of at load. Tested in game: all 7376
+  markers matched, and the in-logic filter narrows the seed's pins as before.
+- **Fixed (client): two players on one slot now see the same MapForGoblins pins** (clients
+  #718). Listed under v0.6.1.4, but that release's zip was built from the client before it; this
+  is the first bundle that has it.
+- **Fixed (client): overflow from capped consumables reaches storage** (clients #716). Items past
+  a held-quantity cap are now routed through the normal item grant, so the excess goes to the
+  storage chest instead of being lost.
+- **Fixed (client): a guarded memory probe no longer reads as a crash** (clients #719). A
+  first-chance access violation inside a function that declares its own exception handler is
+  handled by that function; the crash handler stopped reporting it.
+
 ## v0.6.1.4 — 2026-09-25
 
 ### What you need to update
@@ -18,6 +54,8 @@ Window opened 2 commit(s) PAST the v0.6.1.3 tag.
 `CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading contract.py): every client on the 0.6.1 line handshakes with these seeds, and this apworld with theirs.
 
 The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #717, version stamp only, pinned by the gitlink in the same commit as this bump. clients #718 (map-pin sync) lands in the same window.
+
+**Correction (2026-09-26):** the v0.6.1.4 bundle was built from client `300dc56` (the window-opening commit): the tag's pairing gate refused it because the gitlink trailed client main, and the zip was rebuilt with `allow_stale_pin`. So clients #716, #718 and #719 are **not** in the v0.6.1.4 zip; they ship in v0.6.1.5.
 
 `stable` was already promoted to v0.6.1.3 by hand on 2026-09-24 (see `release/CHANNELS.tsv`); this window owes no promotion.
 

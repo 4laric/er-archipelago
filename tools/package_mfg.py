@@ -21,7 +21,8 @@ PRESET = {'Loot': {'show_material_nodes': 'false', 'show_crafting_materials': 't
                          'ap_in_logic_only': 'true'}}
 MANIFEST = 'MFG-PROVENANCE.json'
 ADAPTER_PRESET = {'AP': {'checks_only': '1', 'progression_only': '0', 'in_logic_only': '1'}}
-UPSTREAM_SHA256 = 'ed984d5bb3ee49e304ab02e5ac1bc1bfc3a6368c2bc8743f85edefe2a73f2ea3'
+UPSTREAM_VERSION = '2.1.5'
+UPSTREAM_SHA256 = '3dccfb5e4915be0783fd95f3aadd9a4bd7c71a9d043e960542a53bb226459ef6'
 ADAPTER_FILES = {'upstream_sha256': 'MapForGoblins.upstream.dll',
                  'ap_ini_sha256': 'MapForGoblins.AP.ini',
                  'adapter_license_sha256': 'licenses/adapter.txt',
@@ -48,7 +49,7 @@ def load_lock(path: Path) -> dict:
     lock = json.loads(path.read_text(encoding='utf-8-sig'))
     if lock.get('schema_version') not in (1, 2) or lock.get('profile') != 'vanilla':
         raise MfgError('MFG lock requires schema 1 or 2 and vanilla profile')
-    if lock['schema_version'] == 2 and (lock.get('upstream_version') != '2.1.3' or
+    if lock['schema_version'] == 2 and (lock.get('upstream_version') != UPSTREAM_VERSION or
             lock.get('upstream_sha256') != UPSTREAM_SHA256):
         raise MfgError('Unsupported upstream renderer pin')
     if lock.get('source_repository') != 'https://github.com/4laric/ERR-MapForGoblins-DLL':
