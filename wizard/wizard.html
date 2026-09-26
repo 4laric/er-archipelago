@@ -5363,9 +5363,9 @@ const ERW = (() => {
         pick("all", "All graces", {region_grace_unlock:"all", grace_attunement:0, grace_attunement_anchor:"front_door"}, "Unlock every grace in each unlocked region."),
         pick("landmarks", "Landmarks", {region_grace_unlock:"landmarks", grace_attunement:0, grace_attunement_anchor:"front_door"}, "Start with landmark graces."),
         pick("explore", "Explore to unlock", {region_grace_unlock:"entrance", grace_attunement:0, grace_attunement_anchor:"front_door"}, "Start at the entrance and discover the rest.") ]},
-      {id:"multiplayer", label:"Multiplayer", picks:[
-        pick("local", "Keep supplies local", {keep_local:def("keep_local"), keep_local_rune_cap:def("keep_local_rune_cap"), filler_foreign_pct:def("filler_foreign_pct")}, "Keep the default supply categories and smaller runes at home."),
-        pick("share", "Share broadly", {keep_local:[], keep_local_rune_cap:0, filler_foreign_pct:100}, "Release local restrictions and allow filler to travel to other players.") ]}
+      {id:"multiplayer", label:"Filler routing", picks:[
+        pick("local", "Keep at home", {keep_local:def("keep_local"), keep_local_rune_cap:def("keep_local_rune_cap"), filler_foreign_pct:def("filler_foreign_pct")}, "Keep the default supply categories and smaller runes at home."),
+        pick("share", "Export freely", {keep_local:[], keep_local_rune_cap:0, filler_foreign_pct:100}, "Release local restrictions and allow filler to travel to other players.") ]}
     ];
     return groups.map(g => ({...g, picks:g.picks.filter(p => Object.keys(p.values).every(k => meta.byKey[k]))}));
   }
