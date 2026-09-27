@@ -3,6 +3,26 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.1.6 — 2026-09-26
+
+### What you need to update
+
+- **Client:** Optional. The client half of this window is a version stamp only (clients #722); any v0.6.1 / v0.6.1.x client still connects.
+- **APWorld:** Host-only. The new `multiworld_scope` option is decided at generation, so only whoever generates the seed needs this apworld; players connect with what they have.
+- **YAML:** **New YAML optional.** Existing YAMLs remain valid. `multiworld_scope` defaults to `all`, which is today's behaviour.
+- **Existing seed/save:** Compatible. No regeneration or save migration.
+- **Profile/assets:** No action.
+
+Window opened AT THE TAG of v0.6.1.5 with ZERO commits past it.
+
+`CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading contract.py): every client on the 0.6.1 line handshakes with these seeds, and this apworld with theirs. A fixpack: `multiworld_scope` adds no slot_data key.
+
+The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #722, version stamp only (Cargo 0.6.1+f6), pinned by the gitlink in the same commit as this bump.
+
+`release/CHANNELS.tsv` promotes `stable` to v0.6.1.5 in this same commit.
+
+Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
 ## v0.6.1.5 — 2026-09-26
 
 ### What you need to update
