@@ -199,7 +199,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.6.1.5",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "707c27cf87122d7054b699846bd0ba1e3e0206598f70e84c04092bdac9aa24b0",
+ "source_sha256": "a8e70de52b86656dd4f4f26f7cd341bba195d7de0618ccdfe8083f8b366d872c",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -250,6 +250,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "merchant_bells_on_talk",
   "reroll_mine_materials",
   "protect_missable_locations",
+  "multiworld_scope",
   "no_runes_in_shops",
   "progression_surface",
   "progression_sharing",
@@ -369,6 +370,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "region_sync",
     "trap_link",
     "keep_local_rune_cap",
+    "multiworld_scope",
     "death_link_amnesty_inbound",
     "death_link_amnesty_outbound"
    ]
@@ -1576,6 +1578,33 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     {
      "name": "progression_and_useful",
      "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "multiworld_scope",
+   "class": "MultiworldScope",
+   "compatibility_only": false,
+   "display_name": "Multiworld Scope",
+   "description": "Which of your checks can hold other players' items.\n\nall: every check (default)\nsurface: Progression Surface only; the rest shuffle your own items at home. Overrides\nkeep_local and filler_foreign_pct; stops generation with progression_sharing open.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "all",
+   "choices": [
+    {
+     "name": "all",
+     "value": 0
+    },
+    {
+     "name": "surface",
+     "value": 1
     }
    ],
    "range": null,

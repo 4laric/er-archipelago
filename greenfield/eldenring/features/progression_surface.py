@@ -1150,6 +1150,11 @@ def foreign_bar_for(world):
     At 100 this is `foreign_advancement_barred` itself -- the same object, so the shipped default
     runs the same code path it always did. Below 100 it is a share: still only ever foreign
     advancement, and of that, only the names whose draw falls under the percentage."""
+    from .multiworld_scope import is_surface, foreign_item_barred
+    if is_surface(world):
+        # multiworld_scope: surface (#1612) widens the bar from foreign ADVANCEMENT to every
+        # foreign item; confine is forced to 100 there, so the rule reaches every non-surface check.
+        return foreign_item_barred
     pct = confine_pct(world)
     if pct >= 100:
         return foreign_advancement_barred
