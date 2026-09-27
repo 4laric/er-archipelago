@@ -23,6 +23,9 @@ The version moved, so a client half was needed (`contract_gen.rs` embeds the ver
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Locked Abilities tooltip** (#1611): now says that when every attack is locked, `Unlock: R1`
+  is placed early, so you do not need to leave one attack open.
+
 ## v0.6.1.5 — 2026-09-26
 
 ### What you need to update
