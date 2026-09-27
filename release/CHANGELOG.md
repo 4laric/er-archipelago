@@ -23,6 +23,9 @@ The version moved, so a client half was needed (`contract_gen.rs` embeds the ver
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **Client pin moved to client main** (clients #723). That change is Bloodborne-only (`bb-archipelago`);
+  the Elden Ring DLL is unaffected. The move lets the release job build the tag from the client it names.
+
 - **Locked Abilities tooltip** (#1611): now says that when every attack is locked, `Unlock: R1`
   is placed early, so you do not need to leave one attack open.
 - **New option: Multiworld Scope** (#1612). `multiworld_scope: surface` keeps the multiworld on
