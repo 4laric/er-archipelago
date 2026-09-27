@@ -5,15 +5,15 @@ only moment anyone remembers why it mattered._
 
 ## Can I update the client during a run?
 
-**TODO(open): No / Yes / Migration required.** Answer the literal question in the first word, before any version or contract detail. Say whether the player should keep their old client, whether their save is at risk, and exactly which older release(s) the ruling covers. Do not turn an unaudited general rule into a blanket No.
+**Yes.** This is a fixpack on the 0.6.1 line: the contract is unchanged, so a v0.6.1 / v0.6.1.x client can be swapped for this one mid-run, and your save is not touched. Nothing in this release requires the swap.
 
 ## What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Optional. The client half of this window is a version stamp only (clients #722); any v0.6.1 / v0.6.1.x client still connects.
+- **APWorld:** Host-only. The new `multiworld_scope` option is decided at generation, so only whoever generates the seed needs this apworld; players connect with what they have.
+- **YAML:** **New YAML optional.** Existing YAMLs remain valid. `multiworld_scope` defaults to `all`, which is today's behaviour.
+- **Existing seed/save:** Compatible. No regeneration or save migration.
+- **Profile/assets:** No action.
 
 ## What is in it so far
 
@@ -22,8 +22,8 @@ which is the point of it.
 
 ## What carried over from v0.6.1.5
 
-TODO(open): what is owed, and what is not. If nothing is owed, say so and say why — a blurb that
-cannot tell the difference is the one that lets a debt roll into a third window.
+Nothing is owed. v0.6.1.5 shipped the three client fixes and the MapForGoblins 2.1.5 port it
+promised, and its stable promotion is paid in this window's opening commit.
 
 ## For whoever writes the real one
 

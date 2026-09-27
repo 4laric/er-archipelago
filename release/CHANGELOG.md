@@ -7,17 +7,17 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Optional. The client half of this window is a version stamp only (clients #722); any v0.6.1 / v0.6.1.x client still connects.
+- **APWorld:** Host-only. The new `multiworld_scope` option is decided at generation, so only whoever generates the seed needs this apworld; players connect with what they have.
+- **YAML:** **New YAML optional.** Existing YAMLs remain valid. `multiworld_scope` defaults to `all`, which is today's behaviour.
+- **Existing seed/save:** Compatible. No regeneration or save migration.
+- **Profile/assets:** No action.
 
 Window opened AT THE TAG of v0.6.1.5 with ZERO commits past it.
 
-`CONTRACT_HASH` is `2aa64f43`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` is `2aa64f43`, unmoved since v0.6.0.11 (read by loading contract.py): every client on the 0.6.1 line handshakes with these seeds, and this apworld with theirs. A fixpack: `multiworld_scope` adds no slot_data key.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+The version moved, so a client half was needed (`contract_gen.rs` embeds the version string): clients #722, version stamp only (Cargo 0.6.1+f6), pinned by the gitlink in the same commit as this bump.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.1.5 in this same commit.
 
