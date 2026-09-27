@@ -23,6 +23,12 @@ The version moved, so a client half was needed (`contract_gen.rs` embeds the ver
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
 
+- **New option: Multiworld Scope** (#1612). `multiworld_scope: surface` keeps the multiworld on
+  your Progression Surface: other players' items land only on surface checks, and every other
+  check holds your own items, shuffled in your world. Overrides `keep_local` and
+  `filler_foreign_pct`; refused with `progression_sharing: open`. Default `all` changes nothing.
+  Also fixes the foreign-progression bar skipping hub, missable and Erdtree-burn checks.
+
 ## v0.6.1.5 — 2026-09-26
 
 ### What you need to update
