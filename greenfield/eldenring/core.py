@@ -66,6 +66,7 @@ from .features import vanilla_placement as _vp  # every item back in its base-ga
 from .features import goal_locations as _gl  # GOAL_CHOICES / forced_regions (the explicit `goal` option)
 from .features import finale as _finale  # ASHEN_LOCK_ITEM / finale_active (SPEC-ashen-capital-lock)
 from .features import progression_surface as _ps  # independent goal-region requirement axis
+from .features import multiworld_scope as _mws  # which checks exchange items (#1612)
 from .features import evidence_progression_hosts as _eph  # v0.6 audited progression-host policy
 from .features import traps as _traps  # spawn_item_name -- the spawn-trap id block below
 from .merchant_bell_pool import merchant_bell_pool_allowed
@@ -514,7 +515,8 @@ _OPTION_GROUPS = [
         "progression_surface", "keep_local", "progression_sharing", "filler_foreign_pct",
         "region_sync", "trap_link",
         # advanced (hidden from the simple UIs)
-        "keep_local_rune_cap", "death_link_amnesty_inbound", "death_link_amnesty_outbound",
+        "keep_local_rune_cap", "multiworld_scope", "death_link_amnesty_inbound",
+        "death_link_amnesty_outbound",
     ]),
     # Shop checks, what may be sold, and merchant unlocks.
     ("Shops & Merchants", [
@@ -859,6 +861,9 @@ class GreenfieldEldenRingWorld(World):
         apply_frozen(self.options)
         # progression_sharing resolves onto the two hidden knobs it governs before anything reads them.
         _ps.apply_progression_sharing(self.options)
+        # multiworld_scope: surface overrides keep_local / filler_foreign_pct / confine share, and
+        # must do so before the feature loop reads them (features/multiworld_scope.py).
+        self.gf_multiworld_scope_overrides = _mws.apply_multiworld_scope(self)
         # ...then vanilla_placement takes the start loadout back off, and it has to happen HERE:
         # between apply_frozen (which installs the frozen ON values) and the feature loop at the end
         # of this method (where start_items/start_grace first read them). A guard inside those
@@ -1974,7 +1979,10 @@ class GreenfieldEldenRingWorld(World):
                 # they just cannot be something the seed REQUIRES. (Alaric, playtest 2026-07-11.)
                 _prev = _loc.item_rule
                 _loc.item_rule = lambda item, _p=_prev: (not item.advancement) and _p(item)
-            elif _fsurf is not None and ap_id not in _fsurf:
+            if _fsurf is not None and ap_id not in _fsurf:
+                # `if`, not `elif` (#1612): a `_barred` check above already refuses all advancement,
+                # so for the default foreign-advancement bar this adds nothing, but under
+                # multiworld_scope: surface the bar covers foreign FILLER too and must reach it.
                 # confine_foreign_progression ON: this is one of our FILLER (non-surface) checks, so bar
                 # OTHER players' advancement from it -- foreign progression is thereby confined to our
                 # surface (the same checks our own region Locks use). Our OWN advancement may still land
