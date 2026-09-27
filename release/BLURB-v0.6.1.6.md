@@ -17,8 +17,11 @@ only moment anyone remembers why it mattered._
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.1.5 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+You can keep your filler at home now. Set `multiworld_scope: surface` and only your Progression
+Surface -- boss drops, key items, the checks worth hunting -- trades with the other players.
+Everything else is your own loot, shuffled around your own world, so a multiworld partner can
+never fill your catacombs with their junk and your gear never scatters into theirs. What leaves
+your world is exactly as much as the surface takes in, your progression first.
 
 ## What carried over from v0.6.1.5
 

@@ -25,6 +25,11 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 
 - **Locked Abilities tooltip** (#1611): now says that when every attack is locked, `Unlock: R1`
   is placed early, so you do not need to leave one attack open.
+- **New option: Multiworld Scope** (#1612). `multiworld_scope: surface` keeps the multiworld on
+  your Progression Surface: other players' items land only on surface checks, and every other
+  check holds your own items, shuffled in your world. Overrides `keep_local` and
+  `filler_foreign_pct`; refused with `progression_sharing: open`. Default `all` changes nothing.
+  Also fixes the foreign-progression bar skipping hub, missable and Erdtree-burn checks.
 
 ## v0.6.1.5 — 2026-09-26
 

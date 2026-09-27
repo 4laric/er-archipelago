@@ -706,6 +706,20 @@ Elden Ring:
   # Values: balanced, open (default balanced)
   progression_sharing: balanced
 
+  # Multiworld Scope
+  #
+  # Which of your checks can hold other players' items.
+  #
+  # surface keeps the multiworld on your Progression Surface: other players' items land only
+  # there, and every other check holds your own items, shuffled in your world. Your items that
+  # leave are as many as the foreign items your surface takes, progression first. Overrides
+  # keep_local and filler_foreign_pct; stops generation with progression_sharing open.
+  # all: every check (default)
+  # surface: Progression Surface only; the rest shuffle your own items at home
+  #
+  # Values: all, surface (default all)
+  multiworld_scope: all
+
   # ---- Where progression may hide -------------------------------------------
 
   # Progression Surface (where progression can land)
