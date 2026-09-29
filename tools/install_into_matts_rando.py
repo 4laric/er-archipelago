@@ -33,9 +33,6 @@ WHAT THIS REFUSES, loudly (exit 1):
   * `config_eldenringrandomizer_dll.toml` exists NEARBY but not in the target folder
     (--randomizer points at the wrong level; the refusal names where it was found).
 
-The legacy --with-torrent-repair flag is accepted only to explain that the repair
-has retired: update Matt's randomizer instead. It never edits regulation.bin.
-
 Exit codes: 0 = changed, 2 = already current (idempotent no-op), 1 = refused.
 All output is ASCII. Timestamped backups are written before either owned file changes.
 """
@@ -191,8 +188,6 @@ def run(argv: list[str] | None = None, script_path: Path | None = None) -> int:
                         help="matt's randomizer folder (contains %s)" % EXE_NAME)
     parser.add_argument("--with-flower", action="store_true",
                         help="also run the AP Flower icon installer against the same folder")
-    parser.add_argument("--with-torrent-repair", action="store_true",
-                        help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 
     me3 = bundle_dir(script_path or Path(__file__))
@@ -270,9 +265,6 @@ def _maybe_extras(args, me3: Path, target: Path, rc: int) -> int:
         if flower_rc != 0:
             print("AP Flower installer exited %d -- see its output above." % flower_rc)
             return 1
-    if args.with_torrent_repair:
-        print("Torrent repair is no longer included. Update Matt's randomizer to the current "
-              "patched version; regulation.bin was not changed by this installer.")
     return rc
 
 

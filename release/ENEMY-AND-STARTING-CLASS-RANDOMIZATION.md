@@ -180,8 +180,8 @@ next section describes by hand.
 
 Doing it by hand instead is the same as the first install: **Add dll mod**, remove the old
 entry, **Add...**, pick `eldenring_archipelago.dll` from inside the new `me3\` folder. Repoint
-`MapForGoblins.dll` the same way if you loaded it (step 4 above) -- the script above only
-rewrites the client's own path, not MapForGoblins'.
+`MapForGoblins.dll` the same way if you loaded it (step 4 above). The script above repoints
+both DLLs for you when the bundle carries MapForGoblins.
 
 `ap.me3` is not part of this. Launching through matt's app never reads the me3 profile, so
 there is nothing to update there.
@@ -193,14 +193,14 @@ Same cause as the save, one line further down the same file. `ap.me3` says:
 
 ```
 [[packages]]
-path = 'ap-package'
+path = 'flower-package'
 ```
 
 Launch through matt's randomizer and that line is never read, because the profile
 is never read. Here is why that is worth two minutes of your time.
 
 **The AP flower is not an item.** It is icon cell 92 -- the vanilla **Telescope**
--- repainted by a texture generated locally under `ap-package\menu`. The client points every
+-- repainted by a texture generated locally under `flower-package\menu`. The client points every
 foreign shop slot and every check placeholder at cell 92 whether or not the
 repaint got loaded. So on this launcher the pointing still happens, the repaint
 does not, and you get a shop full of literal telescopes. A player reported
@@ -230,7 +230,7 @@ That locally derives the override from your installed game, so you end up with:
 ```
 
 Relaunch. The script refuses to overwrite an unmarked existing atlas unless you explicitly pass
-`-Force`, so another loose-file mod cannot silently lose its own menu override.
+`-ReplaceExisting`, so another loose-file mod cannot silently lose its own menu override.
 
 The same DFLT hi/low override was confirmed in game through standalone ModEngine2 during the
 2026-08-17 AP-flower experiment. The installer changes how those confirmed files are constructed,
