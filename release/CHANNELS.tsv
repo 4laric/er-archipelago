@@ -99,3 +99,5 @@ stable	v0.6.1.4	2026-09-26	the v0.6.1.4 release: six checks nobody could ever ta
 beta	main	2026-09-26	the open v0.6.1.5 window
 stable	v0.6.1.5	2026-09-26	the v0.6.1.5 release: Map engine: MapForGoblins 2.1.5; Fixed (client): two players on one slot now see the same MapForGoblins pins; Fixed (client): overflow from capped consumables reaches storage; Fixed (client): a guarded memory probe no longer reads as a crash. Drafted from that release's CHANGELOG section by open_window.py, so the promotion does not wait on the next window's prose; sharpen it in this PR if it misses the point.
 beta	main	2026-09-26	the open v0.6.1.6 window
+stable	v0.6.1.6	2026-09-27	the v0.6.1.6 release: Client pin moved to client main; Locked Abilities tooltip; New option: Multiworld Scope. Drafted from that release's CHANGELOG section by open_window.py, so the promotion does not wait on the next window's prose; sharpen it in this PR if it misses the point.
+beta	main	2026-09-27	the open v0.6.1.7 window
