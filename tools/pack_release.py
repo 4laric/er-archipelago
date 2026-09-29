@@ -125,6 +125,8 @@ DOCS = [
     ("release/EldenRing.yaml", True),
     ("release/EldenRing-Quickstart.yaml", True),
     ("release/SETUP.md", True),
+    ("release/TROUBLESHOOTING.md", True),
+    ("release/GETTING-UNSTUCK.md", True),
     ("release/RELEASE-NOTES-v0.2.md", True),
     ("release/CHANGELOG.md", True),
     ("release/KNOWN-ISSUES.md", True),
