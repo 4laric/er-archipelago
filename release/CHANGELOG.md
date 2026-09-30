@@ -7,21 +7,24 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Required for equipment pacing and the new recovery command; replace the client DLL when this update ships.
+- **APWorld:** No. These changes run entirely in the client.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible. No new seed or save migration is required.
+- **Profile/assets:** No action beyond replacing the client DLL.
 
 Window opened AT THE TAG of v0.6.1.6 with ZERO commits past it.
 
-`CONTRACT_HASH` is `2aa64f43`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` is `2aa64f43`, verified by loading contract.py. It is unchanged; this recovery update does not change slot data, the version band, or save formats.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+The window version stamp was delivered by clients #724 and pinned when the window opened. This recovery change requires [clients #727](https://github.com/4laric/from-software-archipelago-clients/pull/727) before these instructions are released; it adds no generated contract changes.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.1.6 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Pace auto-equip backlogs and add a recovery command.** Equipment/Physick changes are limited to one per 500 ms, independent of item grants. `!autoequip off` works before connecting and survives reconnects until the game closes; items still arrive, but queued and new equip requests are skipped. `!autoequip seed` restores the seed setting. Includes regression coverage for backlog order, deferred items, pacing and recovery. The reported armour-swap crash still requires in-game validation.
+- **Recovery guide:** document the override and the exact `!hint Unlock: R1` / `!hint Unlock: Roll` commands.
 
 ## v0.6.1.6 — 2026-09-26
 

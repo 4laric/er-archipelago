@@ -13,6 +13,38 @@ you mean to change.
 
 Type `!help` to see the command list shipped by your client.
 
+## Incoming items crash during auto-equip
+
+On a client containing the auto-equip recovery update, launch disconnected, open
+the console, and enter `!autoequip off` **before connecting**. Then connect: items
+still arrive, but automatic equipment changes, Physick mixing, spell memorization,
+and starting-loadout normalization are disabled. This also discards any queued
+equip requests; it does not discard inventory items.
+
+The override survives reconnects until you close the game. Enter it again after
+restarting. `!autoequip` reports its state; `!autoequip seed` restores the seed's
+setting. Skipped equipment must be equipped manually; existing spell backfill can
+fill empty memory slots after restoring SEED. No new YAML or seed is needed.
+
+The updated client also spaces queued equipment changes by at least 500 ms,
+independently of item-grant pacing. This prevents a ready queue from changing
+several armour pieces in one frame. The spacing is a conservative mitigation;
+Fossils's reported crash still needs an in-game reproduction to confirm resolution.
+Moving to Roundtable Hold or restoring a save does not remove the server's backlog.
+
+If `!help` does not list `!autoequip`, your client predates the recovery command.
+
+## Hint a locked ability
+
+In the connected client's console/chat, use the exact ability item name:
+
+```text
+!hint Unlock: R1
+!hint Unlock: Roll
+```
+
+These request normal Archipelago hints for light attack and roll respectively.
+
 ## Escape anywhere
 
 Type:
