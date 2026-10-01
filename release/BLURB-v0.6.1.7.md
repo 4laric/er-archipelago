@@ -5,25 +5,29 @@ only moment anyone remembers why it mattered._
 
 ## Can I update the client during a run?
 
-**TODO(open): No / Yes / Migration required.** Answer the literal question in the first word, before any version or contract detail. Say whether the player should keep their old client, whether their save is at risk, and exactly which older release(s) the ruling covers. Do not turn an unaudited general rule into a blanket No.
+**Yes.** This client update keeps existing 0.6.1 / 0.6.1.x seeds and save formats compatible. Equipment changes are paced; players recovering from a crash can disable auto-equip before connecting. The reported crash still needs an in-game acceptance check.
 
 ## What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Required for equipment pacing and the new recovery command; replace the client DLL when this update ships.
+- **APWorld:** No. These changes run entirely in the client.
+- **YAML:** **No new YAML required. Existing YAMLs remain valid.**
+- **Existing seed/save:** Compatible. No new seed or save migration is required.
+- **Profile/assets:** No action beyond replacing the client DLL.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.1.6 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+A reconnect backlog no longer drains all ready equipment changes in one frame. Weapons, armour, talismans and Physick tears share a 500 ms interval, separate from item delivery. Deferred items retain their stream positions.
+
+If a backlog crashes during auto-equip, launch disconnected and enter `!autoequip off` before connecting. Items still arrive; automatic equipment and spell changes are suppressed for the game session, including reconnects. `!autoequip seed` restores the seed setting. See [Getting unstuck](GETTING-UNSTUCK.md#incoming-items-crash-during-auto-equip).
+
+This closes an unbounded queue-drain path found from Fossils's report. It is not yet a live-verified resolution of that crash.
+
+Idle NPC talk-script polling no longer keeps received goods waiting for minutes before delivering them in a burst. Other talk commands still pause delivery. This change has automated coverage; delivery near Gostoc and during Twin Maiden hand-ins still needs an in-game check.
 
 ## What carried over from v0.6.1.6
 
-TODO(open): what is owed, and what is not. If nothing is owed, say so and say why — a blurb that
-cannot tell the difference is the one that lets a debt roll into a third window.
+The auto-equip crash report still needs an in-game acceptance check. These notes do not claim that pacing has reproduced or conclusively resolved the crash.
 
 ## For whoever writes the real one
 
