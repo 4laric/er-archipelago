@@ -23,6 +23,8 @@ If a backlog crashes during auto-equip, launch disconnected and enter `!autoequi
 
 This closes an unbounded queue-drain path found from Fossils's report. It is not yet a live-verified resolution of that crash.
 
+Idle NPC talk-script polling no longer keeps received goods waiting for minutes before delivering them in a burst. Other talk commands still pause delivery. This change has automated coverage; delivery near Gostoc and during Twin Maiden hand-ins still needs an in-game check.
+
 ## What carried over from v0.6.1.6
 
 The auto-equip crash report still needs an in-game acceptance check. These notes do not claim that pacing has reproduced or conclusively resolved the crash.

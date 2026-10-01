@@ -3,7 +3,7 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.1.7 — 2026-09-27
+## v0.6.1.7 — 2026-10-01
 
 ### What you need to update
 
@@ -17,7 +17,7 @@ Window opened AT THE TAG of v0.6.1.6 with ZERO commits past it.
 
 `CONTRACT_HASH` is `2aa64f43`, verified by loading contract.py. It is unchanged; this recovery update does not change slot data, the version band, or save formats.
 
-The window version stamp was delivered by clients #724 and pinned when the window opened. This recovery change requires [clients #727](https://github.com/4laric/from-software-archipelago-clients/pull/727) before these instructions are released; it adds no generated contract changes.
+The window version stamp was delivered by clients #724 and pinned when the window opened. This release pins client main at `fbf167f`, including [clients #726](https://github.com/4laric/from-software-archipelago-clients/pull/726) and [#727](https://github.com/4laric/from-software-archipelago-clients/pull/727); it adds no generated contract changes.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.1.6 in this same commit.
 
@@ -25,6 +25,7 @@ Entries arrive below as they merge (rule 14: the release notes are part of the c
 
 - **Pace auto-equip backlogs and add a recovery command.** Equipment/Physick changes are limited to one per 500 ms, independent of item grants. `!autoequip off` works before connecting and survives reconnects until the game closes; items still arrive, but queued and new equip requests are skipped. `!autoequip seed` restores the seed setting. Includes regression coverage for backlog order, deferred items, pacing and recovery. The reported armour-swap crash still requires in-game validation.
 - **Recovery guide:** document the override and the exact `!hint Unlock: R1` / `!hint Unlock: Roll` commands.
+- **Item delivery near idle NPCs:** stop idle talk-script polling from holding received goods for minutes and then releasing them in a burst. Other talk commands still pause delivery. Delivery near Gostoc and during Twin Maiden hand-ins still requires in-game validation.
 
 ## v0.6.1.6 — 2026-09-26
 
