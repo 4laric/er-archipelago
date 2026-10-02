@@ -95,7 +95,7 @@
       ],
       "producer": "features/ability_lock.py or features/mario_mode.py (mutually exclusive)",
       "consumer": "er-logic ability_lock or mario capabilities receive path",
-      "doc": "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present only under ability_lock_mode: progressive: the abilities start locked (options.locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- the game is never asked to grant these, the client resolves them by this map. A seed that emits it also emits requiresClientFeatures ['ability_unlock']. Mario Mode uses the same map for its advanced move keys and instead requires mario_capabilities_v1; native locked_abilities cannot be combined with it. Mario Stat Upgrades additionally maps progressive_health and progressive_power and requires mario_stats_v1; the stat keys are absent when that option is off. Mario FLUDD maps fludd_hover, fludd_rocket, fludd_turbo and progressive_fludd_tank and requires mario_fludd_v1; these keys are absent when FLUDD is off."
+      "doc": "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present only under ability_lock_mode: progressive: the abilities start locked (options.locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- the game is never asked to grant these, the client resolves them by this map. A seed that emits it also emits requiresClientFeatures ['ability_unlock']. Mario Mode uses the same map for its advanced move keys and instead requires mario_capabilities_v1; native locked_abilities cannot be combined with it. Mario Stat Upgrades additionally maps progressive_health and progressive_power and requires mario_stats_v1; the stat keys are absent when that option is off. Mario FLUDD maps fludd_hover, fludd_rocket, fludd_turbo and progressive_fludd_tank and requires mario_fludd_v1; these keys are absent when FLUDD is off. Cappy maps cap_throw/cap_bounce with mario_cappy_v1; Sonic movement maps spin_dash/drop_dash/air_dash with mario_sonic_movement_v1. Each addon maps its keys only when enabled."
     },
     {
       "name": "armorBundles",
@@ -185,6 +185,28 @@
       "consumer": "er-logic/options.rs parse_bool_option et al.",
       "doc": "runtime option echo sub-dict; every client-read option lives here (features' top-level copies are legacy duplicates the client ignores).",
       "subkeys": [
+        {
+          "name": "mario_cappy",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/mario_mode.py)",
+          "consumer": "er-logic Mario Cappy parser",
+          "doc": "optional Cap Throw and Cap Bounce unlocks; absent/false disables Cappy. Requires mario_mode and mario_cappy_v1. Cap Bounce needs a deployed cap."
+        },
+        {
+          "name": "mario_sonic_movement",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/mario_mode.py)",
+          "consumer": "er-logic Mario Sonic parser",
+          "doc": "optional Spin Dash, Drop Dash and Air Dash unlocks; absent/false disables Sonic movement. Requires mario_mode and mario_sonic_movement_v1. No homing."
+        },
         {
           "name": "mario_fludd",
           "shape": "BOOL_OR_INT",

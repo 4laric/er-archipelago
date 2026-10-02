@@ -1148,6 +1148,10 @@ Elden Ring:
   # Capacity starts at 60 and reaches 120; tank receipts never refill water.
   # Requires Mario Mode, a new seed and compatible paired development DLLs.
   mario_fludd: false
+  # Optional independent Cap Throw/Cap Bounce; requires mario_mode and paired DLLs.
+  mario_cappy: false
+  # Optional Spin/Drop/Air Dash; requires mario_mode. No homing or logic gates.
+  mario_sonic_movement: false
 
 
 # ============================================================================

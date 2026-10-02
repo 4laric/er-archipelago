@@ -42,7 +42,7 @@ COMPAT_KEYS = frozenset({
     "flask_upgrades_on_progression_surface",
 })
 ADVANCED_KEYS = frozenset({
-    "mario_stat_upgrades", "mario_fludd",
+    "mario_stat_upgrades", "mario_fludd", "mario_cappy", "mario_sonic_movement",
     "curated_filler", "spawn_traps", "num_regions_order", "start_region_selection",
     "death_link_amnesty_inbound", "death_link_amnesty_outbound", "full_area_sweeps",
     "region_sweep", "reveal_sweep_boss_names", "keep_local_rune_cap", "pool_builder_intensity",
