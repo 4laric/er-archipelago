@@ -432,6 +432,10 @@ for _key, _nm, _aid, _count in contract.MARIO_STAT_ITEMS:
     item_name_to_id[_nm] = _aid
     _item_class[_nm] = ItemClassification.useful
 
+for _key, _nm, _aid, _count in contract.MARIO_FLUDD_ITEMS:
+    item_name_to_id[_nm] = _aid
+    _item_class[_nm] = ItemClassification.useful
+
 # FEATURE-MINTED GRANTS. `registry.allocate_item_ids` gives a feature's ITEMS an AP id, but nothing
 # tells the client what one resolves to: `_AP_IDS_TO_ITEM_IDS` is built from ITEM_CATALOG above, so
 # a minted item is a name the game can never hand over. That is why scadu_supply's fragment stayed
@@ -552,7 +556,7 @@ _OPTION_GROUPS = [
     # Collapsed. These change the randomizer's basic premise.
     ("Experimental", [
         "natural_progression", "vanilla_placement", "locked_abilities", "ability_lock_mode", "mario_mode",
-        "mario_stat_upgrades",
+        "mario_stat_upgrades", "mario_fludd",
         # advanced (hidden from the simple UIs)
         "ability_unlocks_required",
     ], True),
@@ -2275,6 +2279,8 @@ class GreenfieldEldenRingWorld(World):
             # Omit the optional off value to preserve existing seed payloads exactly.
             **({contract.MARIO_STAT_UPGRADES: _opt("mario_stat_upgrades")}
                if _opt("mario_stat_upgrades") else {}),
+            **({contract.MARIO_FLUDD: _opt("mario_fludd")}
+               if _opt("mario_fludd") else {}),
             contract.REVEAL_SWEEP_BOSS_NAMES: _opt("reveal_sweep_boss_names"),
             # 0 keeps the possession-based goal gate; 1 requires every progression-surface check
             # in every required non-goal region (with viewed shop rows supplied by the client).

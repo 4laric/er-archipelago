@@ -53,6 +53,23 @@ class MarioStatUpgrades(Toggle):
     default = 0
 
 
+class MarioFludd(Toggle):
+    """Find FLUDD nozzles and tank upgrades for Mario.
+
+    Requires Mario Mode. Hover, Rocket and Turbo start locked; each has one nozzle item.
+    Three Progressive FLUDD Tanks raise capacity from 60 to 80, 100, then 120 units.
+    Tank upgrades never refill water. Squirt is unfinished and is not included.
+    Nozzles never gate checks or goals. Needs a new seed and compatible paired DLLs.
+    """
+    display_name = "Mario FLUDD (Experimental)"
+    visibility = Visibility.all & ~Visibility.simple_ui
+    default = 0
+
+
+def fludd_on(world):
+    return bool(_value(world, "mario_fludd"))
+
+
 def stats_on(world):
     return bool(_value(world, "mario_stat_upgrades"))
 
@@ -116,9 +133,23 @@ def filter_rewards(world, pool, filler_name):
 @register
 class MarioFeature(Feature):
     name = "mario_mode"
-    OPTIONS = {"mario_mode": MarioMode, "mario_stat_upgrades": MarioStatUpgrades}
+    OPTIONS = {"mario_mode": MarioMode, "mario_stat_upgrades": MarioStatUpgrades,
+               "mario_fludd": MarioFludd}
 
     def generate_early(self, world):
+        if fludd_on(world) and not is_on(world):
+            raise OptionError("mario_fludd requires mario_mode: turn Mario Mode on "
+                              "or turn Mario FLUDD off.")
+        if not fludd_on(world):
+            fludd_names = {name for _key, name, _aid, _count in contract.MARIO_FLUDD_ITEMS}
+            starts = {name for option in ("start_inventory", "start_inventory_from_pool")
+                      for name, count in _value(world, option, {}).items() if count > 0}
+            if hasattr(world, "multiworld"):
+                starts.update(item.name for item in world.multiworld.precollected_items
+                              .get(world.player, ()))
+            if fludd_names & starts:
+                raise OptionError("FLUDD start inventory requires mario_fludd: turn it on "
+                                  "with mario_mode or remove nozzle/tank start items.")
         if stats_on(world) and not is_on(world):
             raise OptionError("mario_stat_upgrades requires mario_mode: turn Mario Mode on "
                               "or turn Mario Stat Upgrades off.")
@@ -161,7 +192,9 @@ class MarioFeature(Feature):
             world.create_item(name) for key, name in contract.MARIO_UNLOCK_ITEM_NAMES
             for _ in range(2 if key == "progressive_jump" else 1)] + ([
                 world.create_item(name) for _key, name, _aid, count in contract.MARIO_STAT_ITEMS
-                for _ in range(count)] if stats_on(world) else [])
+                for _ in range(count)] if stats_on(world) else []) + ([
+                world.create_item(name) for _key, name, _aid, count in contract.MARIO_FLUDD_ITEMS
+                for _ in range(count)] if fludd_on(world) else [])
 
     def set_rules(self, world):
         if not regression_required(world):
@@ -190,7 +223,10 @@ class MarioFeature(Feature):
                 str(world.item_name_to_id[name]): key
                 for key, name in contract.MARIO_UNLOCK_ITEM_NAMES
             } | ({str(aid): key for key, _name, aid, _count in contract.MARIO_STAT_ITEMS}
-                 if stats_on(world) else {}),
+                 if stats_on(world) else {})
+            | ({str(aid): key for key, _name, aid, _count in contract.MARIO_FLUDD_ITEMS}
+               if fludd_on(world) else {}),
             "requiresClientFeatures": [contract.MARIO_CAPABILITIES_FEATURE, REGRESSION_FEATURE]
-            + ([contract.MARIO_STATS_FEATURE] if stats_on(world) else []),
+            + ([contract.MARIO_STATS_FEATURE] if stats_on(world) else [])
+            + ([contract.MARIO_FLUDD_FEATURE] if fludd_on(world) else []),
         }

@@ -426,3 +426,26 @@ This needs the paired development AP client and a Mario DLL supporting
 Use a dedicated Mario save and the same paired profile setup. Existing seeds
 cannot acquire the new item families by replacing DLLs. The setting defaults
 off, preserving existing Mario health and damage when omitted.
+
+
+### Optional FLUDD nozzles and tanks (development)
+
+Generate a new seed with `mario_mode: true` and `mario_fludd: true`. Hover,
+Rocket and Turbo start locked; each has one useful nozzle item. Three useful
+Progressive FLUDD Tanks increase capacity from 60 to 80, 100, then 120 units.
+Tank receipts never refill water. Squirt is unfinished and has no unlock item.
+The six items replace filler and never gate checks or goals.
+
+Use compatible paired development AP client and Mario DLLs supporting
+`mario_fludd_v1`, with your own SM64 ROM and dedicated Mario save/profile.
+Existing seeds cannot gain FLUDD items retroactively. The advanced option defaults
+off, preserving existing seed pools and payloads. Stat upgrades remain a separate
+optional setting. No live FLUDD playthrough test is claimed.
+
+Hold **RB** to use the selected nozzle; while holding RB, D-pad Up selects Hover,
+Down selects Rocket, Right selects Turbo, and Left cycles unlocked nozzles.
+On keyboard, hold **J** to use FLUDD and press **I** to cycle. Rocket charges for
+one second; Turbo charges for two thirds of a second. Water regenerates while
+Mario stands still with FLUDD released, and refills at a grace or respawn.
+The new DLL rebuilds Mario's local armour package for the backpack; restart after
+the setup finishes so me3 can load it. Keep the generated package and your ROM.

@@ -363,6 +363,11 @@ MARIO_ABI_VERSION = 1
 MARIO_STAT_ITEMS = (("progressive_health", "Progressive Health", 7910010, 4),
                     ("progressive_power", "Progressive Power", 7910011, 3))
 MARIO_STATS_FEATURE = "mario_stats_v1"
+MARIO_FLUDD_ITEMS = (("fludd_hover", "Hover Nozzle", 7910012, 1),
+                     ("fludd_rocket", "Rocket Nozzle", 7910013, 1),
+                     ("fludd_turbo", "Turbo Nozzle", 7910014, 1),
+                     ("progressive_fludd_tank", "Progressive FLUDD Tank", 7910015, 3))
+MARIO_FLUDD_FEATURE = "mario_fludd_v1"
 
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
@@ -874,6 +879,11 @@ class ContractKey:
 # sub-key is emitted CENTRALLY by core._options_echo -- features never write into `options`.
 # ---------------------------------------------------------------------------------------------------
 OPTIONS_SUBKEYS = (
+    ContractKey("mario_fludd", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/mario_mode.py)", "er-logic Mario FLUDD parser",
+                "optional FLUDD nozzle and tank progression; absent/false disables FLUDD. "
+                "True shuffles Hover, Rocket and Turbo Nozzles and three tank upgrades, "
+                "with capacity 60/80/100/120 units. Requires mario_mode and mario_fludd_v1."),
     ContractKey("mario_stat_upgrades", "BOOL_OR_INT", False, (GREENFIELD,),
                 "core._options_echo (features/mario_mode.py)", "er-logic Mario stats parser",
                 "optional Mario health/power progression; absent/false keeps normal stats. "
@@ -1057,7 +1067,9 @@ CONTRACT = (
                 "uses the same map for its advanced move keys and instead requires "
                 "mario_capabilities_v1; native locked_abilities cannot be combined with it. "
                 "Mario Stat Upgrades additionally maps progressive_health and progressive_power "
-                "and requires mario_stats_v1; the stat keys are absent when that option is off."),
+                "and requires mario_stats_v1; the stat keys are absent when that option is off. "
+                "Mario FLUDD maps fludd_hover, fludd_rocket, fludd_turbo and progressive_fludd_tank "
+                "and requires mario_fludd_v1; these keys are absent when FLUDD is off."),
     ContractKey("armorBundles", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/armor_bundles.py", "core.rs armor-bundle receive reconciler",
                 "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."),
