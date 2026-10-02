@@ -7,21 +7,23 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Required for experimental Mario seeds; existing non-Mario seeds remain compatible.
+- **APWorld:** Host-only update to generate Mario seeds. Existing seeds remain unchanged.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `mario_mode` defaults off.
+- **Existing seed/save:** Compatible for existing non-Mario seeds. Mario mode requires a new seed and Mario's separate save; there is no save migration.
+- **Profile/assets:** Reinstall or replace the Mario DLL with the AP-compatible fork and add both natives to its me3 profile; supply your own SM64 ROM. Ordinary AP profiles need no change.
 
 Window opened AT THE TAG of v0.6.1.7 with ZERO commits past it.
 
-`CONTRACT_HASH` is `2aa64f43`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` is `2aa64f43`, verified by loading contract.py and unchanged. Mario mode adds an optional options subkey and reuses the existing ability-item map; the `mario_capabilities_v1` feature token makes older clients refuse Mario seeds explicitly. Ordinary seed contracts and save formats remain compatible.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
+The version stamp was opened by clients #728 for v0.6.1.8. The paired Mario client adds received-history capability replay and ABI read-back; its exact commit is pinned by the gitlink in the same world change as the regenerated contract mirror.
 
 `release/CHANNELS.tsv` promotes `stable` to v0.6.1.7 in this same commit.
 
 Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+
+- **Experimental Mario move unlocks (#1619).** Basic jumping and combat remain available. Two Progressive Jump items restore Double Jump then Triple Jump; Backflip, Side Flip, Long Jump, Wall Kick, Dive, Ground Pound, Enemy Grab and Boss Swing unlock independently. Unusable equipment rewards become runes without removing checks. Incompatible native ability locks, auto-equip, DeathLink, TrapLink, No Flask traps, vanilla placement and disabled item shuffle reject before fill. The paired client waits for the Mario worker to acknowledge the capability mask before progressing. Windows builds and automated tests do not establish live compatibility: co-loading, warps/region kicks, health, required bosses and ending completion remain release gates. See `docs/SPEC-er-mario-integration.md`.
 
 ## v0.6.1.7 — 2026-10-01
 

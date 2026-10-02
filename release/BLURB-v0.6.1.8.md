@@ -5,25 +5,27 @@ only moment anyone remembers why it mattered._
 
 ## Can I update the client during a run?
 
-**TODO(open): No / Yes / Migration required.** Answer the literal question in the first word, before any version or contract detail. Say whether the player should keep their old client, whether their save is at risk, and exactly which older release(s) the ruling covers. Do not turn an unaudited general rule into a blanket No.
+**Yes, for existing non-Mario seeds on the 0.6.1 line.** Their contract and save formats are unchanged. Mario mode needs a newly generated seed and Mario's separate save; replacing a client does not convert an existing run into Mario mode.
 
 ## What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Required for experimental Mario seeds; optional for existing non-Mario seeds.
+- **APWorld:** Host-only update for generating Mario seeds.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** Mario mode defaults off.
+- **Existing seed/save:** Compatible for existing non-Mario runs. Mario mode needs a new seed and a separate Mario save, with no migration of an existing save.
+- **Profile/assets:** Reinstall or replace the Mario DLL with the AP-compatible fork and add both DLLs to Mario's me3 profile; supply your own US SM64 ROM. Ordinary profiles need no change.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.1.7 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+Mario starts with basic jumping and combat. Two Progressive Jump pickups restore Double Jump and then Triple Jump; Backflip and Side Flip have their own items, alongside Long Jump, Wall Kick, Dive, Ground Pound, Enemy Grab and Boss Swing. Names follow the SM64 APWorld, with progressive jumping as this integration's extension.
+
+Weapon, armor and Ash of War rewards become runes while their pickup locations stay checks. Key progression remains intact. The client waits for the Mario worker to report the exact applied lock mask before processing checks or rewards, and restores earned moves from received-item history on reconnect.
+
+This is an experimental integration, pending live acceptance. Automated tests and compilation do not prove both mods can share an overlay, warp together, enforce region locks or complete every required encounter. The implementation stays in draft until those gates pass. See [the integration spec](../docs/SPEC-er-mario-integration.md).
 
 ## What carried over from v0.6.1.7
 
-TODO(open): what is owed, and what is not. If nothing is owed, say so and say why — a blurb that
-cannot tell the difference is the one that lets a debt roll into a third window.
+The reported auto-equip crash and NPC item-delivery fixes from v0.6.1.7 still need their live acceptance checks. Mario integration does not resolve or supersede that validation debt.
 
 ## For whoever writes the real one
 

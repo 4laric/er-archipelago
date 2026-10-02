@@ -422,6 +422,12 @@ for _idx, (_key, _nm) in enumerate(contract.ABILITY_UNLOCK_ITEM_NAMES):
     item_name_to_id[_nm] = contract.ABILITY_UNLOCK_ITEM_BASE + _idx
     _item_class[_nm] = ItemClassification.useful
 
+# Mario unlocks use a separate reserved band. No existing feature/item ids are shifted, and
+# these synthetic capabilities never enter the game's physical item-grant map.
+for _idx, (_key, _nm) in enumerate(contract.MARIO_UNLOCK_ITEM_NAMES):
+    item_name_to_id[_nm] = contract.MARIO_UNLOCK_ITEM_BASE + _idx
+    _item_class[_nm] = ItemClassification.useful
+
 # FEATURE-MINTED GRANTS. `registry.allocate_item_ids` gives a feature's ITEMS an AP id, but nothing
 # tells the client what one resolves to: `_AP_IDS_TO_ITEM_IDS` is built from ITEM_CATALOG above, so
 # a minted item is a name the game can never hand over. That is why scadu_supply's fragment stayed
@@ -541,7 +547,7 @@ _OPTION_GROUPS = [
     ]),
     # Collapsed. These change the randomizer's basic premise.
     ("Experimental", [
-        "natural_progression", "vanilla_placement", "locked_abilities", "ability_lock_mode",
+        "natural_progression", "vanilla_placement", "locked_abilities", "ability_lock_mode", "mario_mode",
         # advanced (hidden from the simple UIs)
         "ability_unlocks_required",
     ], True),
@@ -1724,6 +1730,8 @@ class GreenfieldEldenRingWorld(World):
         # So declare the early stones to AP (`local_early_items`) and let FILL place them: intent, not
         # sphere coupling. Clamped to what this pool actually holds, and it warns if it cannot pay.
         if shuffle and not _vanilla:
+            from .features.mario_mode import filter_rewards as _mario_filter_rewards
+            pool = _mario_filter_rewards(self, pool, FILLER)
             _fb.declare_early_items(self, [_it.name for _it in pool])
         self.multiworld.itempool += pool
 
@@ -2257,6 +2265,7 @@ class GreenfieldEldenRingWorld(World):
             # runtime toggle; the client-feature TAG that stops an older client silently ignoring it
             # is emitted by the feature, because only the feature knows the seed actually uses it.
             contract.AUTO_EQUIP: _opt("auto_equip"),
+            contract.MARIO_MODE: _opt("mario_mode"),
             contract.REVEAL_SWEEP_BOSS_NAMES: _opt("reveal_sweep_boss_names"),
             # 0 keeps the possession-based goal gate; 1 requires every progression-surface check
             # in every required non-goal region (with viewed shop rows supplied by the client).
