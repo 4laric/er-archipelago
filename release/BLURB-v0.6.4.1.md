@@ -1,32 +1,32 @@
-# v0.6.4.1 — release blurb (draft)
+# v0.6.4.1 — development window (draft)
 
-_Draft. Written as the window fills, not at tag time -- the moment a change lands is the
-only moment anyone remembers why it mattered._
+Stable downloads now point to the published v0.6.4 release. This development
+window opens space for later changes; the opening itself adds no gameplay changes.
 
 ## Can I update the client during a run?
 
-**TODO(open): No / Yes / Migration required.** Answer the literal question in the first word, before any version or contract detail. Say whether the player should keep their old client, whether their save is at risk, and exactly which older release(s) the ruling covers. Do not turn an unaudited general rule into a blanket No.
+**Yes**, from v0.6.4 to this version-stamp-only development client: the contract
+and save format are unchanged. Updating is optional; the released v0.6.4 client
+remains suitable for v0.6.4 seeds. Keep the matching Mario DLL and existing
+room/save profile for Mario seeds. This statement does not audit other releases.
 
 ## What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Optional. The development stamp changes; the released v0.6.4 client remains suitable for v0.6.4 seeds.
+- **APWorld:** Host-only update when using this development window for generation.
+- **YAML:** **No new YAML required.** Existing YAMLs remain valid.
+- **Existing seed/save:** Compatible with v0.6.4; no save migration is introduced by this window open.
+- **Profile/assets:** No action for this maintenance change. Keep the paired v0.6.4 Mario setup for Mario seeds.
 
 ## What is in it so far
 
-Nothing yet. This window was opened AT THE TAG of v0.6.4 with ZERO commits past it, so this file exists before its first entry does,
-which is the point of it.
+Only release housekeeping: stable promotion and paired world/client development
+version stamps. CONTRACT_HASH remains 2aa64f43. No new traversal, reward or goal
+behavior is claimed by the opening change.
 
 ## What carried over from v0.6.4
 
-TODO(open): what is owed, and what is not. If nothing is owed, say so and say why — a blurb that
-cannot tell the difference is the one that lets a debt roll into a third window.
-
-## For whoever writes the real one
-
-The v0.4.3 blurb is the model: lead with what changed at the table, not with the option
-name. Its opening line -- "You can get BK'ed now, and that is the point" -- says what a
-player will feel before it says what was built, and that is the right order.
+Mario remains experimental. Further slot/history replay, region kicks, healing,
+combined icons, the statue/Goldmask route, required special bosses and ending
+completion remain unverified live. Future changes must record their own validation
+and update guidance as they land. No pending gameplay fix is claimed here.

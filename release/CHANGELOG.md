@@ -7,21 +7,23 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** TODO(open): Required / Optional / No — rule on the client download directly.
-- **APWorld:** TODO(open): Required / Host-only / No — say who must replace it.
-- **YAML:** **TODO(open): New YAML required / New YAML optional / No new YAML required.** Say whether existing YAMLs remain valid.
-- **Existing seed/save:** TODO(open): Compatible / New seed required / Save migration required.
-- **Profile/assets:** TODO(open): No action / Reinstall or replace exactly what changed.
+- **Client:** Optional. The development stamp changes; the released v0.6.4 client remains suitable for v0.6.4 seeds.
+- **APWorld:** Host-only update when using this development window for generation.
+- **YAML:** **No new YAML required.** Existing YAMLs remain valid.
+- **Existing seed/save:** Compatible with v0.6.4; no save migration is introduced by this window open.
+- **Profile/assets:** No action for this maintenance change. Keep the paired v0.6.4 Mario setup for Mario seeds.
 
-Window opened AT THE TAG of v0.6.4 with ZERO commits past it.
+This opens the next development window after v0.6.4 shipped and promotes stable
+downloads to that verified release. It adds no gameplay changes.
 
-`CONTRACT_HASH` is `2aa64f43`. TODO(open): state whether that is unmoved and what it means for handshake compatibility — and say it after LOADING contract.py, not after assuming.
+`CONTRACT_HASH` remains `2aa64f43`, verified by loading contract.py. The wire
+contract and save format are unchanged. The paired version-stamp client is
+[clients #730](https://github.com/4laric/from-software-archipelago-clients/pull/730);
+its gitlink rides in this window-opening change because contract_gen.rs embeds
+the version. The existing Mario feature requirements remain in force.
 
-TODO(open): if the version moved, a client half is needed (`contract_gen.rs` embeds the version string). Name the client PR and confirm the gitlink rides in the same commit (AGENTS §7).
-
-`release/CHANNELS.tsv` promotes `stable` to v0.6.4 in this same commit.
-
-Entries arrive below as they merge (rule 14: the release notes are part of the change, not part of the release).
+Entries arrive below as changes merge. The experimental limits recorded for
+v0.6.4 remain open; this maintenance stamp does not verify those gameplay paths.
 
 ## v0.6.4 — 2026-10-01
 
