@@ -404,3 +404,11 @@ client log line is `AddItemFunc detour install deferred`.
 
 Still stuck, or a seed looks broken? Bring your yaml and the spoiler log when
 you ask for help.
+
+## Optional Mario mode (v0.6.4)
+
+For a Mario-mode seed, download `ER-Mario-AP-v0.6.4.zip` from the same release as
+this AP client bundle and follow the companion's README. It includes the paired
+profile generator and local icon-composition tool; you need your own US SM64 ROM.
+Mario mode is experimental and off by default. See `KNOWN-ISSUES.md` for the live
+verification limits. The ordinary profile described above remains available.

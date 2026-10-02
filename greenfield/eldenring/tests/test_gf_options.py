@@ -21,6 +21,74 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 
 
+@pytest.mark.parametrize("seed", [1, 7, 22222])
+@pytest.mark.parametrize("extra", [
+    {"enable_dlc": False, "armor_bundles": "off"},
+    {"enable_dlc": True, "armor_bundles": "sets", "start_regions": 3},
+    {"dlc_only": True, "armor_bundles": "mixed"},
+    {"num_regions": 0, "enable_dlc": False, "protect_missable_locations": "off"},
+])
+def test_mario_mode_seeded_fill_combinations(extra, seed):
+    """Real AP restrictive fill, beyond WorldTestBase's region/item construction (#1619)."""
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring import contract
+    from worlds.eldenring.features.mario_mode import (
+        GOLDMASK_AP_ID, REGRESSION, REGRESSION_FEATURE, REGRESSION_REGION, equipment_reward,
+    )
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 6, "mario_mode": True, **extra}
+
+    t = _T()
+    t.world_setup(seed=seed)
+    items = None
+    gesture = None
+    try:
+        distribute_items_restrictive(t.multiworld)
+        assert not t.multiworld.get_unfilled_locations(t.player)
+        assert t.multiworld.can_beat_game()
+        items = [loc.item for loc in t.multiworld.get_locations(t.player) if loc.item]
+        expected = {name for _key, name in contract.MARIO_UNLOCK_ITEM_NAMES}
+        assert expected <= {item.name for item in items}
+        assert sum(item.name == "Progressive Jump" for item in items) == 2
+        assert not any(equipment_reward(t.world, item.name) for item in items)
+        royal = REGRESSION_REGION in t.world._kept()
+        assert sum(item.name == REGRESSION for item in items) == int(royal)
+        gesture = next((loc for loc in t.multiworld.get_locations(t.player)
+                        if loc.address == GOLDMASK_AP_ID), None)
+        assert (gesture is not None) == royal
+        if gesture:
+            assert gesture.item.name != REGRESSION
+        sd = t.world.fill_slot_data()
+        assert contract.MARIO_CAPABILITIES_FEATURE in sd["requiresClientFeatures"]
+        assert REGRESSION_FEATURE in sd["requiresClientFeatures"]
+        assert set(sd["abilityUnlockItems"].values()) == set(contract.MARIO_CAPABILITY_KEYS)
+    finally:
+        del items, gesture
+        t.tearDown()
+
+
+@pytest.mark.parametrize("extra,message", [
+    ({"vanilla_placement": "all"}, "vanilla_placement must be off"),
+    ({"auto_equip": True}, "auto_equip must be off"),
+    ({"locked_abilities": ["jump"]}, "locked_abilities must be empty"),
+    ({"locked_abilities": ["heal"]}, "locked_abilities must be empty"),
+    ({"death_link": True}, "death_link must be off"),
+    ({"trap_link": True}, "trap_link must be off"),
+    ({"traps": ["no_flask"], "trap_count": 1}, "remove no_flask"),
+])
+def test_mario_mode_invalid_combinations_fail_at_generation(extra, message):
+    from Options import OptionError
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 6, "mario_mode": True, **extra}
+
+    with pytest.raises(OptionError, match=message):
+        _T().world_setup(seed=7)
+
+
 @pytest.mark.parametrize("tier", ["all", "landmarks", "entrance"])
 @pytest.mark.parametrize("threshold", [0, 1, 4, 10])
 @pytest.mark.parametrize("anchor", ["front_door", "random_grace"])

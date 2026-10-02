@@ -13,6 +13,32 @@ and bring your YAML and spoiler log.
 For what has been *fixed*, see [CHANGELOG.md](CHANGELOG.md); it is written for
 players, one section per fix, and it is the honest record.
 
+## Experimental Mario mode (v0.6.4)
+
+Mario mode is optional and off by default. All nine move families passed a live
+before/after unlock test, along with randomized pickups, overlay input capture,
+reconnect, grace travel and death/respawn. One Tibia Mariner defeat paid its AP
+sweep rewards and produced Mario's star. These results do not establish every boss
+or a complete ending run.
+
+- Rykard, required multi-phase bosses, ending completion, region-lock kicks,
+  complete slot/history replay and coin healing have not been tested in game.
+- The combined-icon helper passed texture checks; its output and the new
+  statue/Goldmask interaction have not been checked in a live session.
+- Generate a new Mario seed for Law of Regression's statue route. Updating an old
+  seed's DLL cannot add the reserved quest item to its pool.
+- After changing AP rooms, restart with the correct save/room identity before
+  ordinary delivery resumes. A move reset does not clear the save-protection guard.
+- Mario uses his own health and percentage-based combat. Ordinary flask healing,
+  weapon damage upgrades and native ability locks do not govern that moveset.
+  Unsupported links, traps and options are rejected during generation.
+- F7 and automatic unstuck lifts bypass move unlocks. Mario moves are not used as
+  Archipelago traversal or goal requirements.
+
+Use the optional Mario companion from the same release and follow its README.
+It supplies setup tools and the compatible Mario DLL; you supply your own ROM and
+build the private game package locally. Keep ordinary AP profiles separate.
+
 ## Great Runes
 
 - **A received Great Rune cannot be equipped at a grace, and its Divine Tower shows no
@@ -274,4 +300,5 @@ never removes atlas files on its own, so if the old Flower was copied directly i
 randomizer's output, replace those two menu atlases rather than leaving them: reinstall from this
 bundle, or restore them from a verified backup and reinstall. Do not delete an entire shared mod
 package. Restart the game after changing the effective assets.
+
 

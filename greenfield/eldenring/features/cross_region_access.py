@@ -58,6 +58,12 @@ def _swept_members(world) -> Set[int]:
 def location_available(world, location_id: int) -> bool:
     """Whether *location_id* has at least one route in this generated seed."""
 
+    # Mario's alternate statue interaction keeps the same gesture check, but its physical
+    # Royal Capital route cannot exist when that region is sealed. Use the shared count-neutral
+    # location/pool chokepoint; the generated AP identity remains reserved and unchanged.
+    from .mario_mode import GOLDMASK_AP_ID, goldmask_available
+    if location_id == GOLDMASK_AP_ID and not goldmask_available(world):
+        return False
     required_region = ALTERNATE_ACCESS.get(location_id)
     if required_region is None:
         return True

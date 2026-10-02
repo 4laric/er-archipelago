@@ -1,9 +1,9 @@
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.6.1.7",
+ "apworld_version": "0.6.4",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "a8e70de52b86656dd4f4f26f7cd341bba195d7de0618ccdfe8083f8b366d872c",
+ "source_sha256": "f759ad9a140db7838ee094bfc7de01cf18d289c485673ab5b6ecda422b21c5b9",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -51,6 +51,7 @@
   "leyndell_runes_required",
   "keep_local",
   "keep_local_rune_cap",
+  "mario_mode",
   "merchant_bells_on_talk",
   "reroll_mine_materials",
   "protect_missable_locations",
@@ -218,6 +219,7 @@
     "vanilla_placement",
     "locked_abilities",
     "ability_lock_mode",
+    "mario_mode",
     "ability_unlocks_required"
    ]
   }
@@ -1318,6 +1320,24 @@
     "start": 0,
     "end": 80000
    },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "mario_mode",
+   "class": "MarioMode",
+   "compatibility_only": false,
+   "display_name": "Mario Mode (Experimental)",
+   "description": "Experimental er-mario: find items to unlock moves.\n\nTwo Progressive Jumps give Double then Triple; Backflip and Side Flip are separate.\nBasic jump/punch stay free. Gear/spells become runes, except Law of Regression:\nkeep it to Interact at Radagon's statue. Moves never gate checks or goals.\nNeeds a compatible bridge and your SM64 ROM. Turn Vanilla Placement, Auto Equip,\nDeathLink and TrapLink off; empty Locked Abilities and omit No Flask traps.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
    "valid_keys": null,
    "casefold": false,
    "group": null,

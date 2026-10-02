@@ -1129,6 +1129,16 @@ Elden Ring:
   # Values: true or false (default false)
   region_sync: false
 
+  # Experimental Mario moveset randomizer (requires the compatible er-mario bridge).
+  # Progressive Jump has two copies: Double Jump, then Triple Jump. Eight other moves
+  # unlock individually. Basic jumping and punching remain available. Gear and spells
+  # become runes, except Law of Regression: carry it and Interact at Radagon's statue.
+  # Equipment pickup checks and key progression stay in the seed. This quest route
+  # needs a new seed and both updated DLLs; old seeds cannot gain the reserved spell.
+  # Requires Vanilla Placement, Auto Equip, DeathLink, TrapLink and Locked Abilities off;
+  # remove no_flask from traps. Supply your own SM64 ROM and follow er-mario setup.
+  mario_mode: false
+
 
 # ============================================================================
 #  FIXED IN v0.2 -- these are NOT options. Do not add them to the file above.

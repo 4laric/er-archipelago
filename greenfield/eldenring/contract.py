@@ -348,6 +348,18 @@ ABILITY_UNLOCK_ITEM_BASE = 7900000
 # turn unlock items back into abilities reports incompatible instead of leaving the player locked.
 ABILITY_UNLOCK_FEATURE = "ability_unlock"
 
+# er-mario ABI v1 capability order and fixed synthetic item ids (#1619). Append future
+# capabilities; never reorder these keys or reuse ids. Progressive Jump grants double jump
+# on the first copy and triple jump on the second. The other keys each have a single copy.
+MARIO_CAPABILITY_KEYS = ("progressive_jump", "long_jump", "wall_kick", "dive",
+                         "ground_pound", "enemy_grab", "boss_swing", "backflip", "side_flip")
+MARIO_UNLOCK_ITEM_NAMES = tuple(zip(MARIO_CAPABILITY_KEYS, (
+    "Progressive Jump", "Long Jump", "Wall Kick", "Dive", "Ground Pound", "Enemy Grab",
+    "Boss Swing", "Backflip", "Side Flip")))
+MARIO_UNLOCK_ITEM_BASE = 7910000
+MARIO_CAPABILITIES_FEATURE = "mario_capabilities_v1"
+MARIO_ABI_VERSION = 1
+
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
                    "KeyItem", "MajorBoss", "FieldBoss", "MinorDungeonBoss",
@@ -858,6 +870,11 @@ class ContractKey:
 # sub-key is emitted CENTRALLY by core._options_echo -- features never write into `options`.
 # ---------------------------------------------------------------------------------------------------
 OPTIONS_SUBKEYS = (
+    ContractKey("mario_mode", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/mario_mode.py)", "er-logic mario capabilities parser",
+                "experimental er-mario ABI v1 mode; absent/false leaves the bridge inactive. "
+                "When true advanced capabilities start locked and abilityUnlockItems "
+                "maps their synthetic AP ids. Requires mario_capabilities_v1."),
     ContractKey("death_link", "BOOL_OR_INT", True, (GREENFIELD,),
                 "core._options_echo", "er-logic/options.rs parse_death_link",
                 "shared deaths across the multiworld (world.options.death_link)."),
@@ -1020,13 +1037,16 @@ CONTRACT = (
                 "core._base_slot_data", "core.rs:309 i64_map",
                 "AP item id (str) -> ER FullID granted on receipt."),
     ContractKey("abilityUnlockItems", "STR_MAP", False, (GREENFIELD,),
-                "features/ability_lock.py (progressive mode)", "er-logic ability_lock receive path",
+                "features/ability_lock.py or features/mario_mode.py (mutually exclusive)",
+                "er-logic ability_lock or mario capabilities receive path",
                 "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present "
                 "only under ability_lock_mode: progressive: the abilities start locked (options."
                 "locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item "
                 "id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- "
                 "the game is never asked to grant these, the client resolves them by this map. A seed "
-                "that emits it also emits requiresClientFeatures ['ability_unlock']."),
+                "that emits it also emits requiresClientFeatures ['ability_unlock']. Mario Mode "
+                "uses the same map for its advanced move keys and instead requires "
+                "mario_capabilities_v1; native locked_abilities cannot be combined with it."),
     ContractKey("armorBundles", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/armor_bundles.py", "core.rs armor-bundle receive reconciler",
                 "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."),
@@ -1918,7 +1938,7 @@ mod nested_grants_tests {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.6.1.7"
+APWORLD_VERSION = "0.6.4"
 
 def _contract_hash() -> str:
     _mat = "\n".join(

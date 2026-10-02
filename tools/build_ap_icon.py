@@ -289,12 +289,17 @@ def find_sprite(unpacked_layout, icon_id):
     return hits
 
 
-def probe(menu, bundles, icon_id, cell, witchy, workdir):
+def layout_path(menu, bundle, layout_menu=None):
+    """Use a separate sprite layout with an already modified atlas, or the legacy menu pair."""
+    return os.path.join(layout_menu or menu, bundle, LAYOUT)
+
+
+def probe(menu, bundles, icon_id, cell, witchy, workdir, layout_menu=None):
     """Report where icon `icon_id` actually lives. WRITES NOTHING."""
     print("PROBE -- no files will be written.\n")
     for b in bundles:
         src = os.path.join(menu, b, SHEET)
-        lay = os.path.join(menu, b, LAYOUT)
+        lay = layout_path(menu, b, layout_menu)
         if not os.path.isfile(src):
             die("no %s (looked for the atlas this tool edits)" % src)
 
@@ -438,6 +443,8 @@ def composite_rect(art, sheet_png, x, y, w, h, out_png, force_black_alpha):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--menu", required=True, help=r'the game\menu directory')
+    ap.add_argument("--layout-menu", help="separate menu directory supplying hi/low sprite layouts; "
+                    "atlas textures still come from --menu (default: use --menu for both)")
     ap.add_argument("--art", default=DEFAULT_ART)
     ap.add_argument("--payload", default=DEFAULT_PAYLOAD,
                     help="project-owned precompressed 160x160 BC7 flower blocks")
@@ -463,6 +470,8 @@ def main():
     bundles = [b.strip() for b in a.bundles.split(",") if b.strip()]
     if not os.path.isdir(a.menu):
         die("no menu directory at %s" % a.menu)
+    if a.layout_menu and not os.path.isdir(a.layout_menu):
+        die("no layout menu directory at %s" % a.layout_menu)
     if not os.path.isfile(a.payload):
         die("no BC7 payload at %s (expected the committed project-owned flower blocks; see "
             "tools/ap_icon_src/README.md)" % a.payload)
@@ -480,13 +489,13 @@ def main():
               "Pass --force-black-to-alpha to override.", file=sys.stderr)
 
     if a.probe:
-        probe(a.menu, bundles, a.icon_id, a.cell, witchy, a.work)
+        probe(a.menu, bundles, a.icon_id, a.cell, witchy, a.work, a.layout_menu)
         return 0
 
     os.makedirs(a.out, exist_ok=True)
     for b in bundles:
         src = os.path.join(a.menu, b, SHEET)
-        lay = os.path.join(a.menu, b, LAYOUT)
+        lay = layout_path(a.menu, b, a.layout_menu)
         if not os.path.isfile(lay):
             die("no %s -- the sprite rect comes from the layout, never from arithmetic." % lay)
 
