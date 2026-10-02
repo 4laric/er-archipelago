@@ -4,7 +4,7 @@ Basic movement and punching stay available. These useful items have no reachabil
 rules: the bridge enforces them inside libsm64, not Elden Ring's Tarnished action inputs.
 Fixed item ids are registered by core, outside sequential feature allocation.
 """
-from Options import Toggle, OptionError
+from Options import Toggle, OptionError, Visibility
 from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from .. import contract
@@ -48,6 +48,8 @@ class MarioStatUpgrades(Toggle):
     checks or goals. Needs a new seed and compatible paired Mario/client DLLs.
     """
     display_name = "Mario Stat Upgrades"
+    # A companion-mode tuning knob belongs on advanced/weighted surfaces.
+    visibility = Visibility.all & ~Visibility.simple_ui
     default = 0
 
 

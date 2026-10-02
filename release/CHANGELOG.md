@@ -17,6 +17,7 @@ Optional Mario stat progression starts at four of eight health wedges and 75% no
 attack damage. Four useful Progressive Health items add one maximum wedge each,
 without healing on receipt. Three useful Progressive Power items raise attack damage
 to 100%, 125%, then 150%. Coins, grace and stars respect the current health maximum.
+The toggle stays on advanced/weighted option surfaces to keep the simple page small.
 The seven items replace filler without changing check counts, and never gate checks
 or goals. The off setting preserves existing Mario item pools and slot payloads.
 The paired client pin is `1381ae1`: it replays indexed stat items and waits for
