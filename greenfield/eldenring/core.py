@@ -1251,6 +1251,7 @@ class GreenfieldEldenRingWorld(World):
         if (name in self._required_runes() or name in getattr(self, "gf_capital_runes", [])
                 or name in getattr(self, "gf_legacy_keys", [])
                 or name in getattr(self, "gf_questline_gate_items", [])
+                or name in getattr(self, "gf_mario_quest_items", [])
                 or name in getattr(self, "gf_natural_keys", [])
                 or name in self._required_ability_unlocks()):
             return ItemClassification.progression

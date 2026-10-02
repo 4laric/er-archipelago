@@ -26,12 +26,15 @@ GAME = "Elden Ring"
     {"enable_dlc": False, "armor_bundles": "off"},
     {"enable_dlc": True, "armor_bundles": "sets", "start_regions": 3},
     {"dlc_only": True, "armor_bundles": "mixed"},
+    {"num_regions": 0, "enable_dlc": False, "protect_missable_locations": "off"},
 ])
 def test_mario_mode_seeded_fill_combinations(extra, seed):
     """Real AP restrictive fill, beyond WorldTestBase's region/item construction (#1619)."""
     from Fill import distribute_items_restrictive
     from worlds.eldenring import contract
-    from worlds.eldenring.features.mario_mode import equipment_reward
+    from worlds.eldenring.features.mario_mode import (
+        GOLDMASK_AP_ID, REGRESSION, REGRESSION_FEATURE, REGRESSION_REGION, equipment_reward,
+    )
 
     class _T(WorldTestBase):
         game = GAME
@@ -40,6 +43,7 @@ def test_mario_mode_seeded_fill_combinations(extra, seed):
     t = _T()
     t.world_setup(seed=seed)
     items = None
+    gesture = None
     try:
         distribute_items_restrictive(t.multiworld)
         assert not t.multiworld.get_unfilled_locations(t.player)
@@ -49,11 +53,19 @@ def test_mario_mode_seeded_fill_combinations(extra, seed):
         assert expected <= {item.name for item in items}
         assert sum(item.name == "Progressive Jump" for item in items) == 2
         assert not any(equipment_reward(t.world, item.name) for item in items)
+        royal = REGRESSION_REGION in t.world._kept()
+        assert sum(item.name == REGRESSION for item in items) == int(royal)
+        gesture = next((loc for loc in t.multiworld.get_locations(t.player)
+                        if loc.address == GOLDMASK_AP_ID), None)
+        assert (gesture is not None) == royal
+        if gesture:
+            assert gesture.item.name != REGRESSION
         sd = t.world.fill_slot_data()
         assert contract.MARIO_CAPABILITIES_FEATURE in sd["requiresClientFeatures"]
+        assert REGRESSION_FEATURE in sd["requiresClientFeatures"]
         assert set(sd["abilityUnlockItems"].values()) == set(contract.MARIO_CAPABILITY_KEYS)
     finally:
-        del items
+        del items, gesture
         t.tearDown()
 
 

@@ -9,15 +9,30 @@ from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from .. import contract
 
+GOLDMASK_AP_ID = 7774610
+REGRESSION = "Law of Regression"
+REGRESSION_REGION = "Leyndell"
+REGRESSION_FEATURE = "mario_regression_v1"
+
+
+def goldmask_available(world):
+    """The hub-labelled gesture physically needs Royal Leyndell; no independent sweep exists."""
+    return not is_on(world) or REGRESSION_REGION in world._kept()
+
+
+def regression_required(world):
+    return is_on(world) and goldmask_available(world) and any(
+        row[1] == GOLDMASK_AP_ID for row in world._seed_locations(world.tables.hub))
+
 
 class MarioMode(Toggle):
     """Experimental er-mario: find items to unlock moves.
 
-    Two Progressive Jumps give Double, then Triple Jump; Backflip and Side Flip are separate.
-    Basic jump and punch stay available; moves never gate checks or finishing.
-    Gear and spells become runes; pickup checks and keys remain.
-    Needs a compatible bridge and your own SM64 ROM. Set Vanilla Placement, Auto Equip,
-    DeathLink and TrapLink off, Locked Abilities empty, and omit No Flask traps.
+    Two Progressive Jumps give Double then Triple; Backflip and Side Flip are separate.
+    Basic jump/punch stay free. Gear/spells become runes, except Law of Regression:
+    keep it to Interact at Radagon's statue. Moves never gate checks or goals.
+    Needs a compatible bridge and your SM64 ROM. Turn Vanilla Placement, Auto Equip,
+    DeathLink and TrapLink off; empty Locked Abilities and omit No Flask traps.
     """
     display_name = "Mario Mode (Experimental)"
     default = 0
@@ -39,6 +54,8 @@ def equipment_reward(world, name):
     """
     from .armor_bundles import is_bundle_name, MIXED_ARMOR_SETS
     from ..item_categories import category_of
+    if name == REGRESSION and regression_required(world):
+        return False  # quest key: Interact at the statue invokes the native reveal effect
     if is_bundle_name(name) or name in MIXED_ARMOR_SETS:
         return True
     # Casting needs a staff or seal, which Mario's forced fists prevent. The existing
@@ -58,7 +75,14 @@ def filter_rewards(world, pool, filler_name):
     if not is_on(world):
         return pool
     out = []
+    regression_seen = False
     for item in pool:
+        if item.name == REGRESSION and regression_required(world):
+            # The feature reserves one ordinary pool slot. Vanilla merchant copies pay filler.
+            if regression_seen:
+                out.append(world.create_item(filler_name))
+                continue
+            regression_seen = True
         if equipment_reward(world, item.name):
             if item.classification & ItemClassification.progression:
                 raise OptionError(
@@ -96,12 +120,33 @@ class MarioFeature(Feature):
             problems.append("remove no_flask from traps (Mario heals through coins)")
         if problems:
             raise OptionError("mario_mode: " + "; ".join(problems) + ".")
+        world.gf_mario_quest_items = [REGRESSION] if regression_required(world) else []
 
     def create_items(self, world):
         if not is_on(world):
             return []
-        return [world.create_item(name) for key, name in contract.MARIO_UNLOCK_ITEM_NAMES
-                for _ in range(2 if key == "progressive_jump" else 1)]
+        return ([world.create_item(REGRESSION)] if regression_required(world) else []) + [
+            world.create_item(name) for key, name in contract.MARIO_UNLOCK_ITEM_NAMES
+            for _ in range(2 if key == "progressive_jump" else 1)]
+
+    def set_rules(self, world):
+        if not regression_required(world):
+            return
+        location = next((loc for loc in world.multiworld.get_locations(world.player)
+                         if loc.address == GOLDMASK_AP_ID), None)
+        if location is None:
+            return
+        # ESD t112001100 awards f60848 only after the statue's reveal flag f11009556.
+        # Native event 11003723 needs player SpEffect 1673014 within 4m of entity 11000716.
+        # The bridge supplies that effect on Interact with the randomized spell in inventory;
+        # Goldmask's dialogue still owns the award. No advanced Mario move gates this check.
+        previous = location.access_rule
+        player = world.player
+        location.access_rule = lambda state, p=previous: (
+            p(state) and state.has(REGRESSION, player)
+            and state.can_reach(REGRESSION_REGION, "Region", player))
+        previous_item = location.item_rule
+        location.item_rule = lambda item, p=previous_item: p(item) and item.name != REGRESSION
 
     def slot_data(self, world):
         if not is_on(world):
@@ -111,5 +156,5 @@ class MarioFeature(Feature):
                 str(world.item_name_to_id[name]): key
                 for key, name in contract.MARIO_UNLOCK_ITEM_NAMES
             },
-            "requiresClientFeatures": [contract.MARIO_CAPABILITIES_FEATURE],
+            "requiresClientFeatures": [contract.MARIO_CAPABILITIES_FEATURE, REGRESSION_FEATURE],
         }

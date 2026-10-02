@@ -75,7 +75,7 @@ commands. A missing dependency causes `!getitem` to fail before sending a receip
 The optional `options.mario_mode` boolean selects the Mario adapter. The existing
 optional `abilityUnlockItems` map carries AP item IDs to Mario capability names;
 native ability locks and Mario mode cannot be combined. `requiresClientFeatures`
-contains `mario_capabilities_v1`. The existing top-level wire shapes and contract
+contains `mario_capabilities_v1` and `mario_regression_v1`. The existing top-level wire shapes and contract
 hash remain unchanged; an older client refuses the new feature token.
 
 | Bit | Wire name | Restored behavior |
@@ -126,7 +126,9 @@ uint32_t er_mario_ap_get_state(struct ErMarioApState *out);
 Setter/query return 1 on acceptance/success, 0 on invalid arguments. Unknown mask
 bits and unlocked bits outside managed are invalid. State flag bits: 1 means
 assets/libsm64 ready; 2 means Mario enabled; 4 means the requested snapshot was
-applied. The setter queues an atomic snapshot. The worker applies it before
+applied; 8 means the native statue interaction is supported. New seeds require
+flag 8 through `mario_regression_v1`; older Mario seeds without that token retain
+their existing handshake. The setter queues an atomic snapshot. The worker applies it before
 libsm64 execution; the query exposes actual applied state. A successful setter
 alone does not establish that a lock is enforced.
 
@@ -158,6 +160,22 @@ without removing location identities or progression keys. Pool counts remain
 exact. Keep Mario off by default. Unsupported option combinations must raise a
 specific `OptionError` before fill.
 
+Law of Regression is preserved as a quest key when Royal Leyndell is in the seed.
+One progression copy uses the ordinary pool budget; extra copies become runes.
+At Radagon's statue, press the normal Interact button while carrying the spell.
+The Mario game thread applies native SpEffect 1673014 only within four metres of
+entity 11000716 while the statue is waiting and unrevealed. The game performs the
+statue reveal; the player must then tell Goldmask that Radagon is Marika to collect
+Golden Order Totality. No advanced move, staff, seal or direct check award is used.
+The original check 7774610 / f60848 requires Law and Royal Leyndell access, cannot
+hold its own key, and retains the existing missable policy. When Royal Leyndell
+is absent, the existing physical-route scoping omits that check without changing
+its reserved dataset ID.
+
+This quest route requires a newly generated seed and both updated DLLs. Existing
+Mario seeds did not reserve Law of Regression; a DLL update cannot add it to their
+pool retrospectively. Existing seeds remain playable under their old handshake.
+
 Spells are identified through the existing item taxonomy, preserving key goods
 and consumables that share their game item category. Mario combat currently removes percentages of target max HP. HP scaling therefore
 does not increase hits-to-kill in the usual way; weapon upgrades and levels do
@@ -176,6 +194,10 @@ both Windows DLLs and regenerate the contract mirrors.
 
 Live game, required before release:
 
+The human playtest has passed all nine move families. Slot changes/reset, combined
+icons and the statue/Goldmask quest path remain unverified live; the remaining
+checks below still apply.
+
 1. Load both DLLs in one Mario me3 profile; verify input, camera and both overlays.
 2. Collect a native pickup; prove the AP check and incoming reward complete once.
 3. Attempt Long Jump while locked, receive its item, then prove it works. Repeat
@@ -185,7 +207,9 @@ Live game, required before release:
 5. Warp by grace and by region kick. Prove Mario and Tarnished relocate together,
    and locked regions remain enforced after wall kicks/long jumps.
 6. Verify real boss defeat/reward flags, required special encounters including
-   Rykard, multi-phase fights, shops, NPC interaction and ending completion.
+   Rykard, multi-phase fights, shops, NPC interaction and ending completion. Test
+   the statue without Law, then with Law and Interact, and collect Goldmask's
+   original gesture check through dialogue.
 7. Verify health, healing, death, respawn and any supported traps against SM64
    health. Unsupported features remain rejected, not silently ineffective.
 8. Exercise upstream unstuck behavior (F7 and automatic lift). It currently grants
