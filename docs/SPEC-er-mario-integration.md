@@ -136,7 +136,11 @@ Without AP configuration, upstream Mario behavior remains available. An active
 Mario seed requires compatible exports and observable application of its mask.
 Transient disconnection retains the last seed's restriction. Reconnecting folds
 the complete received history. Changing seed/slot replaces the capability state
-and cannot inherit another slot's unlocks.
+and cannot inherit another slot's unlocks. This capability reset is separate from
+the existing save-identity protection: switching rooms can reset moves while
+ordinary item delivery remains refused by `RoomChangedMidSession`. Resume ordinary
+play after a restart with the proper save/room identity; changing back in the same
+process does not clear that guard.
 
 ## Enforcement
 
@@ -194,9 +198,10 @@ both Windows DLLs and regenerate the contract mirrors.
 
 Live game, required before release:
 
-The human playtest has passed all nine move families. Slot changes/reset, combined
-icons and the statue/Goldmask quest path remain unverified live; the remaining
-checks below still apply.
+The human playtest has passed all nine move families and observed initial new-seed
+relocking with basic movement available. Further slot/history replay, combined
+icons and the statue/Goldmask quest path remain unverified live. The human ended
+the manual session; the remaining checks below are future release gates.
 
 1. Load both DLLs in one Mario me3 profile; verify input, camera and both overlays.
 2. Collect a native pickup; prove the AP check and incoming reward complete once.
