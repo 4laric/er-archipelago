@@ -19,6 +19,8 @@ without healing on receipt. Three useful Progressive Power items raise attack da
 to 100%, 125%, then 150%. Coins, grace and stars respect the current health maximum.
 The seven items replace filler without changing check counts, and never gate checks
 or goals. The off setting preserves existing Mario item pools and slot payloads.
+The paired client pin is `1381ae1`: it replays indexed stat items and waits for
+exact live move and stat acknowledgments before delivering checks or rewards.
 
 New enabled seeds require `mario_stats_v1`, so clients without stat support reject
 them explicitly. `CONTRACT_HASH` remains `2aa64f43`; the optional option and existing
