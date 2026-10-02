@@ -29,7 +29,7 @@ HARD_LINES = 14
 MAX_LINE_COLS = 90          # a continuation line keeps its source indent in the Kivy tooltip
 SUMMARY_MAX_COLS = 88       # line 1: one plain-language sentence
 DISPLAY_NAME_MAX = 50
-TOTAL_CEILING = 35808       # ratchet on the whole corpus (33,657 when this landed; 34200 -> 34340
+TOTAL_CEILING = 36306       # ratchet on the whole corpus (33,657 when this landed; 34200 -> 34340
                             # 2026-09-23, region_sweep: one new in-budget option's docstring, 134
                             # chars -- not creep across many, so the ratchet moved instead of the
                             # option shrinking below what the summary sentence needs; 34340 -> 34590
@@ -41,7 +41,10 @@ TOTAL_CEILING = 35808       # ratchet on the whole corpus (33,657 when this land
                             # 35030 -> 35437, 2026-10-02, mario_stat_upgrades: one new
                             # in-budget option, 407 chars / 7 lines; existing descriptions unchanged;
                             # 35437 -> 35808, 2026-10-02, mario_fludd: one new in-budget
-                            # option, 371 chars / 6 lines; existing descriptions unchanged)
+                            # option, 371 chars / 6 lines; existing descriptions unchanged;
+                            # 35808 -> 36306, 2026-10-02, mario_cappy and mario_sonic_movement:
+                            # two new in-budget options, 266 + 232 chars / 5 lines each;
+                            # existing descriptions verified unchanged)
 MIN_OPTIONS_WITNESS = 60    # a test that scans nothing passes vacuously
 
 # key -> (max chars, max lines): options allowed past the soft budget. Measured when this landed.

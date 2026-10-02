@@ -66,6 +66,35 @@ class MarioFludd(Toggle):
     default = 0
 
 
+class MarioCappy(Toggle):
+    """Find Cap Throw and Cap Bounce for Mario.
+
+    Requires Mario Mode. Both moves start locked; bouncing needs a deployed cap.
+    No enemy capture or cap damage. Works with FLUDD and Sonic movement.
+    Moves never gate checks or goals. Needs a new seed and compatible paired DLLs.
+    """
+    display_name = "Mario Cappy (Experimental)"
+    visibility = Visibility.all & ~Visibility.simple_ui
+    default = 0
+
+
+class MarioSonicMovement(Toggle):
+    """Find Spin Dash, Drop Dash and Air Dash for Mario.
+
+    Requires Mario Mode. All three moves start locked. Homing is not included.
+    Works with FLUDD and Cappy. Moves never gate checks or goals.
+    Needs a new seed and compatible paired DLLs.
+    """
+    display_name = "Mario Sonic Movement (Experimental)"
+    visibility = Visibility.all & ~Visibility.simple_ui
+    default = 0
+
+
+ADDONS = (("mario_cappy", "Cappy", contract.MARIO_CAPPY_ITEMS, contract.MARIO_CAPPY_FEATURE),
+          ("mario_sonic_movement", "Sonic movement", contract.MARIO_SONIC_ITEMS,
+           contract.MARIO_SONIC_FEATURE))
+
+
 def fludd_on(world):
     return bool(_value(world, "mario_fludd"))
 
@@ -134,9 +163,24 @@ def filter_rewards(world, pool, filler_name):
 class MarioFeature(Feature):
     name = "mario_mode"
     OPTIONS = {"mario_mode": MarioMode, "mario_stat_upgrades": MarioStatUpgrades,
-               "mario_fludd": MarioFludd}
+               "mario_fludd": MarioFludd, "mario_cappy": MarioCappy,
+               "mario_sonic_movement": MarioSonicMovement}
 
     def generate_early(self, world):
+        for option, label, items, _feature in ADDONS:
+            enabled = bool(_value(world, option))
+            if enabled and not is_on(world):
+                raise OptionError(f"{option} requires mario_mode: turn Mario Mode on "
+                                  f"or turn {label} off.")
+            if not enabled:
+                starts = {name for start_option in ("start_inventory", "start_inventory_from_pool")
+                          for name, count in _value(world, start_option, {}).items() if count > 0}
+                if hasattr(world, "multiworld"):
+                    starts.update(item.name for item in world.multiworld.precollected_items
+                                  .get(world.player, ()))
+                if {name for _key, name, _aid, _count in items} & starts:
+                    raise OptionError(f"{label} start inventory requires {option}: turn it on "
+                                      "with mario_mode or remove its start items.")
         if fludd_on(world) and not is_on(world):
             raise OptionError("mario_fludd requires mario_mode: turn Mario Mode on "
                               "or turn Mario FLUDD off.")
@@ -194,7 +238,10 @@ class MarioFeature(Feature):
                 world.create_item(name) for _key, name, _aid, count in contract.MARIO_STAT_ITEMS
                 for _ in range(count)] if stats_on(world) else []) + ([
                 world.create_item(name) for _key, name, _aid, count in contract.MARIO_FLUDD_ITEMS
-                for _ in range(count)] if fludd_on(world) else [])
+                for _ in range(count)] if fludd_on(world) else []) + [
+                world.create_item(name) for option, _label, items, _feature in ADDONS
+                if _value(world, option) for _key, name, _aid, count in items
+                for _ in range(count)]
 
     def set_rules(self, world):
         if not regression_required(world):
@@ -225,8 +272,11 @@ class MarioFeature(Feature):
             } | ({str(aid): key for key, _name, aid, _count in contract.MARIO_STAT_ITEMS}
                  if stats_on(world) else {})
             | ({str(aid): key for key, _name, aid, _count in contract.MARIO_FLUDD_ITEMS}
-               if fludd_on(world) else {}),
+               if fludd_on(world) else {})
+            | {str(aid): key for option, _label, items, _feature in ADDONS
+               if _value(world, option) for key, _name, aid, _count in items},
             "requiresClientFeatures": [contract.MARIO_CAPABILITIES_FEATURE, REGRESSION_FEATURE]
             + ([contract.MARIO_STATS_FEATURE] if stats_on(world) else [])
-            + ([contract.MARIO_FLUDD_FEATURE] if fludd_on(world) else []),
+            + ([contract.MARIO_FLUDD_FEATURE] if fludd_on(world) else [])
+            + [feature for option, _label, _items, feature in ADDONS if _value(world, option)],
         }

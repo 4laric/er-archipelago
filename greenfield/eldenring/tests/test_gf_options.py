@@ -85,6 +85,12 @@ def test_mario_mode_seeded_fill_combinations(extra, seed, stats, fludd):
 
 
 @pytest.mark.parametrize("extra,message", [
+    ({"mario_mode": False, "mario_cappy": True}, "mario_cappy requires mario_mode"),
+    ({"mario_mode": False, "mario_sonic_movement": True}, "mario_sonic_movement requires mario_mode"),
+    ({"start_inventory": {"Cap Throw": 1}}, "Cappy start inventory"),
+    ({"start_inventory": {"Air Dash": 1}}, "Sonic movement start inventory"),
+    ({"mario_cappy": True, "auto_equip": True}, "auto_equip must be off"),
+    ({"mario_sonic_movement": True, "vanilla_placement": "all"}, "vanilla_placement must be off"),
     ({"mario_mode": False, "mario_fludd": True}, "mario_fludd requires mario_mode"),
     ({"start_inventory": {"Hover Nozzle": 1}}, "FLUDD start inventory"),
     ({"mario_mode": False, "start_inventory": {"Progressive FLUDD Tank": 1}}, "FLUDD start inventory"),
@@ -972,3 +978,57 @@ def test_uniform_start_region_combinations(extra):
                 assert set(starts) <= set(extra["start_region_pool"])
     finally:
         t.tearDown()
+
+
+@pytest.mark.parametrize("seed", [1, 7, 22222])
+@pytest.mark.parametrize("cappy,sonic", [(True, False), (False, True), (True, True)])
+@pytest.mark.parametrize("extra", [
+    {"enable_dlc": False, "mario_fludd": True},
+    {"enable_dlc": True, "mario_stat_upgrades": True},
+    {"vanilla_pool": True, "enable_dlc": False, "mario_fludd": True, "mario_stat_upgrades": True},
+])
+def test_mario_addon_seeded_fill_combinations(extra, seed, cappy, sonic):
+    """Independent addons consume filler, including shared FLUDD/stat configurations."""
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.features.mario_mode import ADDONS
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 6, "mario_mode": True, "mario_cappy": cappy,
+                   "mario_sonic_movement": sonic, **extra}
+
+    t = _T()
+    t.world_setup(seed=seed)
+    items = None
+    try:
+        assert len(t.multiworld.itempool) == len(t.multiworld.get_unfilled_locations())
+        distribute_items_restrictive(t.multiworld)
+        assert not t.multiworld.get_unfilled_locations()
+        assert t.multiworld.can_beat_game()
+        sd = t.world.fill_slot_data()
+        items = [loc.item for loc in t.multiworld.get_locations(t.player) if loc.item]
+        for option, _label, families, feature in ADDONS:
+            enabled = cappy if option == "mario_cappy" else sonic
+            assert (feature in sd["requiresClientFeatures"]) == enabled
+            assert sd["options"].get(option, 0) == int(enabled)
+            for key, name, aid, count in families:
+                assert sum(item.name == name for item in items) == (count if enabled else 0)
+                assert (sd["abilityUnlockItems"].get(str(aid)) == key) == enabled
+    finally:
+        del items
+        t.tearDown()
+
+
+@pytest.mark.parametrize("addons", [False, True])
+def test_mario_addons_preserve_progression_equipment_rejection(addons):
+    """The existing natural-progression gear requirement is refused, never removed silently."""
+    from Options import OptionError
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 6, "mario_mode": True, "natural_progression": True,
+                   "mario_fludd": True, "mario_stat_upgrades": True,
+                   "mario_cappy": addons, "mario_sonic_movement": addons}
+
+    with pytest.raises(OptionError, match="mario_mode cannot replace progression equipment"):
+        _T().world_setup(seed=22222)

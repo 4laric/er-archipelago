@@ -7,10 +7,10 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Required for new Mario Stat Upgrades or FLUDD seeds; use compatible paired AP client and Mario DLLs. Existing seeds keep their original settings.
-- **APWorld:** Host-only update to generate optional Mario stat and FLUDD items.
-- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `mario_stat_upgrades` and `mario_fludd` default off and require `mario_mode` on.
-- **Existing seed/save:** New seed required with either option on for its progression; existing seeds cannot gain these items retroactively. Use the matching room/save identity.
+- **Client:** Required for new Mario Stat Upgrades, FLUDD, Cappy or Sonic movement seeds; use compatible paired AP client and Mario DLLs. Existing seeds keep their original settings.
+- **APWorld:** Host-only update to generate optional Mario stat, FLUDD, Cappy and Sonic movement items.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `mario_stat_upgrades`, `mario_fludd`, `mario_cappy` and `mario_sonic_movement` default off and require `mario_mode` on.
+- **Existing seed/save:** New seed required with an addon option on for its progression; existing seeds cannot gain these items retroactively. Use the matching room/save identity.
 - **Profile/assets:** Reinstall or replace both paired DLLs for the new option. Keep your Mario setup and own SM64 ROM.
 
 Optional Mario stat progression starts at four of eight health wedges and 75% normal
@@ -20,7 +20,7 @@ to 100%, 125%, then 150%. Coins, grace and stars respect the current health maxi
 The toggle stays on advanced/weighted option surfaces to keep the simple page small.
 The seven items replace filler without changing check counts, and never gate checks
 or goals. The off setting preserves existing Mario item pools and slot payloads.
-The paired client pin is `8bfc356`: it replays indexed move, stat and FLUDD items
+The paired client pin is `6543a03`: it replays indexed move, stat, FLUDD, Cappy and Sonic items
 and waits for exact live acknowledgments before delivering checks or rewards.
 
 Optional Mario FLUDD starts with Hover, Rocket and Turbo locked. Each nozzle has
@@ -31,6 +31,15 @@ Squirt remains unfinished and has no item. The advanced option defaults off; old
 seeds retain their original pool and payload. Enabled FLUDD seeds require
 `mario_fludd_v1` and a compatible paired client/Mario DLL with the additive FLUDD ABI.
 No live FLUDD playthrough validation is claimed.
+
+Optional Cappy adds useful Cap Throw and Cap Bounce unlocks. Optional Sonic movement
+adds useful Spin Dash, Drop Dash and Air Dash unlocks. The two independent advanced
+options can coexist with FLUDD and stat upgrades. Their five items replace filler
+without adding check or goal gates. Cap Bounce requires a deployed cap; enemy
+capture, cap damage and homing attack are outside this first implementation.
+The off settings preserve existing seed pools and payloads. Enabled seeds require
+the matching `mario_cappy_v1` or `mario_sonic_movement_v1` client feature and paired
+native DLL. Live controls, appearance and movement balance remain untested.
 
 New enabled stat seeds require `mario_stats_v1`, so clients without stat support reject
 them explicitly. `CONTRACT_HASH` remains `2aa64f43`; the optional option and existing

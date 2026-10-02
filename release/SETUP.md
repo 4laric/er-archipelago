@@ -449,3 +449,26 @@ one second; Turbo charges for two thirds of a second. Water regenerates while
 Mario stands still with FLUDD released, and refills at a grace or respawn.
 The new DLL rebuilds Mario's local armour package for the backpack; restart after
 the setup finishes so me3 can load it. Keep the generated package and your ROM.
+
+### Optional Cappy and Sonic movement (development)
+
+For a new Mario seed, enable either advanced option independently:
+
+```yaml
+mario_mode: true
+mario_cappy: true
+mario_sonic_movement: true
+```
+
+Cappy adds two useful items, Cap Throw and Cap Bounce. Both start locked; a bounce
+needs a deployed cap, so receive Cap Throw before using it. This first version
+has no enemy capture or cap damage. Sonic movement adds useful Spin Dash, Drop
+Dash and Air Dash items; all three start locked. Homing is not included.
+
+Each enabled option replaces filler with its items and adds no check or goal
+requirements. Cappy, Sonic movement, FLUDD and stat upgrades can be combined.
+Both options default off and preserve existing seed pools and payloads. Existing
+seeds cannot gain these items retroactively. Use a new seed and compatible paired
+Mario/AP client DLLs supporting `mario_cappy_v1` and/or
+`mario_sonic_movement_v1`, with your own SM64 ROM and dedicated Mario profile.
+These movement additions are experimental; no live playthrough is claimed.
