@@ -898,7 +898,7 @@ OPTIONS_SUBKEYS = (
                 "core._options_echo (features/mario_mode.py)", "er-logic Mario FLUDD parser",
                 "optional FLUDD nozzle and tank progression; absent/false disables FLUDD. "
                 "True shuffles Hover, Rocket and Turbo Nozzles and three tank upgrades, "
-                "with capacity 60/80/100/120 units. Requires mario_mode and mario_fludd_v1."),
+                "capacity is worker-version dependent: current workers use 300/400/500/600 units; legacy workers use 60/80/100/120. Tank upgrades never refill water. Requires mario_mode and mario_fludd_v1."),
     ContractKey("mario_stat_upgrades", "BOOL_OR_INT", False, (GREENFIELD,),
                 "core._options_echo (features/mario_mode.py)", "er-logic Mario stats parser",
                 "optional Mario health/power progression; absent/false keeps normal stats. "
