@@ -42,11 +42,11 @@ The human passed all nine move families, randomized pickups, both overlays,
 keyboard capture, reconnect preservation, ordinary fast travel, death/respawn
 recovery and initial new-seed relocking. Further slot/history replay, region
 kicks, healing, combined icons, the statue/Goldmask route, required special bosses
-and ending completion remain untested live. The human ended the manual session
-and explicitly requested this release. Automated tests and builds are separate
+and ending completion remain untested live. Mario mode remains experimental. Automated tests and builds are separate
 evidence; they do not establish those remaining live behaviors.
 
 See [the integration specification](../docs/SPEC-er-mario-integration.md) for the
 setup and acceptance record. Unsupported DeathLink, TrapLink, No Flask traps,
 auto-equip, native ability locks, vanilla placement and disabled item shuffle
 reject before generation.
+
