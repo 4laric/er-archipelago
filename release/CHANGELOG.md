@@ -5,6 +5,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.4.1 — 2026-10-02
 
+- **Generation diagnostics:** when an earlier fill hook leaves already-placed items in the unplaced pools, label the listed games as item owners, not identified culprits. Explain how to isolate the responsible hook; keep the pool consistency check intact. Hosts need the updated apworld for the clearer message.
+
 ### What you need to update
 
 - **Client:** Required for new Mario Stat Upgrades, FLUDD, Cappy or Sonic movement seeds; use compatible paired AP client and Mario DLLs. Existing seeds keep their original settings.

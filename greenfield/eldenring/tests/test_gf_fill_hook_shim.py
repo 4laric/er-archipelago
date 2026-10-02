@@ -131,16 +131,17 @@ class _NamedMW(_MW):
         return {2: "Partner"}.get(player, "P%d" % player)
 
 
-class NamesTheCulprit(unittest.TestCase):
+class NamesAffectedItems(unittest.TestCase):
     """2026-09-18: alttpr's pot hook (2026-08-28 build) placed 128 items and removed an unplaced
     same-named twin from the pool instead (`list.remove` compares by name + player). The placed
-    items were still in the pools when our hook started, and the failure read "a pass created or
-    dropped an item" -- pointing at us. It has to point at the owner."""
+    items were still in the pools when our hook started. Name their owners without treating
+    ownership as proof of which hook caused the corruption: hooks can place foreign items."""
 
     def test_an_already_placed_item_in_a_pool_is_named_at_entry(self):
         mw = _NamedMW()
         stale = _PItem("Small Heart", 2)
-        Loc = _Loc("pot")
+        Loc = _Loc("Blue Prince room")
+        Loc.player = 3  # The placement is in another player's world, not the item's owner.
         Loc.place(stale)
         prog, useful, filler, locs = [], [], [stale, _PItem("Small Heart", 2)], []
         with self.assertRaises(AssertionError) as ctx:
@@ -149,7 +150,11 @@ class NamesTheCulprit(unittest.TestCase):
         msg = str(ctx.exception)
         self.assertIn("already PLACED", msg)
         self.assertIn("1x Small Heart [Partner (Some Other Game)]", msg)
-        self.assertIn("not an Elden Ring pass", msg)
+        self.assertIn("item owners, not the hook responsible", msg)
+        self.assertIn("cannot identify which earlier hook", msg)
+        self.assertIn("stage placement passes have not run yet", msg)
+        self.assertIn("after each preceding fill hook", msg)
+        self.assertNotIn("Update or disable that world's apworld", msg)
         # Nothing was mutated on the way out: the dead pool was never revived.
         self.assertEqual(mw.itempool, [])
 

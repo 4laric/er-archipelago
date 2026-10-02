@@ -1,5 +1,11 @@
 # v0.6.4.1 — development window (draft)
 
+Generation errors for already-placed items left in the unplaced pools now distinguish
+the affected item owners from the hook responsible. A world can place another game's
+items, so the error no longer tells hosts to update or disable the owner as if it
+were the proven culprit. Update the host's apworld for the clearer message and steps
+to isolate the responsible hook. The pool consistency check still stops generation.
+
 Mario Stat Upgrades is an optional, default-off setting that requires Mario Mode.
 Start at four of eight health wedges and 75% normal attack damage. Four Progressive
 Health items add one maximum wedge each, without healing; three Progressive Power
