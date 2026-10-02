@@ -359,6 +359,10 @@ MARIO_UNLOCK_ITEM_NAMES = tuple(zip(MARIO_CAPABILITY_KEYS, (
 MARIO_UNLOCK_ITEM_BASE = 7910000
 MARIO_CAPABILITIES_FEATURE = "mario_capabilities_v1"
 MARIO_ABI_VERSION = 1
+# Reserved synthetic stat band; independent of move ordering and native game items.
+MARIO_STAT_ITEMS = (("progressive_health", "Progressive Health", 7910010, 4),
+                    ("progressive_power", "Progressive Power", 7910011, 3))
+MARIO_STATS_FEATURE = "mario_stats_v1"
 
 SURFACE_CLASSES = ["Remembrance", "Seedtree", "Church", "Boss", "Fragment", "Revered",
                    "Basin", "Shop", "ShopNonSpell", "ShopSlot", "Legendary", "GreatRune",
@@ -870,6 +874,11 @@ class ContractKey:
 # sub-key is emitted CENTRALLY by core._options_echo -- features never write into `options`.
 # ---------------------------------------------------------------------------------------------------
 OPTIONS_SUBKEYS = (
+    ContractKey("mario_stat_upgrades", "BOOL_OR_INT", False, (GREENFIELD,),
+                "core._options_echo (features/mario_mode.py)", "er-logic Mario stats parser",
+                "optional Mario health/power progression; absent/false keeps normal stats. "
+                "True starts at 4/8 wedges and 75% power, with four health and three power "
+                "items mapped by abilityUnlockItems. Requires mario_mode and mario_stats_v1."),
     ContractKey("mario_mode", "BOOL_OR_INT", False, (GREENFIELD,),
                 "core._options_echo (features/mario_mode.py)", "er-logic mario capabilities parser",
                 "experimental er-mario ABI v1 mode; absent/false leaves the bridge inactive. "
@@ -1046,7 +1055,9 @@ CONTRACT = (
                 "the game is never asked to grant these, the client resolves them by this map. A seed "
                 "that emits it also emits requiresClientFeatures ['ability_unlock']. Mario Mode "
                 "uses the same map for its advanced move keys and instead requires "
-                "mario_capabilities_v1; native locked_abilities cannot be combined with it."),
+                "mario_capabilities_v1; native locked_abilities cannot be combined with it. "
+                "Mario Stat Upgrades additionally maps progressive_health and progressive_power "
+                "and requires mario_stats_v1; the stat keys are absent when that option is off."),
     ContractKey("armorBundles", "LISTVAL_INT_MAP", False, (GREENFIELD,),
                 "features/armor_bundles.py", "core.rs armor-bundle receive reconciler",
                 "synthetic armor-set AP item id (str) -> every protector FullID in its generated family."),

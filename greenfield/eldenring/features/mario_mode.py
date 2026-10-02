@@ -4,7 +4,7 @@ Basic movement and punching stay available. These useful items have no reachabil
 rules: the bridge enforces them inside libsm64, not Elden Ring's Tarnished action inputs.
 Fixed item ids are registered by core, outside sequential feature allocation.
 """
-from Options import Toggle, OptionError
+from Options import Toggle, OptionError, Visibility
 from BaseClasses import ItemClassification
 from ..registry import Feature, register
 from .. import contract
@@ -36,6 +36,25 @@ class MarioMode(Toggle):
     """
     display_name = "Mario Mode (Experimental)"
     default = 0
+
+
+class MarioStatUpgrades(Toggle):
+    """Randomize Mario health and attack power.
+
+    Requires Mario Mode. Start at 4/8 health wedges and 75% normal damage.
+    Four Progressive Health items add one maximum wedge each, without healing.
+    Three Progressive Power items raise damage to 100%, 125%, then 150%.
+    Coins, grace and stars respect the current health maximum. Stats never gate
+    checks or goals. Needs a new seed and compatible paired Mario/client DLLs.
+    """
+    display_name = "Mario Stat Upgrades"
+    # A companion-mode tuning knob belongs on advanced/weighted surfaces.
+    visibility = Visibility.all & ~Visibility.simple_ui
+    default = 0
+
+
+def stats_on(world):
+    return bool(_value(world, "mario_stat_upgrades"))
 
 
 def is_on(world):
@@ -97,9 +116,22 @@ def filter_rewards(world, pool, filler_name):
 @register
 class MarioFeature(Feature):
     name = "mario_mode"
-    OPTIONS = {"mario_mode": MarioMode}
+    OPTIONS = {"mario_mode": MarioMode, "mario_stat_upgrades": MarioStatUpgrades}
 
     def generate_early(self, world):
+        if stats_on(world) and not is_on(world):
+            raise OptionError("mario_stat_upgrades requires mario_mode: turn Mario Mode on "
+                              "or turn Mario Stat Upgrades off.")
+        if not stats_on(world):
+            stat_names = {name for _key, name, _aid, _count in contract.MARIO_STAT_ITEMS}
+            starts = {name for option in ("start_inventory", "start_inventory_from_pool")
+                      for name, count in _value(world, option, {}).items() if count > 0}
+            if hasattr(world, "multiworld"):
+                starts.update(item.name for item in world.multiworld.precollected_items
+                              .get(world.player, ()))
+            if stat_names & starts:
+                raise OptionError("Mario stat start inventory requires mario_stat_upgrades: "
+                                  "turn it on with mario_mode or remove Progressive Health/Power.")
         if not is_on(world):
             return
         from . import vanilla_placement
@@ -127,7 +159,9 @@ class MarioFeature(Feature):
             return []
         return ([world.create_item(REGRESSION)] if regression_required(world) else []) + [
             world.create_item(name) for key, name in contract.MARIO_UNLOCK_ITEM_NAMES
-            for _ in range(2 if key == "progressive_jump" else 1)]
+            for _ in range(2 if key == "progressive_jump" else 1)] + ([
+                world.create_item(name) for _key, name, _aid, count in contract.MARIO_STAT_ITEMS
+                for _ in range(count)] if stats_on(world) else [])
 
     def set_rules(self, world):
         if not regression_required(world):
@@ -155,6 +189,8 @@ class MarioFeature(Feature):
             "abilityUnlockItems": {
                 str(world.item_name_to_id[name]): key
                 for key, name in contract.MARIO_UNLOCK_ITEM_NAMES
-            },
-            "requiresClientFeatures": [contract.MARIO_CAPABILITIES_FEATURE, REGRESSION_FEATURE],
+            } | ({str(aid): key for key, _name, aid, _count in contract.MARIO_STAT_ITEMS}
+                 if stats_on(world) else {}),
+            "requiresClientFeatures": [contract.MARIO_CAPABILITIES_FEATURE, REGRESSION_FEATURE]
+            + ([contract.MARIO_STATS_FEATURE] if stats_on(world) else []),
         }

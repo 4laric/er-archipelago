@@ -7,23 +7,27 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Optional. The development stamp changes; the released v0.6.4 client remains suitable for v0.6.4 seeds.
-- **APWorld:** Host-only update when using this development window for generation.
-- **YAML:** **No new YAML required.** Existing YAMLs remain valid.
-- **Existing seed/save:** Compatible with v0.6.4; no save migration is introduced by this window open.
-- **Profile/assets:** No action for this maintenance change. Keep the paired v0.6.4 Mario setup for Mario seeds.
+- **Client:** Required for new Mario Stat Upgrades seeds; use compatible paired AP client and Mario DLLs. Existing seeds keep their original settings.
+- **APWorld:** Host-only update to generate optional Mario stat items.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `mario_stat_upgrades` defaults off and requires `mario_mode` on.
+- **Existing seed/save:** New seed required with the option on for stat progression; existing seeds cannot gain these items retroactively. Use the matching room/save identity.
+- **Profile/assets:** Reinstall or replace both paired DLLs for the new option. Keep your Mario setup and own SM64 ROM.
 
-This opens the next development window after v0.6.4 shipped and promotes stable
-downloads to that verified release. It adds no gameplay changes.
+Optional Mario stat progression starts at four of eight health wedges and 75% normal
+attack damage. Four useful Progressive Health items add one maximum wedge each,
+without healing on receipt. Three useful Progressive Power items raise attack damage
+to 100%, 125%, then 150%. Coins, grace and stars respect the current health maximum.
+The toggle stays on advanced/weighted option surfaces to keep the simple page small.
+The seven items replace filler without changing check counts, and never gate checks
+or goals. The off setting preserves existing Mario item pools and slot payloads.
+The paired client pin is `1381ae1`: it replays indexed stat items and waits for
+exact live move and stat acknowledgments before delivering checks or rewards.
 
-`CONTRACT_HASH` remains `2aa64f43`, verified by loading contract.py. The wire
-contract and save format are unchanged. The paired version-stamp client is
-[clients #730](https://github.com/4laric/from-software-archipelago-clients/pull/730);
-its gitlink rides in this window-opening change because contract_gen.rs embeds
-the version. The existing Mario feature requirements remain in force.
-
-Entries arrive below as changes merge. The experimental limits recorded for
-v0.6.4 remain open; this maintenance stamp does not verify those gameplay paths.
+New enabled seeds require `mario_stats_v1`, so clients without stat support reject
+them explicitly. `CONTRACT_HASH` remains `2aa64f43`; the optional option and existing
+unlock map carry the feature. Mario remains experimental: automated generation and
+runtime tests do not establish full live playthrough validation. The outstanding
+quest, icon, slot replay and special-boss checks from v0.6.4 remain unverified live.
 
 ## v0.6.4 — 2026-10-01
 

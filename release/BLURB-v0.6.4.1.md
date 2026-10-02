@@ -1,32 +1,32 @@
 # v0.6.4.1 — development window (draft)
 
-Stable downloads now point to the published v0.6.4 release. This development
-window opens space for later changes; the opening itself adds no gameplay changes.
+Mario Stat Upgrades is an optional, default-off setting that requires Mario Mode.
+Start at four of eight health wedges and 75% normal attack damage. Four Progressive
+Health items add one maximum wedge each, without healing; three Progressive Power
+items raise damage to 100%, 125%, then 150%. Coins, grace and stars respect the
+current maximum. These useful items replace seven filler rewards and never gate
+checks or goals.
 
 ## Can I update the client during a run?
 
-**Yes**, from v0.6.4 to this version-stamp-only development client: the contract
-and save format are unchanged. Updating is optional; the released v0.6.4 client
-remains suitable for v0.6.4 seeds. Keep the matching Mario DLL and existing
-room/save profile for Mario seeds. This statement does not audit other releases.
+Existing seeds retain their original settings: updating cannot add stat progression
+to them. To use it, generate a **new seed** with `mario_mode: true` and
+`mario_stat_upgrades: true`, and use compatible paired AP client and Mario DLLs.
+New enabled seeds require `mario_stats_v1`; older clients reject that requirement.
+Keep the matching room/save profile. No save migration is introduced.
 
 ## What you need to update
 
-- **Client:** Optional. The development stamp changes; the released v0.6.4 client remains suitable for v0.6.4 seeds.
-- **APWorld:** Host-only update when using this development window for generation.
-- **YAML:** **No new YAML required.** Existing YAMLs remain valid.
-- **Existing seed/save:** Compatible with v0.6.4; no save migration is introduced by this window open.
-- **Profile/assets:** No action for this maintenance change. Keep the paired v0.6.4 Mario setup for Mario seeds.
+- **Client:** Required for new stat-upgrade seeds; update both paired DLLs.
+- **APWorld:** Host-only update to generate the new optional items.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** Stat upgrades default off.
+- **Existing seed/save:** New seed required to enable stat progression. Existing seeds remain supported.
+- **Profile/assets:** Reinstall or replace both paired DLLs for new stat seeds. Keep your Mario setup and own SM64 ROM.
 
-## What is in it so far
+## Validation limits
 
-Only release housekeeping: stable promotion and paired world/client development
-version stamps. CONTRACT_HASH remains 2aa64f43. No new traversal, reward or goal
-behavior is claimed by the opening change.
-
-## What carried over from v0.6.4
-
-Mario remains experimental. Further slot/history replay, region kicks, healing,
+Mario remains experimental. Generation and runtime automated tests do not establish
+full live playthrough validation. Further slot/history replay, region kicks, healing,
 combined icons, the statue/Goldmask route, required special bosses and ending
-completion remain unverified live. Future changes must record their own validation
-and update guidance as they land. No pending gameplay fix is claimed here.
+completion remain unverified live. This option does not close those checks.
+`CONTRACT_HASH` remains 2aa64f43.

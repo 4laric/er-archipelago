@@ -184,9 +184,64 @@ Spells are identified through the existing item taxonomy, preserving key goods
 and consumables that share their game item category. Mario combat currently removes percentages of target max HP. HP scaling therefore
 does not increase hits-to-kill in the usual way; weapon upgrades and levels do
 not increase Mario's ordinary attack strength. Coin, grace and boss-star healing
-use SM64 health rather than ordinary flasks. Do not advertise damage upgrades,
-cap powerups, normal healing locks, or DeathLink compatibility until implemented
-and measured. Source: upstream `src/combat.rs`, `src/equip.rs`, `src/lib.rs`.
+use SM64 health rather than ordinary flasks. The optional stat upgrade setting
+below scales this damage and changes Mario's health capacity. Cap powerups,
+normal healing locks and DeathLink remain unsupported. Source: upstream
+`src/combat.rs`, `src/equip.rs`, `src/lib.rs`.
+
+## Optional health and power upgrades (development window 0.6.4.1)
+
+Generate a new Mario seed with `mario_stat_upgrades: true` to add two useful item
+families. The setting defaults off and requires `mario_mode: true`. It replaces
+seven filler slots and adds no traversal, boss or completion requirements.
+
+| Item | AP ID | Copies | Starting value and upgrades |
+|---|---|---|---|
+| Progressive Health | 7910010 | 4 | Maximum 4 → 5 → 6 → 7 → 8 wedges |
+| Progressive Power | 7910011 | 3 | Damage 75% → 100% → 125% → 150% of normal Mario damage |
+
+Health receipts increase maximum capacity without healing current damage. Coins
+still heal one wedge; grace rests, boss stars and respawn restore the unlocked
+capacity. Native healing, water recovery and pending healing counters cannot
+exceed that capacity. The HUD treats the unlocked maximum as full health.
+Power affects punches, kicks, dives, stomps, ground pounds, thrown enemy impacts
+and boss throws. The existing native finishing blow and defeat-flag flow remain.
+Elden Ring Vigor still affects incoming damage's conversion to wedges.
+
+The existing `abilityUnlockItems` map carries `progressive_health` and
+`progressive_power` only when the setting is enabled. Those seeds also declare
+`mario_stats_v1`; an older client or Mario DLL must refuse them. Seeds without
+the setting keep eight wedges, normal damage and their existing move handshake.
+The setting is optional within the existing wire shapes, keeping contract hash
+`2aa64f43`. Replacing DLLs cannot insert upgrades into an already generated seed.
+
+The base capability ABI remains version 1 with its 16-byte state. A separate
+16-byte stat state and two additive exports provide worker acknowledgment:
+
+```c
+uint32_t er_mario_ap_set_stats(uint32_t max_wedges, uint32_t power_basis_points);
+struct ErMarioApStatsState {
+    uint32_t abi_version; /* 1 */
+    uint32_t flags;       /* ready=1, enabled=2, requested stats applied=4 */
+    uint32_t max_wedges;
+    uint32_t power_basis_points; /* 10000 = 100% */
+};
+uint32_t er_mario_ap_get_stats_state(struct ErMarioApStatsState *out);
+```
+
+Base state support flag 16 advertises this extension. Stats setters only queue
+validated snapshots; the SM64 worker applies them before jobs and ticks. AP
+delivery, checks, goals and region progression wait for live acknowledgment of
+both the move mask and exact stat values. Indexed received history determines
+levels, deduplicates replay and saturates at four health and three power items.
+Changing seed/slot resets the fold; a non-stat configuration restores eight
+wedges and normal damage when the extension is present.
+
+Automated acceptance includes invalid API inputs, every capacity and power
+level, healing and death boundaries, history replay and identity reset,
+missing-extension refusal, exact acknowledgment and count-neutral seeded fill.
+Live balance, healing and attack-path verification require a new dedicated
+playtest; these upgrades are not part of the released v0.6.4 companion.
 
 ## Acceptance gates
 

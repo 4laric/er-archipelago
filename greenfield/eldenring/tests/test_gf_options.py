@@ -21,6 +21,7 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 
 
+@pytest.mark.parametrize("stats", [False, True])
 @pytest.mark.parametrize("seed", [1, 7, 22222])
 @pytest.mark.parametrize("extra", [
     {"enable_dlc": False, "armor_bundles": "off"},
@@ -28,7 +29,7 @@ GAME = "Elden Ring"
     {"dlc_only": True, "armor_bundles": "mixed"},
     {"num_regions": 0, "enable_dlc": False, "protect_missable_locations": "off"},
 ])
-def test_mario_mode_seeded_fill_combinations(extra, seed):
+def test_mario_mode_seeded_fill_combinations(extra, seed, stats):
     """Real AP restrictive fill, beyond WorldTestBase's region/item construction (#1619)."""
     from Fill import distribute_items_restrictive
     from worlds.eldenring import contract
@@ -38,7 +39,7 @@ def test_mario_mode_seeded_fill_combinations(extra, seed):
 
     class _T(WorldTestBase):
         game = GAME
-        options = {"num_regions": 6, "mario_mode": True, **extra}
+        options = {"num_regions": 6, "mario_mode": True, "mario_stat_upgrades": stats, **extra}
 
     t = _T()
     t.world_setup(seed=seed)
@@ -63,13 +64,24 @@ def test_mario_mode_seeded_fill_combinations(extra, seed):
         sd = t.world.fill_slot_data()
         assert contract.MARIO_CAPABILITIES_FEATURE in sd["requiresClientFeatures"]
         assert REGRESSION_FEATURE in sd["requiresClientFeatures"]
-        assert set(sd["abilityUnlockItems"].values()) == set(contract.MARIO_CAPABILITY_KEYS)
+        stat_keys = {key for key, _name, _aid, _count in contract.MARIO_STAT_ITEMS}
+        assert set(sd["abilityUnlockItems"].values()) == (
+            set(contract.MARIO_CAPABILITY_KEYS) | (stat_keys if stats else set()))
+        assert (contract.MARIO_STATS_FEATURE in sd["requiresClientFeatures"]) == stats
+        assert sd["options"].get("mario_stat_upgrades", 0) == int(stats)
+        for _key, name, _aid, count in contract.MARIO_STAT_ITEMS:
+            assert sum(item.name == name for item in items) == (count if stats else 0)
     finally:
         del items, gesture
         t.tearDown()
 
 
 @pytest.mark.parametrize("extra,message", [
+    ({"mario_mode": False, "mario_stat_upgrades": True}, "requires mario_mode"),
+    ({"mario_mode": False, "start_inventory": {"Progressive Health": 1}}, "stat start inventory"),
+    ({"start_inventory": {"Progressive Health": 1}}, "stat start inventory"),
+    ({"start_inventory": {"Progressive Power": 1}}, "stat start inventory"),
+    ({"mario_stat_upgrades": True, "auto_equip": True}, "auto_equip must be off"),
     ({"vanilla_placement": "all"}, "vanilla_placement must be off"),
     ({"auto_equip": True}, "auto_equip must be off"),
     ({"locked_abilities": ["jump"]}, "locked_abilities must be empty"),

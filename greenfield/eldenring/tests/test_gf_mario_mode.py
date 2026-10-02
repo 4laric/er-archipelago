@@ -9,7 +9,7 @@ from Options import OptionError
 from worlds.eldenring import contract, core
 from worlds.eldenring.features.mario_mode import (
     GOLDMASK_AP_ID, REGRESSION, REGRESSION_FEATURE, REGRESSION_REGION,
-    MarioFeature, MarioMode, equipment_reward, filter_rewards,
+    MarioFeature, MarioMode, MarioStatUpgrades, equipment_reward, filter_rewards,
 )
 from ._util import world_items
 
@@ -165,3 +165,69 @@ class MarioRegressionUnprotected(MarioOn):
         assert state.can_reach(REGRESSION_REGION, "Region", self.player)
         assert not location.can_reach(state)
         assert not location.can_fill(self.multiworld.get_all_state(False), spell, check_access=False)
+
+
+@pytest.mark.parametrize("stats", [False, True])
+def test_stat_upgrade_multiworld_pool_wire_and_legacy_identity(stats):
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    from Fill import distribute_items_restrictive
+    world_type = AutoWorldRegister.world_types["Elden Ring"]
+    opts = {"num_regions": 3, "mario_mode": True}
+    baseline = setup_multiworld(world_type, seed=22222, options=opts)
+    mw = setup_multiworld([world_type, world_type], seed=22222,
+                         options=[{**opts, "mario_stat_upgrades": stats}, opts])
+    assert len(mw.itempool) == len(mw.get_unfilled_locations())
+    stat_names = {name for _key, name, _aid, _count in contract.MARIO_STAT_ITEMS}
+    for player in (1, 2):
+        world = mw.worlds[player]
+        enabled = stats and player == 1
+        items = [i for i in mw.itempool if i.player == player]
+        sd = world.fill_slot_data()
+        for key, name, aid, count in contract.MARIO_STAT_ITEMS:
+            assert core.item_name_to_id[name] == aid
+            assert str(aid) not in core._AP_IDS_TO_ITEM_IDS
+            assert world.create_item(name).classification == ItemClassification.useful
+            assert sum(i.name == name for i in items) == (count if enabled else 0)
+            assert (sd["abilityUnlockItems"].get(str(aid)) == key) == enabled
+        assert (contract.MARIO_STATS_FEATURE in sd["requiresClientFeatures"]) == enabled
+        assert ("mario_stat_upgrades" in sd["options"]) == enabled
+        assert not (stat_names & set(sd.get("goalRequiredItems", [])))
+    solo = setup_multiworld(world_type, seed=22222,
+                            options={**opts, "mario_stat_upgrades": stats})
+    assert len(solo.itempool) == len(baseline.itempool)
+    assert [(l.name, l.address) for l in solo.get_locations()] == [
+        (l.name, l.address) for l in baseline.get_locations()]
+    assert len(MarioFeature().create_items(solo.worlds[1])) == (
+        len(MarioFeature().create_items(baseline.worlds[1])) + (7 if stats else 0))
+    if not stats:
+        # Same RNG/slot retains the exact old pool and payload.
+        assert [(i.name, i.classification) for i in solo.itempool] == [
+            (i.name, i.classification) for i in baseline.itempool]
+        assert solo.worlds[1].fill_slot_data() == baseline.worlds[1].fill_slot_data()
+        assert [(l.name, l.address) for l in solo.get_locations()] == [
+            (l.name, l.address) for l in baseline.get_locations()]
+    distribute_items_restrictive(mw)
+    assert not mw.get_unfilled_locations()
+    assert mw.can_beat_game()
+
+
+def test_stat_ids_do_not_collide_and_contract_hash_unchanged():
+    assert MarioStatUpgrades.default == 0
+    assert len(set(core.item_name_to_id.values())) == len(core.item_name_to_id)
+    assert contract.CONTRACT_HASH.startswith("2aa64f43")
+    assert contract.OPTIONS_BY_NAME["mario_stat_upgrades"].shape == "BOOL_OR_INT"
+
+
+def test_stat_zero_start_quantity_is_not_a_precollection():
+    world = SimpleNamespace(options=SimpleNamespace(
+        mario_mode=SimpleNamespace(value=0), mario_stat_upgrades=SimpleNamespace(value=0),
+        start_inventory=SimpleNamespace(value={"Progressive Health": 0})))
+    MarioFeature().generate_early(world)
+
+
+def test_stat_precollected_item_is_rejected_even_when_mario_off():
+    world = SimpleNamespace(player=1, options=SimpleNamespace(), multiworld=SimpleNamespace(
+        precollected_items={1: [SimpleNamespace(name="Progressive Power")]}))
+    with pytest.raises(OptionError, match="stat start inventory"):
+        MarioFeature().generate_early(world)

@@ -412,3 +412,17 @@ this AP client bundle and follow the companion's README. It includes the paired
 profile generator and local icon-composition tool; you need your own US SM64 ROM.
 Mario mode is experimental and off by default. See `KNOWN-ISSUES.md` for the live
 verification limits. The ordinary profile described above remains available.
+
+### Health and power upgrades (development builds)
+
+To include progressive stats, generate a new seed with both `mario_mode: true`
+and `mario_stat_upgrades: true`. Four Progressive Health items raise capacity
+from four to eight wedges. Three Progressive Power items raise damage from
+75% through 100% and 125% to 150% of normal Mario damage. Increasing capacity
+does not heal current damage; healing and respawn respect the unlocked maximum.
+
+This needs the paired development AP client and a Mario DLL supporting
+`mario_stats_v1`; the released v0.6.4 companion does not support stat upgrades.
+Use a dedicated Mario save and the same paired profile setup. Existing seeds
+cannot acquire the new item families by replacing DLLs. The setting defaults
+off, preserving existing Mario health and damage when omitted.

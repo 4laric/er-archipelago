@@ -1139,6 +1139,11 @@ Elden Ring:
   # remove no_flask from traps. Supply your own SM64 ROM and follow er-mario setup.
   mario_mode: false
 
+  # Optional Mario health/power items; requires Mario Mode and a new seed.
+  # Start at 4 health wedges and 75% damage; four Health items reach 8 wedges,
+  # three Power items reach 150%. Needs compatible updated Mario/client DLLs.
+  mario_stat_upgrades: false
+
 
 # ============================================================================
 #  FIXED IN v0.2 -- these are NOT options. Do not add them to the file above.

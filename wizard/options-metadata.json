@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.6.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "f759ad9a140db7838ee094bfc7de01cf18d289c485673ab5b6ecda422b21c5b9",
+ "source_sha256": "286211000317901b6a2abc2717753b2bb47fef25142390070289b04209f5c0a0",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -52,6 +52,7 @@
   "keep_local",
   "keep_local_rune_cap",
   "mario_mode",
+  "mario_stat_upgrades",
   "merchant_bells_on_talk",
   "reroll_mine_materials",
   "protect_missable_locations",
@@ -220,6 +221,7 @@
     "locked_abilities",
     "ability_lock_mode",
     "mario_mode",
+    "mario_stat_upgrades",
     "ability_unlocks_required"
    ]
   }
@@ -1333,6 +1335,24 @@
    "compatibility_only": false,
    "display_name": "Mario Mode (Experimental)",
    "description": "Experimental er-mario: find items to unlock moves.\n\nTwo Progressive Jumps give Double then Triple; Backflip and Side Flip are separate.\nBasic jump/punch stay free. Gear/spells become runes, except Law of Regression:\nkeep it to Interact at Radagon's statue. Moves never gate checks or goals.\nNeeds a compatible bridge and your SM64 ROM. Turn Vanilla Placement, Auto Equip,\nDeathLink and TrapLink off; empty Locked Abilities and omit No Flask traps.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "mario_stat_upgrades",
+   "class": "MarioStatUpgrades",
+   "compatibility_only": false,
+   "display_name": "Mario Stat Upgrades",
+   "description": "Randomize Mario health and attack power.\n\nRequires Mario Mode. Start at 4/8 health wedges and 75% normal damage.\nFour Progressive Health items add one maximum wedge each, without healing.\nThree Progressive Power items raise damage to 100%, 125%, then 150%.\nCoins, grace and stars respect the current health maximum. Stats never gate\nchecks or goals. Needs a new seed and compatible paired Mario/client DLLs.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
