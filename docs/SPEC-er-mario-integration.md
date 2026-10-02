@@ -36,6 +36,21 @@ traps. Do not use upstream's unpatched Mario DLL for a Mario seed. The AP client
 must report applied mask acknowledgment before any check/delivery is accepted.
 These are experimental setup steps, not a verified compatibility recipe.
 
+Both paired DLLs serialize their complete graphics-hook construction and
+application through `Local\ERArchipelagoHudhookInstall.v1`. Independently linked
+MinHook registries can otherwise capture the same original prologue before either
+hook is enabled, silently leaving only one overlay active. A native two-DLL
+regression demonstrates the lost callback and its preservation with serialized
+installation. Updating only one DLL cannot provide this coordination. The AP
+renderer uses hudhook 0.9.3, matching Mario, and logs hook installation, render
+initialization and its first frame separately. Capability acknowledgments log
+the exact managed and unlocked masks when they change.
+
+The local playtest server uses Archipelago 0.6.7's pinned `websockets==13.1`;
+newer WebSocket server APIs are incompatible with this AP version. Verify a
+connected slot before testing randomized rewards or vanilla suppression. Loading
+both DLLs alone does not apply the seed's pickup rules.
+
 ## Wire and ownership
 
 The optional `options.mario_mode` boolean selects the Mario adapter. The existing
