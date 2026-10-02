@@ -129,6 +129,8 @@ Regular enemy pickup and boss grab are separately gated in the Rust combat
 adapter. Logging/readback must distinguish request acceptance, mask application,
 and a blocked move. No new Elden Ring numeric flag/param IDs are invented.
 
+Mario reads keyboard and mouse buttons through `GetAsyncKeyState`. The AP input blocker hooks this path as well: keyboard capture suppresses movement keys, mouse capture suppresses mouse buttons, and overlay modifiers keep their original state. Typing in the AP console must not move or attack with Mario.
+
 ## Rewards and compatibility
 
 Weapon, armor and spell acquisition locations remain checks. Mario enforces his own
