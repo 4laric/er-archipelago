@@ -1144,6 +1144,11 @@ Elden Ring:
   # three Power items reach 150%. Needs compatible updated Mario/client DLLs.
   mario_stat_upgrades: false
 
+  # Optional FLUDD: Hover/Rocket/Turbo nozzle items and three tank upgrades.
+  # Capacity starts at 60 and reaches 120; tank receipts never refill water.
+  # Requires Mario Mode, a new seed and compatible paired development DLLs.
+  mario_fludd: false
+
 
 # ============================================================================
 #  FIXED IN v0.2 -- these are NOT options. Do not add them to the file above.

@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.6.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "286211000317901b6a2abc2717753b2bb47fef25142390070289b04209f5c0a0",
+ "source_sha256": "4e1d55a4d00c9c0594a6f5bfc7d3d777b76664729995e8c190b7feed117a75c7",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -53,6 +53,7 @@
   "keep_local_rune_cap",
   "mario_mode",
   "mario_stat_upgrades",
+  "mario_fludd",
   "merchant_bells_on_talk",
   "reroll_mine_materials",
   "protect_missable_locations",
@@ -222,6 +223,7 @@
     "ability_lock_mode",
     "mario_mode",
     "mario_stat_upgrades",
+    "mario_fludd",
     "ability_unlocks_required"
    ]
   }
@@ -1353,6 +1355,24 @@
    "compatibility_only": false,
    "display_name": "Mario Stat Upgrades",
    "description": "Randomize Mario health and attack power.\n\nRequires Mario Mode. Start at 4/8 health wedges and 75% normal damage.\nFour Progressive Health items add one maximum wedge each, without healing.\nThree Progressive Power items raise damage to 100%, 125%, then 150%.\nCoins, grace and stars respect the current health maximum. Stats never gate\nchecks or goals. Needs a new seed and compatible paired Mario/client DLLs.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "mario_fludd",
+   "class": "MarioFludd",
+   "compatibility_only": false,
+   "display_name": "Mario FLUDD (Experimental)",
+   "description": "Find FLUDD nozzles and tank upgrades for Mario.\n\nRequires Mario Mode. Hover, Rocket and Turbo start locked; each has one nozzle item.\nThree Progressive FLUDD Tanks raise capacity from 60 to 80, 100, then 120 units.\nTank upgrades never refill water. Squirt is unfinished and is not included.\nNozzles never gate checks or goals. Needs a new seed and compatible paired DLLs.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,

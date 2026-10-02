@@ -9,7 +9,7 @@ from Options import OptionError
 from worlds.eldenring import contract, core
 from worlds.eldenring.features.mario_mode import (
     GOLDMASK_AP_ID, REGRESSION, REGRESSION_FEATURE, REGRESSION_REGION,
-    MarioFeature, MarioMode, MarioStatUpgrades, equipment_reward, filter_rewards,
+    MarioFeature, MarioMode, MarioStatUpgrades, MarioFludd, equipment_reward, filter_rewards,
 )
 from ._util import world_items
 
@@ -167,8 +167,9 @@ class MarioRegressionUnprotected(MarioOn):
         assert not location.can_fill(self.multiworld.get_all_state(False), spell, check_access=False)
 
 
+@pytest.mark.parametrize("fludd", [False, True])
 @pytest.mark.parametrize("stats", [False, True])
-def test_stat_upgrade_multiworld_pool_wire_and_legacy_identity(stats):
+def test_stat_upgrade_multiworld_pool_wire_and_legacy_identity(stats, fludd):
     from test.general import setup_multiworld
     from worlds.AutoWorld import AutoWorldRegister
     from Fill import distribute_items_restrictive
@@ -176,7 +177,7 @@ def test_stat_upgrade_multiworld_pool_wire_and_legacy_identity(stats):
     opts = {"num_regions": 3, "mario_mode": True}
     baseline = setup_multiworld(world_type, seed=22222, options=opts)
     mw = setup_multiworld([world_type, world_type], seed=22222,
-                         options=[{**opts, "mario_stat_upgrades": stats}, opts])
+                         options=[{**opts, "mario_stat_upgrades": stats, "mario_fludd": fludd}, opts])
     assert len(mw.itempool) == len(mw.get_unfilled_locations())
     stat_names = {name for _key, name, _aid, _count in contract.MARIO_STAT_ITEMS}
     for player in (1, 2):
@@ -193,14 +194,26 @@ def test_stat_upgrade_multiworld_pool_wire_and_legacy_identity(stats):
         assert (contract.MARIO_STATS_FEATURE in sd["requiresClientFeatures"]) == enabled
         assert ("mario_stat_upgrades" in sd["options"]) == enabled
         assert not (stat_names & set(sd.get("goalRequiredItems", [])))
+        fludd_enabled = fludd and player == 1
+        for key, name, aid, count in contract.MARIO_FLUDD_ITEMS:
+            assert core.item_name_to_id[name] == aid
+            assert str(aid) not in core._AP_IDS_TO_ITEM_IDS
+            assert world.create_item(name).classification == ItemClassification.useful
+            assert sum(i.name == name for i in items) == (count if fludd_enabled else 0)
+            assert (sd["abilityUnlockItems"].get(str(aid)) == key) == fludd_enabled
+        assert (contract.MARIO_FLUDD_FEATURE in sd["requiresClientFeatures"]) == fludd_enabled
+        assert ("mario_fludd" in sd["options"]) == fludd_enabled
+        assert not ({name for _key, name, _aid, _count in contract.MARIO_FLUDD_ITEMS}
+                    & set(sd.get("goalRequiredItems", [])))
     solo = setup_multiworld(world_type, seed=22222,
-                            options={**opts, "mario_stat_upgrades": stats})
+                            options={**opts, "mario_stat_upgrades": stats, "mario_fludd": fludd})
     assert len(solo.itempool) == len(baseline.itempool)
     assert [(l.name, l.address) for l in solo.get_locations()] == [
         (l.name, l.address) for l in baseline.get_locations()]
     assert len(MarioFeature().create_items(solo.worlds[1])) == (
-        len(MarioFeature().create_items(baseline.worlds[1])) + (7 if stats else 0))
-    if not stats:
+        len(MarioFeature().create_items(baseline.worlds[1])) + (7 if stats else 0)
+        + (6 if fludd else 0))
+    if not stats and not fludd:
         # Same RNG/slot retains the exact old pool and payload.
         assert [(i.name, i.classification) for i in solo.itempool] == [
             (i.name, i.classification) for i in baseline.itempool]
@@ -231,3 +244,38 @@ def test_stat_precollected_item_is_rejected_even_when_mario_off():
         precollected_items={1: [SimpleNamespace(name="Progressive Power")]}))
     with pytest.raises(OptionError, match="stat start inventory"):
         MarioFeature().generate_early(world)
+
+
+@pytest.mark.parametrize("name", ["Hover Nozzle", "Rocket Nozzle", "Turbo Nozzle",
+                                 "Progressive FLUDD Tank"])
+def test_fludd_precollected_item_rejected_while_off(name):
+    world = SimpleNamespace(player=1, options=SimpleNamespace(), multiworld=SimpleNamespace(
+        precollected_items={1: [SimpleNamespace(name=name)]}))
+    with pytest.raises(OptionError, match="FLUDD start inventory"):
+        MarioFeature().generate_early(world)
+
+
+def test_fludd_zero_start_quantity_and_default_are_compatible():
+    assert MarioFludd.default == 0
+    world = SimpleNamespace(options=SimpleNamespace(
+        start_inventory=SimpleNamespace(value={"Progressive FLUDD Tank": 0})))
+    MarioFeature().generate_early(world)
+    assert contract.OPTIONS_BY_NAME["mario_fludd"].shape == "BOOL_OR_INT"
+    assert contract.CONTRACT_HASH.startswith("2aa64f43")
+    assert [aid for _key, _name, aid, _count in contract.MARIO_FLUDD_ITEMS] == list(
+        range(7910012, 7910016))
+
+
+@pytest.mark.parametrize("stats", [False, True])
+def test_fludd_off_preserves_existing_mario_seed_pool_and_payload(stats):
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    world_type = AutoWorldRegister.world_types["Elden Ring"]
+    opts = {"num_regions": 3, "mario_mode": True, "mario_stat_upgrades": stats}
+    baseline = setup_multiworld(world_type, seed=7, options=opts)
+    explicit_off = setup_multiworld(world_type, seed=7, options={**opts, "mario_fludd": False})
+    assert [(i.name, i.classification) for i in baseline.itempool] == [
+        (i.name, i.classification) for i in explicit_off.itempool]
+    assert baseline.worlds[1].fill_slot_data() == explicit_off.worlds[1].fill_slot_data()
+    assert [(l.name, l.address) for l in baseline.get_locations()] == [
+        (l.name, l.address) for l in explicit_off.get_locations()]

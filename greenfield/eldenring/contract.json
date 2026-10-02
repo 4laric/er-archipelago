@@ -95,7 +95,7 @@
       ],
       "producer": "features/ability_lock.py or features/mario_mode.py (mutually exclusive)",
       "consumer": "er-logic ability_lock or mario capabilities receive path",
-      "doc": "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present only under ability_lock_mode: progressive: the abilities start locked (options.locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- the game is never asked to grant these, the client resolves them by this map. A seed that emits it also emits requiresClientFeatures ['ability_unlock']. Mario Mode uses the same map for its advanced move keys and instead requires mario_capabilities_v1; native locked_abilities cannot be combined with it. Mario Stat Upgrades additionally maps progressive_health and progressive_power and requires mario_stats_v1; the stat keys are absent when that option is off."
+      "doc": "synthetic AP item id (str) -> ability name (jump/crouch/roll/r1/r2/l1/l2). Present only under ability_lock_mode: progressive: the abilities start locked (options.locked_abilities) and each rides one shuffled 'Unlock: X' item; receiving that item id unlocks the ability (er_logic ability_lock::unlock). Same shape as armorBundles -- the game is never asked to grant these, the client resolves them by this map. A seed that emits it also emits requiresClientFeatures ['ability_unlock']. Mario Mode uses the same map for its advanced move keys and instead requires mario_capabilities_v1; native locked_abilities cannot be combined with it. Mario Stat Upgrades additionally maps progressive_health and progressive_power and requires mario_stats_v1; the stat keys are absent when that option is off. Mario FLUDD maps fludd_hover, fludd_rocket, fludd_turbo and progressive_fludd_tank and requires mario_fludd_v1; these keys are absent when FLUDD is off."
     },
     {
       "name": "armorBundles",
@@ -185,6 +185,17 @@
       "consumer": "er-logic/options.rs parse_bool_option et al.",
       "doc": "runtime option echo sub-dict; every client-read option lives here (features' top-level copies are legacy duplicates the client ignores).",
       "subkeys": [
+        {
+          "name": "mario_fludd",
+          "shape": "BOOL_OR_INT",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/mario_mode.py)",
+          "consumer": "er-logic Mario FLUDD parser",
+          "doc": "optional FLUDD nozzle and tank progression; absent/false disables FLUDD. True shuffles Hover, Rocket and Turbo Nozzles and three tank upgrades, with capacity 60/80/100/120 units. Requires mario_mode and mario_fludd_v1."
+        },
         {
           "name": "mario_stat_upgrades",
           "shape": "BOOL_OR_INT",

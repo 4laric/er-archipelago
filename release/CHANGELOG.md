@@ -7,10 +7,10 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ### What you need to update
 
-- **Client:** Required for new Mario Stat Upgrades seeds; use compatible paired AP client and Mario DLLs. Existing seeds keep their original settings.
-- **APWorld:** Host-only update to generate optional Mario stat items.
-- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `mario_stat_upgrades` defaults off and requires `mario_mode` on.
-- **Existing seed/save:** New seed required with the option on for stat progression; existing seeds cannot gain these items retroactively. Use the matching room/save identity.
+- **Client:** Required for new Mario Stat Upgrades or FLUDD seeds; use compatible paired AP client and Mario DLLs. Existing seeds keep their original settings.
+- **APWorld:** Host-only update to generate optional Mario stat and FLUDD items.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `mario_stat_upgrades` and `mario_fludd` default off and require `mario_mode` on.
+- **Existing seed/save:** New seed required with either option on for its progression; existing seeds cannot gain these items retroactively. Use the matching room/save identity.
 - **Profile/assets:** Reinstall or replace both paired DLLs for the new option. Keep your Mario setup and own SM64 ROM.
 
 Optional Mario stat progression starts at four of eight health wedges and 75% normal
@@ -20,10 +20,19 @@ to 100%, 125%, then 150%. Coins, grace and stars respect the current health maxi
 The toggle stays on advanced/weighted option surfaces to keep the simple page small.
 The seven items replace filler without changing check counts, and never gate checks
 or goals. The off setting preserves existing Mario item pools and slot payloads.
-The paired client pin is `1381ae1`: it replays indexed stat items and waits for
-exact live move and stat acknowledgments before delivering checks or rewards.
+The paired client pin is `8bfc356`: it replays indexed move, stat and FLUDD items
+and waits for exact live acknowledgments before delivering checks or rewards.
 
-New enabled seeds require `mario_stats_v1`, so clients without stat support reject
+Optional Mario FLUDD starts with Hover, Rocket and Turbo locked. Each nozzle has
+one useful unlock item. Three useful Progressive FLUDD Tanks raise water capacity
+from 60 to 80, 100, then 120 units without refilling water on receipt. The six items
+replace filler, preserve check counts and identities, and never gate checks or goals.
+Squirt remains unfinished and has no item. The advanced option defaults off; old
+seeds retain their original pool and payload. Enabled FLUDD seeds require
+`mario_fludd_v1` and a compatible paired client/Mario DLL with the additive FLUDD ABI.
+No live FLUDD playthrough validation is claimed.
+
+New enabled stat seeds require `mario_stats_v1`, so clients without stat support reject
 them explicitly. `CONTRACT_HASH` remains `2aa64f43`; the optional option and existing
 unlock map carry the feature. Mario remains experimental: automated generation and
 runtime tests do not establish full live playthrough validation. The outstanding

@@ -21,6 +21,7 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 
 
+@pytest.mark.parametrize("fludd", [False, True])
 @pytest.mark.parametrize("stats", [False, True])
 @pytest.mark.parametrize("seed", [1, 7, 22222])
 @pytest.mark.parametrize("extra", [
@@ -29,7 +30,7 @@ GAME = "Elden Ring"
     {"dlc_only": True, "armor_bundles": "mixed"},
     {"num_regions": 0, "enable_dlc": False, "protect_missable_locations": "off"},
 ])
-def test_mario_mode_seeded_fill_combinations(extra, seed, stats):
+def test_mario_mode_seeded_fill_combinations(extra, seed, stats, fludd):
     """Real AP restrictive fill, beyond WorldTestBase's region/item construction (#1619)."""
     from Fill import distribute_items_restrictive
     from worlds.eldenring import contract
@@ -39,7 +40,8 @@ def test_mario_mode_seeded_fill_combinations(extra, seed, stats):
 
     class _T(WorldTestBase):
         game = GAME
-        options = {"num_regions": 6, "mario_mode": True, "mario_stat_upgrades": stats, **extra}
+        options = {"num_regions": 6, "mario_mode": True, "mario_stat_upgrades": stats,
+                   "mario_fludd": fludd, **extra}
 
     t = _T()
     t.world_setup(seed=seed)
@@ -66,8 +68,14 @@ def test_mario_mode_seeded_fill_combinations(extra, seed, stats):
         assert REGRESSION_FEATURE in sd["requiresClientFeatures"]
         stat_keys = {key for key, _name, _aid, _count in contract.MARIO_STAT_ITEMS}
         assert set(sd["abilityUnlockItems"].values()) == (
-            set(contract.MARIO_CAPABILITY_KEYS) | (stat_keys if stats else set()))
+            set(contract.MARIO_CAPABILITY_KEYS) | (stat_keys if stats else set())
+            | ({key for key, _name, _aid, _count in contract.MARIO_FLUDD_ITEMS}
+               if fludd else set()))
         assert (contract.MARIO_STATS_FEATURE in sd["requiresClientFeatures"]) == stats
+        assert (contract.MARIO_FLUDD_FEATURE in sd["requiresClientFeatures"]) == fludd
+        assert sd["options"].get("mario_fludd", 0) == int(fludd)
+        for _key, name, _aid, count in contract.MARIO_FLUDD_ITEMS:
+            assert sum(item.name == name for item in items) == (count if fludd else 0)
         assert sd["options"].get("mario_stat_upgrades", 0) == int(stats)
         for _key, name, _aid, count in contract.MARIO_STAT_ITEMS:
             assert sum(item.name == name for item in items) == (count if stats else 0)
@@ -77,6 +85,12 @@ def test_mario_mode_seeded_fill_combinations(extra, seed, stats):
 
 
 @pytest.mark.parametrize("extra,message", [
+    ({"mario_mode": False, "mario_fludd": True}, "mario_fludd requires mario_mode"),
+    ({"start_inventory": {"Hover Nozzle": 1}}, "FLUDD start inventory"),
+    ({"mario_mode": False, "start_inventory": {"Progressive FLUDD Tank": 1}}, "FLUDD start inventory"),
+    ({"mario_fludd": True, "vanilla_placement": "all"}, "vanilla_placement must be off"),
+    ({"mario_fludd": True, "trap_link": True}, "trap_link must be off"),
+    ({"mario_fludd": True, "traps": ["no_flask"], "trap_count": 1}, "remove no_flask"),
     ({"mario_mode": False, "mario_stat_upgrades": True}, "requires mario_mode"),
     ({"mario_mode": False, "start_inventory": {"Progressive Health": 1}}, "stat start inventory"),
     ({"start_inventory": {"Progressive Health": 1}}, "stat start inventory"),
