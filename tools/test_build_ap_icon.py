@@ -138,6 +138,29 @@ class DdsHeader(unittest.TestCase):
         self.assertIsNone(bai.dds_size(p))
 
 
+class SeparateLayoutInput(unittest.TestCase):
+    def test_default_keeps_layout_beside_atlas(self):
+        self.assertEqual(bai.layout_path("mario-menu", "hi"),
+                         os.path.join("mario-menu", "hi", bai.LAYOUT))
+
+    def test_separate_layout_preserves_each_quality_and_atlas_source(self):
+        for bundle in ("hi", "low"):
+            self.assertEqual(bai.layout_path("mario-menu", bundle, "vanilla-menu"),
+                             os.path.join("vanilla-menu", bundle, bai.LAYOUT))
+        # Exercise the actual CLI/probe wiring so a correct helper with no caller cannot pass.
+        from unittest.mock import patch
+        with patch.object(sys, "argv", ["build_ap_icon", "--menu", "mario-menu",
+                                         "--layout-menu", "vanilla-menu", "--probe"]), \
+                patch.object(bai.os.path, "isdir", return_value=True), \
+                patch.object(bai.os.path, "isfile", return_value=True), \
+                patch.object(bai, "find_witchy", return_value="witchy"), \
+                patch.object(bai, "find_oodle", return_value="oodle"), \
+                patch.object(bai, "probe") as probe:
+            self.assertEqual(bai.main(), 0)
+        self.assertEqual(probe.call_args.args[0], "mario-menu")
+        self.assertEqual(probe.call_args.args[-1], "vanilla-menu")
+
+
 class InstalledGameInputs(unittest.TestCase):
     def test_oodle_is_discovered_beside_the_game_menu(self):
         root = tempfile.mkdtemp()

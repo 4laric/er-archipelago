@@ -51,6 +51,25 @@ newer WebSocket server APIs are incompatible with this AP version. Verify a
 connected slot before testing randomized rewards or vanilla suppression. Loading
 both DLLs alone does not apply the seed's pickup rules.
 
+Mario and AP both replace `menu/{hi,low}/01_common.tpf.dcx`. Build one combined
+atlas from Mario's generated menu textures, using the game's sprite layouts as
+a separate input, rather than loading two competing atlas overrides:
+
+```powershell
+python tools/build_ap_icon.py --menu '<Mario>\package\menu' --layout-menu '<local-layouts>\menu' --out '<combined>\menu' --witchy '<WitchyBND.exe>' --oodle '<Game>\oo2core_6_win64.dll'
+```
+
+The layout input supplies `hi/01_common.sblytbnd.dcx` and its `low` counterpart
+from the player's installed game. The output only replaces AP icon 92 in
+`SB_Icon_00`; Mario's icons in `SB_Icon_04` and all other textures are preserved.
+Use those two combined atlas files in Mario's package and keep its other assets.
+Regenerate the combined atlas if Mario rebuilds its assets. Generated atlases
+remain local game data and must not be redistributed. The local candidate has
+passed byte comparisons for both qualities; its in-game icons remain a live gate.
+
+The local server also requires AP's pinned `jellyfish==1.2.1` for item-name
+commands. A missing dependency causes `!getitem` to fail before sending a receipt.
+
 ## Wire and ownership
 
 The optional `options.mario_mode` boolean selects the Mario adapter. The existing
