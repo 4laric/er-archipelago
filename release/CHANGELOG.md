@@ -3,7 +3,27 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.4 — 2026-10-01
+
+### What you need to update
+
+- **Client:** Required for new experimental Mario seeds; use the matching release pair.
+- **APWorld:** Host-only update to generate the new Mario item and quest rules.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** Mario Mode defaults off.
+- **Existing seed/save:** Compatible for existing non-Mario seeds; contract and save formats are unchanged. Mario needs a new seed and a separate save. Older Mario seeds keep their original handshake but cannot gain reserved Law of Regression without regeneration.
+- **Profile/assets:** Reinstall or replace both paired DLLs in Mario's separate me3 profile and supply your own US SM64 ROM. Combined icon atlases are built locally; no ROM or generated game assets are distributed.
+- **Optional download:** `ER-Mario-AP-v0.6.4.zip` provides the Mario DLL, profiles, setup docs, licenses and local icon-composition helper alongside the standard matched AP bundle. It requires the player's own ROM and installed game; ordinary profiles remain unchanged.
+
+Alaric explicitly selected exact version 0.6.4 for this release, superseding the untagged 0.6.1.8 draft window. The historical ledger entry remains intact. `CONTRACT_HASH` is unchanged at `2aa64f43`; new Mario seeds require `mario_capabilities_v1` and `mario_regression_v1`, with ABI state flag 8 for the statue interaction. The client version and generated mirror move in lockstep. Stable-channel promotion belongs to the release publication, not this preparation commit.
+
+- **Experimental Mario move randomization (#1619).** Ten pickups unlock nine move families: two Progressive Jumps restore Double then Triple Jump; Backflip, Side Flip, Long Jump, Wall Kick, Dive, Ground Pound, Enemy Grab and Boss Swing unlock separately. Basic movement and combat remain available. Move items add no traversal or goal requirements. Unusable equipment and spells become runes without renumbering pickup checks; incompatible options reject before fill.
+- **Native statue quest interaction.** When Royal Leyndell is available, one progression Law of Regression is reserved in the normal pool. Carry it and press Interact at Radagon's statue; the native event reveals the statue and Goldmask's dialogue awards original check 7774610/f60848. The check requires Law and physical Leyndell access and cannot contain its own key. Missing-region scoping preserves the reserved dataset identity.
+- **Paired overlays and icon composition.** Both DLLs coordinate graphics-hook startup and AP captures Mario's async keyboard/mouse input. The icon tool can add AP's flower to Mario's generated atlas using separate local sprite layouts, preserving Mario textures. Current compiler parser/Clippy compatibility fixes are included in the paired client.
+- **Validation and known limits.** The human playtest passed all nine move families, randomized pickups, visible overlays, keyboard capture, reconnect preservation, ordinary fast travel, death/respawn recovery and initial new-seed relocking. Further slot/history replay, region kicks, healing, combined icons, the statue/Goldmask route, required special bosses and ending completion remain untested live. Release was explicitly requested after the human ended the manual session. Mario remains experimental; automated generation and Windows builds do not close these live gaps. Capability reset does not bypass the existing save-identity guard: ordinary delivery after a room switch requires restart with the proper save/room identity.
+
 ## v0.6.1.8 — 2026-10-01
+
+Unreleased draft window, superseded by the explicitly selected v0.6.4 release above.
 
 ### What you need to update
 
