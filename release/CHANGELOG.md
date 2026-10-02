@@ -3,6 +3,28 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.4.1 — 2026-10-02
+
+### What you need to update
+
+- **Client:** Optional. The development stamp changes; the released v0.6.4 client remains suitable for v0.6.4 seeds.
+- **APWorld:** Host-only update when using this development window for generation.
+- **YAML:** **No new YAML required.** Existing YAMLs remain valid.
+- **Existing seed/save:** Compatible with v0.6.4; no save migration is introduced by this window open.
+- **Profile/assets:** No action for this maintenance change. Keep the paired v0.6.4 Mario setup for Mario seeds.
+
+This opens the next development window after v0.6.4 shipped and promotes stable
+downloads to that verified release. It adds no gameplay changes.
+
+`CONTRACT_HASH` remains `2aa64f43`, verified by loading contract.py. The wire
+contract and save format are unchanged. The paired version-stamp client is
+[clients #730](https://github.com/4laric/from-software-archipelago-clients/pull/730);
+its gitlink rides in this window-opening change because contract_gen.rs embeds
+the version. The existing Mario feature requirements remain in force.
+
+Entries arrive below as changes merge. The experimental limits recorded for
+v0.6.4 remain open; this maintenance stamp does not verify those gameplay paths.
+
 ## v0.6.4 — 2026-10-01
 
 ### What you need to update
