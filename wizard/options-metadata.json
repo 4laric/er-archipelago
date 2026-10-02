@@ -1332,7 +1332,7 @@
    "class": "MarioMode",
    "compatibility_only": false,
    "display_name": "Mario Mode (Experimental)",
-   "description": "Experimental er-mario: find items to unlock moves.\nTwo Progressive Jumps give Double, then Triple Jump; Backflip and Side Flip are separate.\nBasic jump and punch stay available; moves never gate checks or finishing.\nGear and spells become runes; pickup checks and keys remain.\nNeeds a compatible bridge and your own SM64 ROM. Set Vanilla Placement, Auto Equip,\nDeathLink and TrapLink off, Locked Abilities empty, and omit No Flask traps.",
+   "description": "Experimental er-mario: find items to unlock moves.\n\nTwo Progressive Jumps give Double, then Triple Jump; Backflip and Side Flip are separate.\nBasic jump and punch stay available; moves never gate checks or finishing.\nGear and spells become runes; pickup checks and keys remain.\nNeeds a compatible bridge and your own SM64 ROM. Set Vanilla Placement, Auto Equip,\nDeathLink and TrapLink off, Locked Abilities empty, and omit No Flask traps.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,

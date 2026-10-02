@@ -12,6 +12,7 @@ from .. import contract
 
 class MarioMode(Toggle):
     """Experimental er-mario: find items to unlock moves.
+
     Two Progressive Jumps give Double, then Triple Jump; Backflip and Side Flip are separate.
     Basic jump and punch stay available; moves never gate checks or finishing.
     Gear and spells become runes; pickup checks and keys remain.
