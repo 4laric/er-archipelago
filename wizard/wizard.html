@@ -7007,7 +7007,7 @@ if (typeof module !== "undefined") module.exports = ERW;
        `not foreign_bar_for(world)(item, player)` (core._add_locations); below 100 that bar is a
        per-NAME hash, so a `(100-confine)%` share of foreign key-item names is admitted to the rest
        of the world too. At 100 the capacity is the surface exactly; at 0 it is every check. */
-    const progMid = Math.min(checksMid, surfMid + (100 - confine) / 100 * (checksMid - surfMid));
+    const progMid = confine >= 100 ? surfMid : checksMid;
 
     html +=
       "<div class='desc'>How much of your game can end up in other players\u2019 worlds, and how " +
@@ -7042,8 +7042,7 @@ if (typeof module !== "undefined") module.exports = ERW;
           "balanced</code>, the default: another world\u2019s key items can only sit " +
           "where your own Region Locks sit."
         : confine <= 0
-          ? " \u2014 anywhere at all. <code>progression_sharing: open</code> puts no " +
-            "restriction on where another world\u2019s key items may sit in yours."
+          ? " \u2014 any safe check. Effective incoming confinement is 0; outgoing sharing is unchanged."
           : " \u2014 your progression surface (" + n(surfMid) + "), plus the " + (100 - confine) +
             "% share of foreign key-item names allowed beyond the surface by Incoming Progression Confinement.") + "</div>";
     if (confine >= 100){
@@ -7159,8 +7158,9 @@ if (typeof module !== "undefined") module.exports = ERW;
       "<div class='desc'>regions kept</div></div>" +
       "<div><div style='font-size:26px'>" + (size.whole ? n(size.surface.median)
         : n(size.surface.p10) + "\u2013" + n(size.surface.p90)) + "</div>" +
-      "<div class='desc'>checks that can hold progression</div></div>" +
+      "<div class='desc'>checks on your progression surface</div></div>" +
       "</div>" +
+      "<div class='desc' style='margin-top:10px'>" + incomingPlacementText(size) + "</div>" +
       (size.whole ? "" :
        "<div class='desc' style='margin-top:8px'><b>num_regions is a draw size, not a final " +
        "count.</b> Which regions the draw takes moves everything above, which is why these are " +
@@ -7263,7 +7263,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const num = x => Math.round(x).toLocaleString();
     const confine = confineShare();
     const surf = size.surface.median;
-    const prog = Math.min(checks, surf + (100 - confine) / 100 * (checks - surf));
+    const prog = confine >= 100 ? surf : checks;
     const rows = [
       ["checks open to a foreign item", num(checks * freePct / 100),
        "of " + num(checks) + " \u00b7 the same number as your items free to travel"],
@@ -7271,7 +7271,7 @@ if (typeof module !== "undefined") module.exports = ERW;
        heldPct > 0 ? Math.round(heldPct) + "% of your pool" : "nothing is held back"],
       ["may hold their progression", num(prog),
        confine >= 100 ? "your progression surface, and nothing else"
-                      : "surface " + num(surf) + " + the " + (100 - confine) + "% share let out"]
+                      : (100 - confine) + "% of foreign progression item names may use any safe check; " + confine + "% stay on the surface"]
     ];
     box.innerHTML = rows.map(r =>
       "<div style='margin:0 0 6px'><b>" + r[1] + "</b> " + r[0] +
@@ -7645,15 +7645,29 @@ if (typeof module !== "undefined") module.exports = ERW;
         (size.forcedStart.min === size.forcedStart.max ? num(size.forcedStart.median)
          : num(size.forcedStart.min) + "&ndash;" + num(size.forcedStart.max)) +
         " beyond the draw" : "")],
-      ["can hold progression", size.whole ? num(size.surface.median)
+      ["on your progression surface", size.whole ? num(size.surface.median)
                             : num(size.surface.p10) + "&ndash;" + num(size.surface.p90),
        "checks on your progression surface"]
     ];
     box.innerHTML = rows.map(r =>
       "<div style='margin:0 0 6px'><b>" + r[1] + "</b> " + r[0] +
       "<div class='small'>" + r[2] + "</div></div>").join("") +
+      "<div class='small'>" + incomingPlacementText(size) + "</div>" +
       (size.whole ? "" : "<div class='small'>Sampled over " + num(size.trials) +
         " draws of the " + size.eligible + " eligible regions.</div>");
+  }
+
+  function incomingPlacementText(size){
+    const confine = confineShare();
+    const band = confine >= 100 ? size.surface : size.checks;
+    const n = x => Math.round(x).toLocaleString();
+    const count = size.whole ? n(band.median) : n(band.p10) + "\u2013" + n(band.p90);
+    return "<b>Foreign progression placement ceiling: " + count + " checks.</b> " +
+      (confine >= 100 ? "Surface only (effective confinement 100%)." :
+       confine <= 0 ? "Any safe check (effective confinement 0%)." :
+       (100 - confine) + "% of foreign progression item names may use any safe check; " + confine +
+       "% are restricted to the surface. This percentage selects item names, not a fraction of checks.") +
+      " Other placement rules and local items can reduce this ceiling.";
   }
 
   /* ---- WHICH CHANNEL AM I? ---------------------------------------------------------------------
