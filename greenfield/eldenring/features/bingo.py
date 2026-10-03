@@ -2,7 +2,8 @@
 
 First automatic catalogue is an AP adaptation of boss bingo objectives, not the full
 Bingo Brawlers export. Encounter flags and arena owners come from our generated EMEVD
-tables. Restricted combat, quests, and collection objectives are deliberately absent.
+tables. E1 adds native state thresholds; E2 adds rosters and acquisition adapters.
+Restricted combat and source-specific quest objectives remain outside this catalogue.
 """
 import hashlib
 import json
@@ -26,14 +27,15 @@ class BingoMode(Toggle):
 
 
 class BingoCatalogue(Choice):
-    """Choose the original boss board or the E1 audit catalogue.
+    """Choose the boss board, E1 thresholds, or E2 counters and collections.
 
-    E1 adds major bosses, levels, base stats, flasks and earned DLC blessings.
-    Upgrade squares reserve reachable supplies. Requires the E1 client."""
+    E1 adds native stats and upgrades. E2 adds rosters and guaranteed collection supplies.
+    Requires the matching bingo client."""
     visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Bingo Catalogue"
     option_boss_board = 0
     option_e1 = 1
+    option_e2 = 2
     default = 0
 
 
@@ -119,6 +121,14 @@ def e1(world):
     return active(world) and bool(world.options.bingo_catalogue.value)
 
 
+def e2(world):
+    return active(world) and world.options.bingo_catalogue.value == 2
+
+
+def evidence_flags(cell):
+    return {cell["flag"]} - {0} | {m["flag"] for g in cell.get("counter", []) for m in g["members"]}
+
+
 def square_ids(world):
     return frozenset(c["location"] for c in getattr(world, "gf_bingo_board", ()))
 
@@ -170,6 +180,23 @@ def draw_regions(world, start_pool):
                            if flag not in used and info[0].startswith(("m20", "m21", "m22", "m25", "m28", "m40", "m41", "m43", "m61"))
                            and SWEEP_ARENA_REGION.get(flag) in kept and info[3]]
             selector, catalogue = bingo_e1.select, "e1-board-v1"
+            if e2(world):
+                from .. import bingo_e2
+                extra, unavailable = bingo_e2.candidates(world.tables, kept, world.options.bingo_region_limit.value)
+                # AP precollected items arrive as ordinary received entries.
+                # Exclude matching acquisition goals rather than credit gifts
+                # or consume the remaining container capacity at startup.
+                starts = {name for option in ("start_inventory", "start_inventory_from_pool")
+                          for name, count in getattr(getattr(world.options, option, None), "value", {}).items() if count}
+                starts.update(i.name for i in world.multiworld.precollected_items.get(world.player, ()))
+                start_ids = {world.tables.item_catalog[n] for n in starts if n in world.tables.item_catalog}
+                bundles = world.tables.modules["item_ids"].ARMOR_BUNDLES
+                start_ids.update(fid for n in starts for fid in bundles.get(n, ()))
+                extra = [c for c in extra if not start_ids.intersection(
+                    fid for g in c.get("collection", ()) for m in g["members"] for ids in m["items"] for fid in ids)]
+                world.gf_bingo_e2_unavailable = unavailable
+                candidates += extra
+                catalogue = "e2-board-v1"
         board = selector(candidates, f"{world.multiworld.seed}:{world.player}:{catalogue}",
                              region_limit=world.options.bingo_region_limit.value,
                              parents=REGION_PARENT, start_pool=(), starts=1)
@@ -216,7 +243,7 @@ def prepare(world):
     world.gf_required_runes = []
     # Detection overrides for major bosses also appear as native checks. No synthetic
     # sweep may assert the same defeat evidence. Native flag polling remains available.
-    board_flags = {c["flag"] for c in world.gf_bingo_board if c["flag"]}
+    board_flags = set().union(*(evidence_flags(c) for c in world.gf_bingo_board))
     world.gf_bingo_protected_checks = {aid for aid, flag in native if flag in board_flags}
     if e1(world):
         requirements = {}
@@ -286,8 +313,12 @@ class Bingo(Feature):
                 return False
             if not all(state.has(name, player, count) for name, count in cell.get("requirements", [])):
                 return False
-            witnesses = native.get(cell["flag"], ())
-            return not witnesses or any(loc.access_rule(state) for loc in witnesses)
+            def can_fight(flag, region):
+                witnesses = native.get(flag, ())
+                return state.can_reach(region, "Region", player) and (not witnesses or any(loc.access_rule(state) for loc in witnesses))
+            if "counter" in cell:
+                return all(sum(m["weight"] for m in g["members"] if can_fight(m["flag"], m["region"])) >= g["target"] for g in cell["counter"])
+            return can_fight(cell["flag"], cell["region"])
         for cell in board:
             loc = mw.get_location(f"Bingo Square {cell['location'] - min(LOCATION_NAMES.values()) + 1:02d}", player)
             loc.access_rule = lambda state, c=cell: reachable(state, c)
@@ -303,11 +334,11 @@ class Bingo(Feature):
     def slot_data(self, world):
         if not active(world):
             return {}
-        cells = [{k: v for k, v in c.items() if k in {"location", "flag", "region", "label", "state"}}
+        cells = [{k: v for k, v in c.items() if k in {"location", "flag", "region", "label", "state", "counter", "collection"}}
                  for c in world.gf_bingo_board]
-        payload = {"version": 2 if e1(world) else 1, "catalogue": "ap-e1-board-v1" if e1(world) else "ap-boss-board-v1", "cells": cells,
+        payload = {"version": 3 if e2(world) else 2 if e1(world) else 1, "catalogue": "ap-e2-board-v1" if e2(world) else "ap-e1-board-v1" if e1(world) else "ap-boss-board-v1", "cells": cells,
                    "goal": world.options.bingo_goal.current_key,
                    "count": world.options.bingo_square_count.value,
                    "line_sweep": world.gf_bingo_line_sweep}
         payload["hash"] = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
-        return {contract.BINGO_BOARD: payload, contract.REQUIRES_CLIENT_FEATURES: ["bingo_e1_v1" if e1(world) else "bingo_v1"]}
+        return {contract.BINGO_BOARD: payload, contract.REQUIRES_CLIENT_FEATURES: ["bingo_e2_v1" if e2(world) else "bingo_e1_v1" if e1(world) else "bingo_v1"]}

@@ -467,3 +467,69 @@ flags above; DLC-only boards receive Roundtable and Gravesite Plain; mixed board
 also receive Gravesite Plain when DLC objectives are selected. Tracker openness
 uses an empty `regionOpenFlags` map instead of extra grace flags. This adapts the
 DLC entry to AP's Roundtable start, without installing the official map/quest patches.
+
+## E2 implementation (2026-10-03)
+
+Use `bingo_catalogue: e2`, or `presets/bingo-e2.yaml`. E2 includes E1 and adds
+126 supported variants from the 133-entry E2 audit. The expanded variant ledger
+is `greenfield/eldenring/bingo_e2_catalogue.json`; adapters join generated boss
+terminal owners and item identities. Eligibility and the region cap can reduce
+the available pool further. The protocol is `ap-e2-board-v1`, version 3, requiring
+`bingo_e2_v1`; older clients refuse it.
+
+Encounter counters use distinct terminal encounter flags, not swept AP checks,
+partner healthbars, or server acknowledgements. Each group must reach its own
+target; bird combinations and the DLC bear/lion/hippo combination cannot substitute
+one family for another. The Valiant Gargoyle terminal counts two gargoyles.
+Other rosters count completed encounters, an AP adaptation of the source's boss
+counts. The draw includes enough contributors and their prerequisite regions;
+it limits counter squares to three and one defeat flag to at most two squares.
+AP flag writers protect every contributor. Map for Goblins shows outstanding
+contributors through existing boss markers; markers still depend on its catalogue.
+
+Collection squares use observed acquisitions after startup or successful AP
+deliveries. Required supply is guaranteed and classified as progression, so it
+lands on the board surface. Only one supply square is selected. Full sets require
+every piece; distinct collections count item identities, not repeated copies.
+Weapon affinity and upgrade variants normalize to the base weapon. Acquisition
+credit persists by board hash and character slot, retaining sold, stored or used
+items. Readback must show an inventory increase: a capped or failed grant earns
+nothing. Indexed receipts deduplicate replay and negative starting-item receipts
+increase the excluded baseline. Starting class items do not count as native
+reacquisitions. Required armor pieces bypass set/mixed compaction so their identities
+and progression classification survive. Matching startup container gifts are omitted
+to leave capacity for pot objectives.
+
+Reusable capacity goods (pots and Memory Stones) use their post-baseline maximum
+quantity. Collection candidates matching AP precollected/start-inventory gifts
+are excluded from the draw, including pieces of starting armor bundles.
+Consumable quantity squares for Imbued Sword Keys, Dragon Hearts and
+Blessings of Marika explicitly use AP deliveries; native acquisitions establish
+one identity but do not infer cumulative quantities from a fluctuating inventory.
+This narrower rule is displayed in those labels. Collection objectives appear
+in F6; no invented map coordinates or source-qualified pickup markers are emitted.
+
+Seven source-blocked variants are deliberately unavailable:
+
+| Variants | Missing evidence or delivery support |
+| --- | --- |
+| S6-BASE-011-V03 | Third unique Red Wolf has no generated owned boss terminal. |
+| S6-BASE-047-V03 | Fourth Tibia Mariner lacks the generated boss terminal used by this adapter. |
+| S6-DLC-019-V01–V03 | Forager Brood cookbooks are excluded from the AP item catalogue; native NPC/quest acquisition needs a separate adapter. |
+| S6-BASE-121-V01–V02 | Whetblade deliveries are blocked by the current dual-use key-item contract; physical acquisition cannot be promised safely. |
+
+These remain E2 estimates in the source audit, rather than being silently marked
+implemented or replaced with other goals. Live acceptance still requires a new
+E2 character: native defeat, successful/capped delivery, local acquisition,
+storage/sale/use, reload and character/seed switching. Source inspection, unit
+tests and Windows compilation do not establish that live acceptance.
+
+Validation: 397 world/option/metadata tests passed, followed by 162 bingo tests
+after the final acquisition eligibility changes. Forced supply tests cover pot
+capacity, large spell collections and complete armor with off/sets/mixed bundling.
+Fifteen complete E2 generations passed across base/DLC-only/mixed scopes and five
+fixed seeds; all 24 existing fill-regression generations passed. Client verification:
+1,565 pure logic tests, six integration tests, 131 DLL library tests, formatting,
+default/profile Clippy and a native Windows release build. The running seed/DLL
+was preserved. The scratch generation harness uses `_ap` and Python 3.12; its
+separate pregen lint still warns about the repository's obsolete `Archipelago` path.

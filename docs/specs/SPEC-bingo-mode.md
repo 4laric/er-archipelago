@@ -258,3 +258,16 @@ Elden Ring:
 The twelve flags, archive hash and exact binary event evidence are recorded in
 `DESIGN-bingo-objective-audit.md`. Native quest/dungeon gates remain part of play;
 curated travel does not reproduce every patch in the official randomizer.
+
+### E2 catalogue
+
+Choose `bingo_catalogue: e2` or `presets/bingo-e2.yaml` for E1 plus encounter
+counters and collection objectives. Version 3 requires `bingo_e2_v1`. The draw
+supports 126 of the audit's 133 E2 variants; seven source/delivery blockers are
+listed in the implementation audit. Counter contributors choose the region
+footprint. Required collection items remain progression on board rewards; startup
+container gifts are omitted when that container is an objective. F6 shows count
+progress and contributor details, and Map for Goblins highlights available boss
+contributors. Collections appear in F6. See the
+[E2 implementation audit](DESIGN-bingo-objective-audit.md#e2-implementation-2026-10-03)
+for physical readback, persistence, AP adaptations and outstanding live validation.

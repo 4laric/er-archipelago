@@ -237,7 +237,12 @@ def plain_start_ids(world):
         items += [_PERFUME_BOTTLE_FULL_ID] * _START_PERFUME_BOTTLES
         if getattr(world, "gf_dlc_on", False):
             items += [_HEFTY_CRACKED_POT_FULL_ID] * _START_HEFTY_CRACKED_POTS
-    return items
+    # E2 vessel objectives need their full hold capacity after the starting
+    # loadout. Starting gifts are excluded from acquisition evidence.
+    watched = {fid for cell in getattr(world, "gf_bingo_board", ())
+               for group in cell.get("collection", ()) for member in group["members"]
+               for alternatives in member["items"] for fid in alternatives}
+    return [fid for fid in items if fid not in watched]
 
 
 def start_hold_counts(world):

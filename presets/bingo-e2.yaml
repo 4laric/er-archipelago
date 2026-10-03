@@ -1,0 +1,12 @@
+name: BingoPlayer
+game: Elden Ring
+Elden Ring:
+  bingo_mode: true
+  bingo_catalogue: e2
+  bingo_graces: true
+  bingo_goal: line
+  bingo_line_sweep_size: 20
+  bingo_region_limit: 6
+  scadutree_blessing_scope: dlc_only
+  dlc_blessing_catchup: false
+  mario_mode: false

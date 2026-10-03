@@ -135,15 +135,23 @@ def select(candidates, seed, *, region_limit, parents, start_pool=(), starts=1):
             raise ValueError("bingo start_region_pool needs enough distinct objective regions")
         selected, regions, families, flags = [], set(), set(), set()
         supply = False
+        hits, counters = {}, 0
         for cell in opening + [c for c in order if c not in opening]:
             family = cell.get("family", f"boss:{cell['flag']}")
             needed = regions | closure(cell)
+            from .features.bingo import evidence_flags
+            evidence = evidence_flags(cell)
             if (family in families or (cell["flag"] and cell["flag"] in flags)
-                    or (supply and cell.get("supply_goal")) or len(needed) > region_limit):
+                    or (supply and cell.get("supply_goal")) or len(needed) > region_limit
+                    or (cell.get("counter") and counters >= 3)
+                    or any(hits.get(f, 0) >= 2 for f in evidence)):
+
                 continue
             selected.append(cell)
             regions, supply = needed, supply or cell.get("supply_goal", False)
             families.add(family)
+            counters += bool(cell.get("counter"))
+            for f in evidence: hits[f] = hits.get(f, 0) + 1
             flags.add(cell["flag"])
             if len(selected) == 25:
                 break

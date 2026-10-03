@@ -1507,6 +1507,11 @@ class GreenfieldEldenRingWorld(World):
             # Replacements are count-neutral normal filler, so contributor accounting stays exact.
             from .features.pool_compaction import compact_name as _compact_name
             for _pool_ix, _item in enumerate(pool):
+                # Bingo acquisition floors name physical pieces. Bundling or
+                # mixing these copies would destroy their promised identities
+                # and advancement classification; ordinary tail armor still bundles.
+                if _item.name in getattr(self, "gf_bingo_requirements", {}):
+                    continue
                 _compacted = _remap_bundle_name(_compact_name(
                     _item.name, _seen_weapon_names, _seen_armor_bundles))
                 if _compacted != _item.name:

@@ -202,3 +202,96 @@ def test_curated_graces_ignored_outside_bingo():
     baseline = setup_multiworld(world_type, seed=42, options={"num_regions": 6})
     enabled = setup_multiworld(world_type, seed=42, options={"num_regions": 6, "bingo_graces": True})
     assert baseline.worlds[1].fill_slot_data()["startGraces"] == enabled.worlds[1].fill_slot_data()["startGraces"]
+
+
+@pytest.mark.parametrize("seed", [1,7,42,22222,99])
+@pytest.mark.parametrize("extra", [{"enable_dlc": False},{"dlc_only": True},{}])
+def test_e2_generates_counters_with_supported_contributors(seed,extra):
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    from worlds.eldenring.features.bingo import evidence_flags
+    mw=setup_multiworld(AutoWorldRegister.world_types["Elden Ring"],seed=seed,
+        options={"bingo_mode":True,"bingo_catalogue":"e2",**extra})
+    w=mw.worlds[1]
+    sd=w.fill_slot_data()
+    assert sd["bingoBoard"]["version"] == 3
+    assert sd["requiresClientFeatures"][-1] == "bingo_e2_v1" or "bingo_e2_v1" in sd["requiresClientFeatures"]
+    assert sum(bool(c.get("counter")) for c in w.gf_bingo_board) <= 3
+    hits={}
+    for c in w.gf_bingo_board:
+        for f in evidence_flags(c): hits[f]=hits.get(f,0)+1
+        for g in c.get("counter",[]):
+            assert sum(m["weight"] for m in g["members"]) >= g["target"]
+            assert len({m["flag"] for m in g["members"]}) == len(g["members"])
+            assert all(m["region"] in w._kept() for m in g["members"])
+    assert max(hits.values(),default=0) <= 2
+    assert len(mw.itempool) == len([l for l in mw.get_unfilled_locations() if l.address is not None])
+    for members in sd.get("dungeonSweepFlags",{}).values():
+        assert all(sd["locationFlags"].get(str(aid),0) not in hits for aid in members)
+
+
+def test_e2_full_catalogue_exposes_source_blockers():
+    from worlds.eldenring.core import TABLES
+    from worlds.eldenring import bingo_e2
+    cells,unavailable=bingo_e2.candidates(TABLES,TABLES.regions,12)
+    assert len(bingo_e2.CATALOGUE)==133
+    assert set(unavailable)=={"S6-BASE-011-V03","S6-BASE-047-V03",
+        "S6-DLC-019-V01","S6-DLC-019-V02","S6-DLC-019-V03",
+        "S6-BASE-121-V01","S6-BASE-121-V02"}
+    assert len({c["variant"] for c in cells})==126
+    # Miniboss partner bars cannot become independent dungeon completions.
+    for c in cells:
+        for g in c.get("counter",[]):
+            assert all(m["flag"] not in {12020801,31110801,31110802,30100801} for m in g["members"])
+
+
+def test_e2_catalogue_matches_audit_variant_ledger():
+    import csv
+    from pathlib import Path
+    from ._util import find_repo_root
+    from worlds.eldenring.bingo_e2 import CATALOGUE
+    rows = list(csv.DictReader((Path(find_repo_root(__file__)) / "docs/specs/bingo-objective-audit.csv").open(encoding="utf-8")))
+    assert {r["variant_id"] for r in rows if r["effort"] == "E2"} == {r["variant"] for r in CATALOGUE}
+
+
+def test_e2_start_inventory_excludes_matching_collection_goals(monkeypatch):
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    from worlds.eldenring import bingo_e1
+    select = bingo_e1.select
+    def checked(candidates, seed, **kwargs):
+        assert not any(c.get("source") in {"S6-BASE-080", "S6-BASE-108"} for c in candidates)
+        return select(candidates, seed, **kwargs)
+    monkeypatch.setattr(bingo_e1, "select", checked)
+    setup_multiworld(AutoWorldRegister.world_types["Elden Ring"], seed=42,
+        options={"bingo_mode":True,"bingo_catalogue":"e2",
+                 "start_inventory":{"Cracked Pot":19,"Memory Stone":8}})
+
+
+@pytest.mark.parametrize("source", ["S6-BASE-080", "S6-BASE-081", "S6-BASE-094",
+    "S6-BASE-095", "S6-BASE-108", "S6-DLC-050", "S6-DLC-053", "S6-DLC-074", "S6-DLC-077"])
+@pytest.mark.parametrize("armor_bundles", ["sets", "mixed", "off"])
+def test_e2_forced_collection_supplies_are_fillable_and_not_starting_gifts(monkeypatch, source, armor_bundles):
+    from Fill import distribute_items_restrictive
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    from worlds.eldenring import bingo_e1
+    from worlds.eldenring.features import start_items
+    select = bingo_e1.select
+    def forced(candidates, seed, **kwargs):
+        target = max((c for c in candidates if c.get("source") == source),
+                     key=lambda c: sum(q for _, q in c["requirements"]))
+        board = select([c for c in candidates if not c.get("supply_goal")], seed, **kwargs)
+        board[-1] = dict(target, location=board[-1]["location"])
+        return board
+    monkeypatch.setattr(bingo_e1, "select", forced)
+    mw = setup_multiworld(AutoWorldRegister.world_types["Elden Ring"], seed=42,
+        options={"bingo_mode": True, "bingo_catalogue": "e2", "bingo_region_limit":12, "armor_bundles":armor_bundles})
+    w = mw.worlds[1]
+    cell = next(c for c in w.gf_bingo_board if c.get("source") == source)
+    watched = {fid for g in cell["collection"] for m in g["members"] for ids in m["items"] for fid in ids}
+    assert not watched.intersection(start_items.plain_start_ids(w))
+    for name, quantity in cell["requirements"]:
+        assert sum(i.name == name and i.advancement for i in mw.itempool) >= quantity
+    distribute_items_restrictive(mw)
+    assert mw.can_beat_game()

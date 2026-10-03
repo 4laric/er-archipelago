@@ -1138,3 +1138,20 @@ def test_bingo_e1_seeded_fill_combinations(seed, extra, bingo_graces):
                    for loc in t.multiworld.get_locations(t.player) if loc.item)
     finally:
         t.tearDown()
+
+
+@pytest.mark.parametrize("seed", [1,7,42,22222,99])
+@pytest.mark.parametrize("extra", [{"enable_dlc": False},{"dlc_only": True},{"bingo_graces":True},
+    {"item_shuffle":False,"progressive_flasks":False}])
+def test_bingo_e2_seeded_fill_combinations(seed,extra):
+    from Fill import distribute_items_restrictive
+    class _T(WorldTestBase):
+        game=GAME
+        options={"bingo_mode":True,"bingo_catalogue":"e2",**extra}
+    t=_T()
+    try:
+        t.world_setup(seed=seed)
+        distribute_items_restrictive(t.multiworld)
+        assert not t.multiworld.get_unfilled_locations()
+        assert t.multiworld.can_beat_game()
+    finally: t.tearDown()

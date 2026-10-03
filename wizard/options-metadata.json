@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.6.5",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "d069301ff5e31344f93dfb6ac881d7fc0bcda1a4e3ecb1b41ead0c096b3ae5f0",
+ "source_sha256": "56456cfc855bc722388619996f2b2b8e8d65b9b464c43be53023dabb9492b97c",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -642,7 +642,7 @@
    "class": "BingoCatalogue",
    "compatibility_only": false,
    "display_name": "Bingo Catalogue",
-   "description": "Choose the original boss board or the E1 audit catalogue.\n\nE1 adds major bosses, levels, base stats, flasks and earned DLC blessings.\nUpgrade squares reserve reachable supplies. Requires the E1 client.",
+   "description": "Choose the boss board, E1 thresholds, or E2 counters and collections.\n\nE1 adds native stats and upgrades. E2 adds rosters and guaranteed collection supplies.\nRequires the matching bingo client.",
    "kind": "choice",
    "base": "Choice",
    "default": "boss_board",
@@ -654,6 +654,10 @@
     {
      "name": "e1",
      "value": 1
+    },
+    {
+     "name": "e2",
+     "value": 2
     }
    ],
    "range": null,

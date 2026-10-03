@@ -1343,8 +1343,8 @@ CONTRACT = (
                 "GreatRune are not on the surface)."),
     ContractKey("bingoBoard", "ANY", False, (GREENFIELD,),
                 "features/bingo.py", "er_logic::bingo and core.rs",
-                "Version 1 boss board or version 2 E1 board: 25 cells with synthetic location ID, defeat flag (zero for state), region and label; "
-                "goal line/count/blackout, count, catalogue, hash and reserved first-line sweep IDs. Optional v2 state carries metric and target. Requires bingo_v1 or bingo_e1_v1; goalLocations "
+                "Version 1 boss board, version 2 E1 or version 3 E2: 25 cells with synthetic location ID, defeat flag (zero for other predicates), region and label; "
+                "goal line/count/blackout, count, catalogue, hash and reserved first-line sweep IDs. Optional state carries metric and target; v3 counters carry weighted encounter groups and collections carry item groups. Requires the matching bingo_v1, bingo_e1_v1 or bingo_e2_v1 capability; goalLocations "
                 "is empty for this explicitly selected goal kind."),
     ContractKey("goalLocations", "INT_LIST", True, (BOTH,),
                 "features/goal_locations.py", "goal.rs parse",
