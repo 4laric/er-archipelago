@@ -7269,11 +7269,11 @@ if (typeof module !== "undefined") module.exports = ERW;
       "<div class='small'>A ceiling, not a forecast \u2014 see Seed size for what that means.</div>";
   }
 
-  function deprecationReference(){
+  function deprecationReference(options = meta.options.filter(o => o.deprecation)){
     const card = el("details", "card legacy-reference");
     card.append(el("summary", "", "Deprecated settings & older YAMLs"));
     card.append(el("p", "desc", "These keys remain accepted for older files. They are not offered for new runs. Imports preserve their values; review the guidance before removing or replacing them."));
-    for (const o of meta.options.filter(o => o.deprecation)){
+    for (const o of options){
       card.append(el("h3", "", esc(o.display_name)), el("code", "", esc(o.key)), el("p", "desc", esc(o.deprecation)));
     }
     return card;
@@ -7348,6 +7348,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       }
       workspace.append(section);
     });
+    const legacy = el("div", ""); legacy.id = "settings-legacy-results"; workspace.append(legacy);
     const empty = el("div", "card empty-state", "<h3>No settings found.</h3><p>Try a shorter search or choose Show all.</p>");
     empty.id = "settings-empty"; empty.hidden = true; workspace.append(empty);
     return workspace;
@@ -7379,8 +7380,13 @@ if (typeof module !== "undefined") module.exports = ERW;
       button.setAttribute("aria-pressed", String(selected));
     });
     $("#settings-changed").setAttribute("aria-pressed", String(settingsChanged));
-    $("#settings-count").textContent = matches + " setting" + (matches === 1 ? "" : "s") + (settingsChanged ? " changed from defaults" : " shown");
-    $("#settings-empty").hidden = matches > 0;
+    const legacy = query ? meta.options.filter(o => o.deprecation &&
+      [o.key, o.display_name, o.deprecation].join(" ").toLowerCase().includes(query)) : [];
+    const legacyResults = $("#settings-legacy-results"); legacyResults.innerHTML = "";
+    if (legacy.length){ const reference = deprecationReference(legacy); reference.open = true; legacyResults.append(reference); }
+    $("#settings-count").textContent = matches + " setting" + (matches === 1 ? "" : "s") + (settingsChanged ? " changed from defaults" : " shown") +
+      (legacy.length ? " · " + legacy.length + " deprecated reference" + (legacy.length === 1 ? "" : "s") : "");
+    $("#settings-empty").hidden = matches > 0 || legacy.length > 0;
   }
 
   function renderStep(){

@@ -44,6 +44,10 @@ assert.equal(visible(row('num_regions')),false);
 assert.equal(doc.getElementById('settings-empty').hidden,true);
 search.value='xyz-no-such-option'; search.fire('input');
 assert.equal(doc.getElementById('settings-empty').hidden,false);
+search.value='natural_progression'; search.fire('input');
+assert.equal(doc.getElementById('settings-empty').hidden,true);
+assert.ok(text(doc.getElementById('settings-legacy-results')).includes('Deprecated mode'));
+assert.equal(row('natural_progression'),undefined,'legacy search gives guidance, not a dead control');
 doc.getElementById('settings-clear').fire('click');
 const offered=new Set(rows().map(n=>n.getAttribute('data-option')));
 for(const o of P.meta.options){
