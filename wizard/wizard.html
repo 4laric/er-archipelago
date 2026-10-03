@@ -1606,7 +1606,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    "class": "MarioFludd",
    "compatibility_only": false,
    "display_name": "Mario FLUDD (Experimental)",
-   "description": "Find FLUDD nozzles and tank upgrades for Mario.\n\nRequires Mario Mode. Hover, Rocket and Turbo start locked; each has one nozzle item.\nThree Progressive FLUDD Tanks raise capacity from 60 to 80, 100, then 120 units.\nTank upgrades never refill water. Squirt is unfinished and is not included.\nNozzles never gate checks or goals. Needs a new seed and compatible paired DLLs.",
+   "description": "Find FLUDD nozzles and tank upgrades for Mario.\n\nRequires Mario Mode. Hover/Rocket/Turbo nozzles start locked.\nTanks: 300/400/500/600 units on current workers; 60/80/100/120 on legacy workers.\nUpgrades never refill water. Squirt is unfinished. No check or goal gates.\nNeeds a new seed and compatible paired DLLs.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
@@ -6306,6 +6306,15 @@ if (typeof module !== "undefined") module.exports = ERW;
     if (rest.trim())
       h += "<details class='more'><summary>more…</summary><div class='desc'>" +
            esc(rest) + "</div></details>";
+    if (o.key === "dungeon_sweep") {
+      const offline = location.pathname.endsWith("er-options-wizard.html") || location.protocol === "file:";
+      const sourceFile = location.protocol === "file:" && location.pathname.endsWith("/wizard/wizard.html");
+      const href = sourceFile ? "../er-archipelago-sweep-reference.html" :
+                   offline ? "er-archipelago-sweep-reference.html" : "sweeps.html";
+      h += "<p class='desc'><a href='" + href + "' target='_blank' rel='noopener'>" +
+           "What does each boss sweep?</a> Look up the original arena and its candidate checks. " +
+           "Your seed’s F6 tracker shows the actual sweep groups.</p>";
+    }
     return h;
   }
 

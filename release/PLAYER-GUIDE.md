@@ -104,6 +104,17 @@ lit in a freshly opened region, `/warp <id>` teleports you in directly.
 
 ### Dungeon sweeps
 
+Before a fight, use the **[sweep boss reference](https://4laric.github.io/er-archipelago/er-archipelago-sweep-reference.html)**
+to look up its original arena and complete candidate check list. Search a boss, an item,
+or a Site of Grace. The Dungeon Sweep setting in the options wizard links to the same
+reference for that wizard's release; offline releases include the page beside the wizard.
+
+A Region Lock and a sweep have different boundaries: the Leyndell Lock includes the
+sewer, but capital bosses and sewer bosses have separate sweep assignments. With
+randomized enemies, use the arena's original boss name, even when another enemy stands
+there. The public reference shows potential coverage; your seed's F6 tracker shows its
+actual groups after region selection and settings. Checks already collected do not pay twice.
+
 Kill a dungeon's boss and its remaining checks register automatically. No
 crawling back through a catacomb for the two chests you missed -- the boss
 kill sweeps the dungeon.

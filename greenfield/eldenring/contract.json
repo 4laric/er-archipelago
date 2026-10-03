@@ -216,7 +216,7 @@
           ],
           "producer": "core._options_echo (features/mario_mode.py)",
           "consumer": "er-logic Mario FLUDD parser",
-          "doc": "optional FLUDD nozzle and tank progression; absent/false disables FLUDD. True shuffles Hover, Rocket and Turbo Nozzles and three tank upgrades, with capacity 60/80/100/120 units. Requires mario_mode and mario_fludd_v1."
+          "doc": "optional FLUDD nozzle and tank progression; absent/false disables FLUDD. True shuffles Hover, Rocket and Turbo Nozzles and three tank upgrades, capacity is worker-version dependent: current workers use 300/400/500/600 units; legacy workers use 60/80/100/120. Tank upgrades never refill water. Requires mario_mode and mario_fludd_v1."
         },
         {
           "name": "mario_stat_upgrades",

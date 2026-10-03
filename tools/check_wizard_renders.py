@@ -52,6 +52,7 @@ MIN_TEXT = 200
 # tabs that draw it -- that duplication is the feature, and a gate that checked one of them would
 # not notice the other going missing.
 REQUIRED = [
+    ("Options", "What does each boss sweep?"),
     ("Seed size", "How big is this seed?"),
     ("Seed size", "What are you putting into the multiworld?"),
     ("Seed size", "checks that can hold progression"),

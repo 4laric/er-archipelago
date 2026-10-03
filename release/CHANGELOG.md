@@ -7,6 +7,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 - **YAML builder:** Redesigned with category navigation, search by label or YAML key, changed-setting filtering, contextual advanced tuning, and a final review. Incoming Progression Confinement is now available under Multiworld & Placement → Advanced; 0 spreads other players' progression across safe checks without changing outgoing locks. Defaults remain unchanged.
 - **Deprecated settings:** Natural Progression is no longer offered for new runs. Imported values remain supported and visibly flagged. The builder also explains the ignored Leyndell rune count, merchant bell logic and flask surface keys, and the replacement for Global Scadutree Blessing.
+- **Sweep boss reference:** search original boss arenas, regions, check names and grace
+  landmarks, and expand complete candidate sweep lists. Linked beside Dungeon Sweep in
+  the wizard and included in the optional offline tools. Explains seed-specific payouts
+  and the separate capital/sewer assignments; no YAML or runtime changes.
+- **Generation diagnostics:** when an earlier fill hook leaves already-placed items in the unplaced pools, label the listed games as item owners, not identified culprits. Explain how to isolate the responsible hook; keep the pool consistency check intact. Hosts need the updated apworld for the clearer message.
 
 ### What you need to update
 

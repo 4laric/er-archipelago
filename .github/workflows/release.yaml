@@ -199,6 +199,7 @@ jobs:
           set -euo pipefail
           python tools/regen_all.py --phases pages
           for page in er-archipelago-check-browser.html \
+                      er-archipelago-sweep-reference.html \
                       er-archipelago-evidence-browser.html \
                       er-archipelago-questline-dag.html \
                       er-archipelago-region-second-opinion.html \

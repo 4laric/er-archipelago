@@ -7,6 +7,16 @@ choose 0 to let other players' progression appear on any safe check while keepin
 Progression Sharing balanced for your outgoing settings. Defaults have not changed.
 Natural Progression is deprecated for new runs; older imports preserve it and show
 guidance, alongside the other retired compatibility settings.
+Before fighting a boss, look up what its arena may sweep. The new searchable reference
+groups original boss arenas by region and shows each complete candidate check list,
+with grace landmarks for orientation. Open it beside Dungeon Sweep in the wizard or
+from the optional offline tools. Your seed's tracker remains the authority for actual
+payouts. This documentation needs no new YAML, seed or client.
+Generation errors for already-placed items left in the unplaced pools now distinguish
+the affected item owners from the hook responsible. A world can place another game's
+items, so the error no longer tells hosts to update or disable the owner as if it
+were the proven culprit. Update the host's apworld for the clearer message and steps
+to isolate the responsible hook. The pool consistency check still stops generation.
 
 Mario Stat Upgrades is an optional, default-off setting that requires Mario Mode.
 Start at four of eight health wedges and 75% normal attack damage. Four Progressive

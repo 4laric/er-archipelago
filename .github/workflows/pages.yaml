@@ -73,6 +73,13 @@ jobs:
       - name: Build the offline pages
         run: python tools/regen_all.py --phases pages
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify sweep reference coverage and interactions
+        run: python -m unittest -v tools/test_build_sweep_reference.py
+
       # A page that failed to build is not a job that failed: a builder can write a truncated file
       # and exit 0. Assert each page exists and is plausibly sized before anything is published --
       # a 200-response empty page on the public site is worse than no page.
@@ -81,6 +88,7 @@ jobs:
           set -euo pipefail
           mkdir -p _site
           for page in er-archipelago-check-browser.html \
+                      er-archipelago-sweep-reference.html \
                       er-archipelago-desc-triage.html \
                       er-archipelago-evidence-browser.html \
                       er-archipelago-questline-dag.html \

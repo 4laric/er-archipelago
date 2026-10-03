@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sweep bosses · Elden Ring Archipelago</title>
+<style>
+:root{color-scheme:dark;--bg:#171914;--panel:#22251e;--line:#424837;--ink:#eee9dc;--muted:#b6bba9;--gold:#d9be7e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif}
+main{max-width:1120px;margin:auto;padding:40px 24px 72px}a{color:var(--gold);text-underline-offset:3px}
+.eyebrow{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold)}
+h1{font:clamp(32px,6vw,54px)/1.1 Georgia,serif;margin:12px 0 20px}h2{font:28px Georgia,serif;margin:32px 0 14px}
+p{max-width:850px}.lead{font-size:19px;color:var(--muted)}.notes{border-left:3px solid var(--gold);padding:4px 20px;margin:24px 0}.notes p{margin:8px 0}
+.toolbar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+label{display:block;font-size:13px;color:var(--muted)}input,select{width:100%;font:inherit;padding:10px;margin-top:6px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:5px}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}.muted{color:var(--muted);font-size:14px}#status{margin:16px 0}
+.boss{border:1px solid var(--line);border-radius:8px;background:var(--panel);margin:10px 0;overflow:hidden}.boss>summary{padding:17px 20px;cursor:pointer}.boss-title{font-weight:650}.count{float:right;color:var(--gold);font-size:14px}.arena,.coverage{display:block;margin:4px 0 0 20px;color:var(--muted);font-size:14px}.body{padding:0 20px 20px}.body p{font-size:14px}.check-list{padding:0;list-style:none}.check-list li{border-top:1px solid var(--line);padding:10px 0}.check-list a{text-decoration:none}.check-list a:hover{text-decoration:underline}.badge{font-size:12px;color:var(--gold)}code{font-size:.9em}footer{margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+@media(max-width:650px){main{padding:28px 16px}.toolbar{grid-template-columns:1fr}.count{float:none;display:block;margin-left:20px}.boss>summary{padding:14px}.arena,.coverage{margin-left:20px}}
+</style>
+</head>
+<body><main>
+<div class="eyebrow">Elden Ring Archipelago · Player reference</div>
+<h1>What does this boss sweep?</h1>
+<p class="lead">Find the original boss arena and inspect the checks its kill may collect. Search a boss, an item, or a familiar Site of Grace.</p>
+<div class="notes">
+<p><strong>Locks and sweeps have different boundaries.</strong> The Leyndell Lock includes the sewer. Capital bosses and sewer bosses have separate sweep assignments. The lists below show those assignments.</p>
+<p><strong>Randomized enemies:</strong> use the original boss arena, even when a different enemy stands there. A sweep follows that arena’s trigger.</p>
+<p><strong>Your seed’s F6 tracker is authoritative.</strong> These are candidate checks from the full catalogue, not a promise of your next payout. Region selection, Dungeon Sweep, Progression Surface, Full Area Sweeps and checks already collected affect what remains. Region Sweep is a separate completion reward.</p>
+</div>
+<div class="toolbar">
+<label>Find a boss or check<input id="search" type="search" placeholder="Try Mohg, Loretta, Golden Seed…"></label>
+<label>Region<select id="region"><option value="">Every region</option></select></label>
+<label>Dungeon Sweep setting<select id="rung"><option value="bosses">Bosses (default)</option><option value="all">All</option><option value="minidungeons">Minidungeons</option><option value="none">None</option></select></label>
+</div>
+<p id="status" class="muted" role="status" aria-live="polite"></p>
+<div id="groups"></div>
+<noscript><p>This searchable reference needs JavaScript. Use the F6 tracker to inspect your seed’s sweep groups.</p></noscript>
+<footer class="muted">Generated from the same sweep and boss tables the world uses. <span id="stamp"></span><br>Open a check to inspect it in the check browser. This page works offline; keep that browser file beside it to follow check links.</footer>
+</main>
+<script id="sweep-payload" type="application/json">__SWEEP_PAYLOAD__</script>
+<script>
+const DATA = JSON.parse(document.getElementById('sweep-payload').textContent);
+const search = document.getElementById('search'), region = document.getElementById('region'), rung = document.getElementById('rung');
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function checkUrl(flag){
+ const local = location.pathname.endsWith('er-archipelago-sweep-reference.html');
+ return (local?'er-archipelago-check-browser.html':'checks.html')+'#q='+encodeURIComponent('[f'+flag+']');
+}
+function bossText(g){return [g.boss,g.region,g.member_region,g.arena,g.map,...g.landmarks].join(' ').toLowerCase();}
+function matches(g,q){return !q||bossText(g).includes(q)||g.checks.some(id=>{
+ const c=DATA.checks[id];return [c.name,c.region,c.grace].join(' ').toLowerCase().includes(q);
+});}
+function render(){
+ const q=search.value.trim().toLowerCase();
+ const visible=DATA.groups.filter(g=>(!region.value||g.region===region.value)&&g.rungs.includes(rung.value)&&matches(g,q));
+ const ids=new Set(visible.flatMap(g=>g.checks));
+ document.getElementById('status').textContent=visible.length+' boss sweeps · '+ids.size+' distinct candidate checks'+(q?' · matching “'+search.value.trim()+'”':'');
+ let previous='', html='';
+ for(const g of visible){
+  if(g.region!==previous){html+='<h2>'+esc(g.region)+'</h2>';previous=g.region;}
+  const bossMatch=q&&bossText(g).includes(q);
+  const rows=g.checks.map(id=>DATA.checks[id]);
+  html+='<details class="boss" id="boss-'+g.flag+'"><summary><span class="boss-title">'+esc(g.boss)+'</span><span class="count">'+g.checks.length+' candidate checks</span>'
+   +'<span class="arena">'+(g.arena_audited?'Original boss arena in '+esc(g.region):'Arena region unverified; checks in '+esc(g.member_region))+'</span>'
+   +(g.landmarks.length?'<span class="coverage">Check landmarks include '+g.landmarks.map(esc).join(' · ')+'</span>':'')+'</summary><div class="body">'
+   +'<p>Complete candidate list. A seed can remove checks from this list; collected checks do not pay twice.</p>'
+   +(g.member_region!==g.region?'<p class="badge">Arena in '+esc(g.region)+'; member checks in '+esc(g.member_region)+'. Both regions must be included in your seed.</p>':'')
+   +(!g.arena_audited?'<p class="badge">Arena region is not audited; confirm this group in your seed’s tracker.</p>':'')
+   +'<a href="#boss-'+g.flag+'">Link to this sweep</a> · <span class="muted">Map area: '+esc(g.arena||'unknown')+' ('+esc(g.map||'unknown')+')</span><ul class="check-list">'
+   +rows.map(c=>'<li><a href="'+esc(checkUrl(c.flag))+'">'+esc(c.name)+'</a>'+(q&&!bossMatch&&[c.name,c.grace].join(' ').toLowerCase().includes(q)?' <span class="badge">match</span>':'')+'</li>').join('')+'</ul></div></details>';
+ }
+ document.getElementById('groups').innerHTML=html||'<p>'+ (rung.value==='none'?'Dungeon Sweep is off: collect checks where they lie.':'No matching sweeps. Try another boss, check or region.')+'</p>';
+}
+function openHash(){
+ const match=location.hash.match(/^#boss-(\d+)$/);if(!match)return;
+ const g=DATA.groups.find(g=>g.flag===Number(match[1]));if(!g)return;
+ search.value='';region.value=g.region;rung.value='bosses';render();
+ const card=document.getElementById('boss-'+g.flag);card.open=true;card.scrollIntoView({block:'start'});
+}
+for(const name of [...new Set(DATA.groups.map(g=>g.region))].sort())region.add(new Option(name,name));
+document.getElementById('stamp').textContent='Catalogue '+DATA.meta.inputs_hash.slice(0,12)+'.';
+search.addEventListener('input',render);region.addEventListener('change',render);rung.addEventListener('change',render);
+window.addEventListener('hashchange',openHash);render();openHash();
+</script>
+</body></html>

@@ -222,6 +222,7 @@ enemy_drop_entities.rows
 # 🛑 KEEP BUILDING THEM LOCALLY. `regen_all.py` still writes them into the working tree and the
 # test suites still build and assert them; they are just never a diff.
 er-archipelago-check-browser.html
+er-archipelago-sweep-reference.html
 er-archipelago-desc-triage.html
 er-archipelago-evidence-browser.html
 er-archipelago-questline-dag.html
