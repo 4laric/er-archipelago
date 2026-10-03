@@ -1,9 +1,9 @@
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.6.4.1",
+ "apworld_version": "0.6.4.2",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "0fdf6b3ec769a3985ef8601b9cff2a64e6e0726dd38e58c41816f89c9e6e8795",
+ "source_sha256": "a3600b20602e40b9b31322e4c898eb6bb432ea8bcf86480948d9fecf058043cd",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -41,6 +41,7 @@
   "filler_foreign_pct",
   "natural_progression",
   "flask_upgrades_on_progression_surface",
+  "required_bosses",
   "region_grace_unlock",
   "grace_attunement",
   "grace_attunement_anchor",
@@ -114,6 +115,7 @@
     "start_region_pool",
     "start_regions",
     "region_grace_unlock",
+    "required_bosses",
     "num_regions_order",
     "start_region_selection",
     "grace_attunement",
@@ -1061,6 +1063,31 @@
    "group_collapsed": false,
    "special_values": null,
    "deprecation": "Ignored. Flask upgrades now prefer the Progression Surface when space permits in every seed. Remove this old key.",
+   "essential": false
+  },
+  {
+   "key": "required_bosses",
+   "class": "RequiredBosses",
+   "compatibility_only": false,
+   "display_name": "Additional Required Bosses",
+   "description": "Extra bosses you must defeat as well as your Final Boss.\n\nstarscourge_radahn: base-game Radahn; promised_consort_radahn: DLC Radahn.\nTheir regions are always included. DLC Radahn needs Enable DLC; base-game Radahn\nis incompatible with DLC Only. Empty adds no requirement. Needs a new seed and\na client supporting required_bosses_v1. Defeats count, not shuffled rewards.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "promised_consort_radahn",
+    "starscourge_radahn"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "key_labels": {
+    "promised_consort_radahn": "Promised Consort Radahn (DLC)",
+    "starscourge_radahn": "Starscourge Radahn (base game)"
+   },
    "essential": false
   },
   {

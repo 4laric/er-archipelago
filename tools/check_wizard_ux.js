@@ -54,6 +54,28 @@ for(const o of P.meta.options){
   if(o.compatibility_only) assert.equal(offered.has(o.key),false,o.key);
   else assert.ok(offered.has(o.key),'unreachable setting '+o.key);
 }
+const bosses=P.meta.byKey.required_bosses;
+assert.ok(text(row('required_bosses')).includes('Starscourge Radahn (base game)'));
+assert.ok(text(row('required_bosses')).includes('Promised Consort Radahn (DLC)'));
+const bossControls=row('required_bosses').querySelectorAll('input');
+const starscourge=bossControls[bosses.valid_keys.indexOf('starscourge_radahn')];
+starscourge.checked=true; starscourge.fire('change');
+assert.deepEqual(Array.from(P.ERW.getVal(P.meta,P.state,'required_bosses')),['starscourge_radahn']);
+assert.match(P.ERW.buildYaml(P.meta,P.state),/required_bosses: \[.*starscourge_radahn.*\]/);
+P.state.values.dlc_only=true;
+assert.ok(P.ERW.findings(P.meta,P.state).some(f=>f.key==='required_bosses' && f.sev==='error'));
+P.state.values.dlc_only=false; P.state.values.enable_dlc=false;
+P.state.values.required_bosses=['promised_consort_radahn'];
+assert.ok(P.ERW.findings(P.meta,P.state).some(f=>f.key==='required_bosses' && f.sev==='error'));
+P.state.values.enable_dlc=true;
+assert.ok(!P.ERW.findings(P.meta,P.state).some(f=>f.key==='required_bosses' && f.sev==='error'));
+const census=JSON.parse(doc.getElementById('er-region-census').textContent);
+const small={numRegions:1,enableDlc:true,trials:100};
+const ordinary=P.ERW.seedSize(census,small);
+const both=P.ERW.seedSize(census,{...small,requiredBosses:['starscourge_radahn','promised_consort_radahn']});
+assert.ok(both.checks.min>ordinary.checks.min,'extra boss regions update the seed-size forecast');
+delete P.state.values.required_bosses; delete P.state.values.dlc_only; delete P.state.values.enable_dlc;
+P.refresh();
 doc.getElementById('settings-changed').fire('click');
 assert.equal(doc.getElementById('settings-empty').hidden,false, 'defaults have no changed rows');
 P.state.values.confine_foreign_progression=0; P.refresh();

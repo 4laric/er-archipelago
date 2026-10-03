@@ -43,6 +43,7 @@ COMPAT_KEYS = frozenset({
     "flask_upgrades_on_progression_surface",
 })
 ADVANCED_KEYS = frozenset({
+    "required_bosses",
     "confine_foreign_progression",
     "mario_stat_upgrades", "mario_fludd", "mario_cappy", "mario_sonic_movement",
     "curated_filler", "spawn_traps", "num_regions_order", "start_region_selection",

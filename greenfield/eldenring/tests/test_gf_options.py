@@ -1032,3 +1032,75 @@ def test_mario_addons_preserve_progression_equipment_rejection(addons):
 
     with pytest.raises(OptionError, match="mario_mode cannot replace progression equipment"):
         _T().world_setup(seed=22222)
+
+
+@pytest.mark.parametrize("seed", [1, 7, 22222])
+@pytest.mark.parametrize("bosses,extra", [
+    ([], {"enable_dlc": False}),
+    (["starscourge_radahn"], {"enable_dlc": False, "num_regions": 1}),
+    (["starscourge_radahn"], {"enable_dlc": True, "start_region_pool": ["Caelid"]}),
+    (["promised_consort_radahn"], {"enable_dlc": True, "num_regions": 1}),
+    (["starscourge_radahn", "promised_consort_radahn"], {"enable_dlc": True}),
+    (["starscourge_radahn"], {"enable_dlc": True, "goal": "promised_consort"}),
+    (["promised_consort_radahn"], {"dlc_only": True, "goal": "promised_consort"}),
+    (["starscourge_radahn"], {"natural_progression": True, "enable_dlc": False}),
+    (["starscourge_radahn"], {"vanilla_placement": "all", "enable_dlc": False}),
+])
+def test_required_bosses_fill_and_contract(bosses, extra, seed):
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.features.goal_locations import required_boss_specs, terminal_goal_ids
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"num_regions": 6, "goal": "elden_beast", "required_bosses": bosses, **extra}
+
+    t = _T()
+    t.world_setup(seed=seed)
+    try:
+        w = t.world
+        assert len(t.multiworld.itempool) == len(t.multiworld.get_unfilled_locations())
+        distribute_items_restrictive(t.multiworld)
+        assert not t.multiworld.get_unfilled_locations()
+        assert t.multiworld.can_beat_game()
+        sd = w.fill_slot_data()
+        specs = required_boss_specs(w)
+        assert sd["options"]["required_boss_flags"] == sorted({flag for _, _, flag in specs})
+        assert ("required_bosses_v1" in sd.get("requiresClientFeatures", [])) == bool(bosses)
+        # Extra goals must not disturb the client's primary-finale access calculation.
+        _, primary = terminal_goal_ids(w._kept(), w.gf_goal_choice,
+                                      finale_built=w.gf_finale_active, dlc_terminus=w.gf_dlc_terminus)
+        assert sd["goalLocations"] == sorted(primary)
+        addresses = {loc.address for loc in t.multiworld.get_locations(t.player)}
+        for region, ap, flag in specs:
+            assert region in w._kept() and ap in addresses
+        if "start_region_pool" in extra:
+            assert "Caelid Lock" in {i.name for i in t.multiworld.precollected_items[t.player]}
+    finally:
+        del w
+        t.tearDown()
+
+
+@pytest.mark.parametrize("boss,extra", [
+    ("promised_consort_radahn", {"enable_dlc": False}),
+    ("starscourge_radahn", {"dlc_only": True}),
+])
+def test_required_bosses_reject_ineligible_regions(boss, extra):
+    from Options import OptionError
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"required_bosses": [boss], **extra}
+
+    with pytest.raises(OptionError, match="Additional Required Bosses.*Enable DLC.*DLC Only"):
+        _T().world_setup(seed=1)
+
+
+def test_required_boss_defeats_match_generated_arena_triggers():
+    from worlds.eldenring.features.goal_locations import REQUIRED_BOSS_SPECS, LOCATIONS
+    from worlds.eldenring.tables.boss_sweeps import SWEEP_ARENA_REGION
+    expected_rewards = {"starscourge_radahn": 510300, "promised_consort_radahn": 510430}
+    for key, (region, ap, defeat) in REQUIRED_BOSS_SPECS.items():
+        assert SWEEP_ARENA_REGION[defeat] == region
+        assert [(aid, flag) for name, aid, flag in LOCATIONS[region] if aid == ap] == [
+            (ap, expected_rewards[key])]
+        assert defeat != expected_rewards[key], "shuffled acquisition is not a boss defeat"

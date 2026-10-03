@@ -886,6 +886,10 @@ class ContractKey:
 # sub-key is emitted CENTRALLY by core._options_echo -- features never write into `options`.
 # ---------------------------------------------------------------------------------------------------
 OPTIONS_SUBKEYS = (
+    ContractKey("required_boss_flags", "INT_LIST", False, (GREENFIELD,),
+                "core._options_echo (features/goal_locations.py)", "goal.rs parse / is_met",
+                "additional local boss defeat flags ANDed with the finale; empty preserves old goals. "
+                "Nonempty requires required_bosses_v1. Does not alter goalLocations or finale access."),
     ContractKey("mario_cappy", "BOOL_OR_INT", False, (GREENFIELD,),
                 "core._options_echo (features/mario_mode.py)", "er-logic Mario Cappy parser",
                 "optional Cap Throw and Cap Bounce unlocks; absent/false disables Cappy. "
@@ -1979,7 +1983,7 @@ mod nested_grants_tests {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.6.4.1"
+APWORLD_VERSION = "0.6.4.2"
 
 def _contract_hash() -> str:
     _mat = "\n".join(
