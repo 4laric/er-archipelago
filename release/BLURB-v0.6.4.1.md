@@ -1,5 +1,11 @@
 # v0.6.4.1 — development window (draft)
 
+Before fighting a boss, look up what its arena may sweep. The new searchable reference
+groups original boss arenas by region and shows each complete candidate check list,
+with grace landmarks for orientation. Open it beside Dungeon Sweep in the wizard or
+from the optional offline tools. Your seed's tracker remains the authority for actual
+payouts. This documentation needs no new YAML, seed or client.
+
 Mario Stat Upgrades is an optional, default-off setting that requires Mario Mode.
 Start at four of eight health wedges and 75% normal attack damage. Four Progressive
 Health items add one maximum wedge each, without healing; three Progressive Power

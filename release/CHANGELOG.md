@@ -5,6 +5,11 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.4.1 — 2026-10-02
 
+- **Sweep boss reference:** search original boss arenas, regions, check names and grace
+  landmarks, and expand complete candidate sweep lists. Linked beside Dungeon Sweep in
+  the wizard and included in the optional offline tools. Explains seed-specific payouts
+  and the separate capital/sewer assignments; no YAML or runtime changes.
+
 ### What you need to update
 
 - **Client:** Required for new Mario Stat Upgrades, FLUDD, Cappy or Sonic movement seeds; use compatible paired AP client and Mario DLLs. Existing seeds keep their original settings.
