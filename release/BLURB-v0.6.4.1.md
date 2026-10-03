@@ -1,10 +1,5 @@
 # v0.6.4.1 — YAML builder, sweep reference and optional Mario addons
 
-**Beta website follow-up (after the tag):** the seed-size readout separates the
-progression surface from the foreign-progression placement ceiling and updates the
-latter as incoming confinement changes. Intermediate percentages select item names,
-not a fraction of locations. This correction is on beta; tagged offline tools are unchanged.
-
 The player YAML builder now groups settings by purpose, searches labels and YAML keys,
 and lets you review just your changes. Advanced controls stay beside related settings.
 Incoming Progression Confinement is available under Multiworld & Placement → Advanced:

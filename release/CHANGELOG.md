@@ -3,9 +3,11 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.4.1 — 2026-10-03
+## v0.6.4.2 — 2026-10-03 (unreleased)
 
-**Beta website follow-up (after the tag):** the seed-size card now distinguishes checks on the progression surface from the live foreign-progression placement ceiling. Incoming confinement selects item names, not a fraction of checks; intermediate values no longer show an interpolated location count. Tagged offline tools remain unchanged.
+- **Live seed-size readout:** distinguish checks on the progression surface from the foreign-progression placement ceiling. Incoming confinement selects item names, not a fraction of checks; intermediate values no longer show an interpolated location count. The correction is live on beta. No new YAML, seed or client is required.
+
+## v0.6.4.1 — 2026-10-03
 
 - **Mario compatibility:** the paired client accepts current 300/400/500/600-unit FLUDD tanks and legacy 60/80/100/120-unit tanks. F9 belongs to Mario's camera while its DLL is loaded; ordinary Nightfall delivery and F11 remain available.
 
