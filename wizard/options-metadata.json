@@ -1376,7 +1376,7 @@
    "class": "MarioFludd",
    "compatibility_only": false,
    "display_name": "Mario FLUDD (Experimental)",
-   "description": "Find FLUDD nozzles and tank upgrades for Mario.\n\nRequires Mario Mode. Hover, Rocket and Turbo start locked; each has one nozzle item.\nThree Progressive FLUDD Tanks raise capacity from 60 to 80, 100, then 120 units.\nTank upgrades never refill water. Squirt is unfinished and is not included.\nNozzles never gate checks or goals. Needs a new seed and compatible paired DLLs.",
+   "description": "Find FLUDD nozzles and tank upgrades for Mario.\n\nRequires Mario Mode. Hover/Rocket/Turbo nozzles start locked.\nTanks: 300/400/500/600 units on current workers; 60/80/100/120 on legacy workers.\nUpgrades never refill water. Squirt is unfinished. No check or goal gates.\nNeeds a new seed and compatible paired DLLs.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,

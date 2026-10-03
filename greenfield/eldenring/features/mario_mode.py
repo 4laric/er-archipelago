@@ -56,10 +56,10 @@ class MarioStatUpgrades(Toggle):
 class MarioFludd(Toggle):
     """Find FLUDD nozzles and tank upgrades for Mario.
 
-    Requires Mario Mode. Hover, Rocket and Turbo start locked; each has one nozzle item.
-    Three Progressive FLUDD Tanks raise capacity from 60 to 80, 100, then 120 units.
-    Tank upgrades never refill water. Squirt is unfinished and is not included.
-    Nozzles never gate checks or goals. Needs a new seed and compatible paired DLLs.
+    Requires Mario Mode. Hover/Rocket/Turbo nozzles start locked.
+    Tanks: 300/400/500/600 units on current workers; 60/80/100/120 on legacy workers.
+    Upgrades never refill water. Squirt is unfinished. No check or goal gates.
+    Needs a new seed and compatible paired DLLs.
     """
     display_name = "Mario FLUDD (Experimental)"
     visibility = Visibility.all & ~Visibility.simple_ui
