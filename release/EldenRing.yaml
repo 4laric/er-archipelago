@@ -202,6 +202,13 @@ Elden Ring:
   # Values: auto, elden_beast, promised_consort, malenia (default auto)
   goal: auto
 
+  # Extra local defeats required alongside Final Boss (default: none).
+  # Choose starscourge_radahn (base game), promised_consort_radahn (DLC), or both.
+  # Their regions are included. DLC Radahn needs Enable DLC; base-game Radahn
+  # cannot be used with DLC Only. Requires a new seed and a compatible client.
+  # Example: goal: elden_beast + required_bosses: [starscourge_radahn]
+  required_bosses: []
+
   # Keep Royal Capital After Erdtree Burn
   #
   # Keeps Leyndell's Royal Capital reachable after the Erdtree burns.

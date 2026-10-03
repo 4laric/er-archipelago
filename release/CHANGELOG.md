@@ -3,6 +3,32 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.4.2 — 2026-10-03
+
+- **Additional required bosses:** keep your selected Final Boss and require Starscourge
+  Radahn, Promised Consort Radahn, or both as well. Their regions are included even in
+  smaller seeds. Completion needs local defeats, regardless of shuffled rewards or
+  server-side collection. Find `required_bosses` under Regions & Finish Line → Advanced.
+  Invalid DLC combinations stop generation with instructions to fix the settings.
+
+### What you need to update
+
+- **Client:** Required for new seeds using additional bosses (`required_bosses_v1`).
+  Optional for existing seeds; absent requirements preserve their original goal.
+- **APWorld:** Host-only update to generate seeds with additional required bosses.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** `required_bosses: []`
+  is the default. Values are `starscourge_radahn` and `promised_consort_radahn`.
+- **Existing seed/save:** Compatible. Generate a new seed to add these requirements;
+  existing saves need no migration.
+- **Profile/assets:** No action. Keep the room/save profile for your seed.
+
+Window opened at v0.6.4.1 with zero commits past the tag, using `tools/open_window.py`.
+`CONTRACT_HASH` remains `2aa64f43`: the new optional options subkey leaves the top-level
+contract unchanged. Opted-in seeds declare `required_bosses_v1`, so older clients refuse
+rather than silently allowing early completion. The paired [client PR #736](https://github.com/4laric/from-software-archipelago-clients/pull/736)
+also carries the 0.6.4.2 version stamp; its commit is pinned by the world gitlink in this change.
+`release/CHANNELS.tsv` records v0.6.4.1 as stable; deployment still waits for release assets.
+
 ## v0.6.4.1 — 2026-10-03
 
 - **Mario compatibility:** the paired client accepts current 300/400/500/600-unit FLUDD tanks and legacy 60/80/100/120-unit tanks. F9 belongs to Mario's camera while its DLL is loaded; ordinary Nightfall delivery and F11 remain available.

@@ -1,0 +1,10 @@
+# Extra Radahns force Caelid and Enir Ilim, without altering finale lock access.
+name: fillreg15
+description: Elden Beast and both Radahns, small draw with additional boss regions
+game: Elden Ring
+
+Elden Ring:
+  goal: elden_beast
+  required_bosses: [starscourge_radahn, promised_consort_radahn]
+  num_regions: 1
+  enable_dlc: true

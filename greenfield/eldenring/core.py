@@ -499,7 +499,7 @@ _OPTION_GROUPS = [
         "goal_region_unlock_policy", "ending_condition", "start_region_pool", "start_regions",
         "region_grace_unlock",
         # advanced (hidden from the simple UIs)
-        "num_regions_order", "start_region_selection", "grace_attunement",
+        "required_bosses", "num_regions_order", "start_region_selection", "grace_attunement",
         "grace_attunement_anchor",
         # compat-only (hidden everywhere but the weighted page)
         "leyndell_runes_required",
@@ -934,6 +934,9 @@ class GreenfieldEldenRingWorld(World):
         _forced = tuple(dict.fromkeys(
             tuple(_gl.forced_regions(self.gf_goal_choice)) + tuple(_auto_forced)))
         self.gf_goal_forced: tuple = _forced
+        # Extra boss regions must exist, but may still be opening regions. Only the
+        # selected finale belongs to the start-anchor exclusion above.
+        _forced = tuple(dict.fromkeys(_forced + _gl.required_boss_regions(self)))
         # START REGION POOL (features/start_grace.StartRegionPool). The player named the regions the
         # run MAY open in. It is a set of CANDIDATES for the opening region(s), not a set of regions
         # to keep: the draw runs as it always does, and only if it kept fewer than `start_regions`
@@ -2221,6 +2224,8 @@ class GreenfieldEldenRingWorld(World):
                                        completion_scaling_id as scaling_completion_id,
                                        resolved_max_difficulty as scaling_resolved_max_difficulty)
 
+        from .features.goal_locations import required_boss_flags
+
         def _opt(name: str, default: int = 0) -> int:
             o = getattr(self.options, name, None)
             return int(o.value) if o is not None else default
@@ -2230,6 +2235,7 @@ class GreenfieldEldenRingWorld(World):
                           or self.options.enable_dlc.value)
         return {
             contract.DEATH_LINK: _opt("death_link"),
+            "required_boss_flags": required_boss_flags(self),
             contract.DEATH_LINK_AMNESTY_INBOUND: _opt("death_link_amnesty_inbound", 1),
             contract.DEATH_LINK_AMNESTY_OUTBOUND: _opt("death_link_amnesty_outbound", 1),
             contract.TRAP_LINK: _opt("trap_link"),

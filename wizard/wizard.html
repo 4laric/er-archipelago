@@ -226,9 +226,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.6.4.1",
+ "apworld_version": "0.6.4.2",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "0fdf6b3ec769a3985ef8601b9cff2a64e6e0726dd38e58c41816f89c9e6e8795",
+ "source_sha256": "a3600b20602e40b9b31322e4c898eb6bb432ea8bcf86480948d9fecf058043cd",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -266,6 +266,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   "filler_foreign_pct",
   "natural_progression",
   "flask_upgrades_on_progression_surface",
+  "required_bosses",
   "region_grace_unlock",
   "grace_attunement",
   "grace_attunement_anchor",
@@ -339,6 +340,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     "start_region_pool",
     "start_regions",
     "region_grace_unlock",
+    "required_bosses",
     "num_regions_order",
     "start_region_selection",
     "grace_attunement",
@@ -1286,6 +1288,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    "group_collapsed": false,
    "special_values": null,
    "deprecation": "Ignored. Flask upgrades now prefer the Progression Surface when space permits in every seed. Remove this old key.",
+   "essential": false
+  },
+  {
+   "key": "required_bosses",
+   "class": "RequiredBosses",
+   "compatibility_only": false,
+   "display_name": "Additional Required Bosses",
+   "description": "Extra bosses you must defeat as well as your Final Boss.\n\nstarscourge_radahn: base-game Radahn; promised_consort_radahn: DLC Radahn.\nTheir regions are always included. DLC Radahn needs Enable DLC; base-game Radahn\nis incompatible with DLC Only. Empty adds no requirement. Needs a new seed and\na client supporting required_bosses_v1. Defeats count, not shuffled rewards.",
+   "kind": "set",
+   "base": "OptionSet",
+   "default": [],
+   "choices": null,
+   "range": null,
+   "valid_keys": [
+    "promised_consort_radahn",
+    "starscourge_radahn"
+   ],
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "key_labels": {
+    "promised_consort_radahn": "Promised Consort Radahn (DLC)",
+    "starscourge_radahn": "Starscourge Radahn (base game)"
+   },
    "essential": false
   },
   {
@@ -5774,6 +5801,13 @@ const ERW = (() => {
     const err  = (k,m) => out.push({sev:"error",key:k,msg:m});
     const warn = (k,m) => out.push({sev:"warn", key:k,msg:m});
     const info = (k,m) => out.push({sev:"info", key:k,msg:m});
+    if (has("required_bosses")) {
+      const bosses = v("required_bosses") || [];
+      if (bosses.includes("promised_consort_radahn") && !v("enable_dlc") && !v("dlc_only"))
+        err("required_bosses", "Promised Consort Radahn requires Enable DLC.");
+      if (bosses.includes("starscourge_radahn") && v("dlc_only"))
+        err("required_bosses", "Starscourge Radahn is in the base game; disable DLC Only to require him.");
+    }
     for (const o of meta.options){
       if (o.deprecation && set(o.key)) warn(o.key, o.deprecation);
     }
@@ -5958,6 +5992,9 @@ const ERW = (() => {
     const trials = whole ? 1 : Math.max(1, opts.trials || 4000);
     const rnd = mulberry32(0x45524147);
     const startPool = new Set((opts.startRegionPool || []).filter(r => elig.has(r)));
+    const bossRegions = (opts.requiredBosses || []).map(k =>
+      k === "starscourge_radahn" ? "Caelid" : k === "promised_consort_radahn" ? "Enir Ilim" : null)
+      .filter(r => elig.has(r));
     const checks = [], surf = [], kept = [], forcedStart = [];
     for (let t = 0; t < trials; t++){
       let keptSet, addedStart;
@@ -5969,6 +6006,7 @@ const ERW = (() => {
           keptSet.add(pool.splice(Math.floor(rnd() * pool.length), 1)[0]);
         addedStart = new Set(Array.from(startPool).filter(r => !keptSet.has(r)));
         for (const r of startPool) keptSet.add(r);
+        for (const r of bossRegions) keptSet.add(r);
         let grew = true;
         while (grew){
           grew = false;
@@ -6637,7 +6675,8 @@ if (typeof module !== "undefined") module.exports = ERW;
           const cb = Object.assign(document.createElement("input"),
             {type:"checkbox", checked:v.includes(k)});
           onToggle(cb, k);
-          lab.append(cb, document.createTextNode(k));
+          lab.title = k;
+          lab.append(cb, document.createTextNode((o.key_labels || {})[k] || k));
           grid.append(lab);
         }
         grid.style.flex = "1 1 100%";
@@ -7137,6 +7176,7 @@ if (typeof module !== "undefined") module.exports = ERW;
                                         enableTarnishedPack: !!v("enable_tarnished_pack"),
                                         shopChecks: v("shop_checks") !== false,
                                         startRegionPool: v("start_region_pool") || [],
+      requiredBosses: v("required_bosses") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size){
@@ -7220,6 +7260,7 @@ if (typeof module !== "undefined") module.exports = ERW;
                                         shopChecks: v("shop_checks") !== false,
                                         dlcOnly: !!v("dlc_only"),
                                         startRegionPool: v("start_region_pool") || [],
+      requiredBosses: v("required_bosses") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     if (!size) return null;
@@ -7245,6 +7286,7 @@ if (typeof module !== "undefined") module.exports = ERW;
                                         shopChecks: v("shop_checks") !== false,
                                         dlcOnly: !!v("dlc_only"),
                                         startRegionPool: v("start_region_pool") || [],
+      requiredBosses: v("required_bosses") || [],
                                         surfaceClasses: v("progression_surface") || [],
                                         dungeonSweep: v("dungeon_sweep") });
     const cs = nearestCase(v("num_regions"), !!v("enable_dlc") && !v("dlc_only"));
@@ -7625,6 +7667,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       enableTarnishedPack: !!v("enable_tarnished_pack"),
       shopChecks: v("shop_checks") !== false,
       startRegionPool: v("start_region_pool") || [],
+      requiredBosses: v("required_bosses") || [],
       surfaceClasses: v("progression_surface") || [], dungeonSweep: v("dungeon_sweep")
     });
     if (!size){
