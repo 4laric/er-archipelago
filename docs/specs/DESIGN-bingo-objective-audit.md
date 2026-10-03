@@ -407,6 +407,55 @@ The community tool's Season 6 base rules API was retrieved on 2026-10-03
 It covers both base and DLC rulings but contains no startup grace manifest. The
 square JSON also contains no startup configuration. The official Season 6 mod is
 [distributed separately on Nexus](https://www.nexusmods.com/eldenring/mods/9972).
-Its exact startup grace list remains unverified; these generated AP bundles are our
-own travel policy, not a claim to reproduce that mod's list. The public Nordgaren
+The downloaded Season 6 binary was subsequently inspected (below); these generated
+AP bundles remain our own travel policy rather than reproducing its fixed list. The public Nordgaren
 ERBingoRandomizer repository last changed in 2024 and is not Season 6 evidence.
+
+
+### Downloaded Season 6 startup-grace evidence (2026-10-03)
+
+Inspected Alaric's `Bingo Brawlers Season 6-9972-1-1780080809.7z` without
+running the mod or changing game files. Archive SHA-256:
+`c9f8039e6897e8fe931264d9a40387b358dd1f5fb07518d1f8657908c3da8509`.
+ILSpy decompilation of `ERBingoRandomizer.dll` confirms that
+`BingoRandomizer` selects `Season5MiscPatcher` for `Season.Season6`.
+The patcher's `ExecuteMiscStrategy` branches on `DLCStart`.
+
+For a base-game start, `unlockSeason3Graces` adds common EMEVD event
+279551111, invoked by common event 0. It waits on flag 60100 (instruction
+bank 3 / id 0), then sets each listed flag using bank 2003 / id 66.
+These twelve flags join exactly to `greenfield/grace_flags.tsv`:
+
+| Flag | Explicitly unlocked grace |
+| --- | --- |
+| 71190 | Table of Lost Grace (Roundtable Hold) |
+| 76154 | Ailing Village Outskirts |
+| 76413 | Inner Aeonia |
+| 76303 | Altus Highway Junction |
+| 76353 | Road of Iniquity |
+| 71222 | Siofra River Bank |
+| 76521 | Snow Valley Ruins Overlook |
+| 76551 | Inner Consecrated Snowfield |
+| 71504 | Haligtree Roots |
+| 76203 | Scenic Isle |
+| 76225 | Ruined Labyrinth |
+| 71216 | Lake of Rot Shoreside |
+
+The same event also sets nineteen map flags (62010 through the explicitly
+listed 62064 group), plus 82001, 10009655 and 105. Those are not extra
+graces. This is a curated travel list, not an unlock-all-graces loop.
+
+DLC starts bypass that twelve-grace function. `editEMEVD` appends a warp
+in Chapel event 0 (bank 2003 / id 14) to map m61_46_40_00, entity
+2046402020. It adds event 1063640001 to that map, waits for Gravesite
+Plain grace flag 76800, grants item lot 100000 (bank 2003 / id 4), then
+sets Roundtable flag 71190 (bank 2003 / id 66). Thus Gravesite Plain is
+the starting location and Roundtable unlocks after activating that grace;
+this path does not explicitly pre-unlock the twelve base-game destinations.
+`Season6RegulationRandomizer.updateGracePosition` moves warp row 61464000
+to (29.08, 347.57, -20.67), matching the relocated starting setup.
+
+This is binary/source inspection, not a live gameplay verification. Our
+current AP bingo policy still grants the selected regions' safe bundles.
+The official fixed list is now available as evidence for a future travel
+policy change; it has not silently replaced the AP implementation.
