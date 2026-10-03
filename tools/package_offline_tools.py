@@ -7,6 +7,7 @@ ARCHIVE_NAME = "Optional-Offline-Tools.zip"
 PAGES = (
     "er-options-wizard.html",
     "er-archipelago-check-browser.html",
+    "er-archipelago-sweep-reference.html",
     "er-archipelago-evidence-browser.html",
     "er-archipelago-questline-dag.html",
     "er-archipelago-region-second-opinion.html",
@@ -23,6 +24,7 @@ To host/generate: download eldenring.apworld.
 Extract this archive, then open an HTML file in your browser:
 - er-options-wizard.html: create player settings (YAML).
 - er-archipelago-check-browser.html: browse checks.
+- er-archipelago-sweep-reference.html: look up original boss arenas and candidate sweep checks.
 - er-archipelago-evidence-browser.html: inspect check evidence.
 - er-archipelago-questline-dag.html: inspect questline dependencies.
 - er-archipelago-region-second-opinion.html: review region assignments.

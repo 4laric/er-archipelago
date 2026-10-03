@@ -6223,6 +6223,15 @@ if (typeof module !== "undefined") module.exports = ERW;
     if (rest.trim())
       h += "<details class='more'><summary>more…</summary><div class='desc'>" +
            esc(rest) + "</div></details>";
+    if (o.key === "dungeon_sweep") {
+      const offline = location.pathname.endsWith("er-options-wizard.html") || location.protocol === "file:";
+      const sourceFile = location.protocol === "file:" && location.pathname.endsWith("/wizard/wizard.html");
+      const href = sourceFile ? "../er-archipelago-sweep-reference.html" :
+                   offline ? "er-archipelago-sweep-reference.html" : "sweeps.html";
+      h += "<p class='desc'><a href='" + href + "' target='_blank' rel='noopener'>" +
+           "What does each boss sweep?</a> Look up the original arena and its candidate checks. " +
+           "Your seed’s F6 tracker shows the actual sweep groups.</p>";
+    }
     return h;
   }
 

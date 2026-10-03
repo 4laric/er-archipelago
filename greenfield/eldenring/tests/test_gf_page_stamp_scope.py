@@ -57,6 +57,7 @@ REPO = _FOUND or os.path.dirname(os.path.dirname(HERE))
 # purpose: this is the list the test is ABOUT, and deriving it from BUILDER_INPUTS would make (C)
 # vacuous -- a builder that silently stopped declaring anything would take its row with it.
 BUILDERS = {
+    "tools/build_sweep_reference.py": "sweep_reference",
     "tools/build_check_browser.py": "check_browser",
     "tools/build_desc_triage.py": "desc_triage",
     "tools/build_questline_dag_page.py": "questline_dag_page",

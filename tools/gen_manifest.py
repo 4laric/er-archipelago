@@ -156,6 +156,18 @@ OPTIONAL = frozenset({"greenfield/region_overrides.tsv"})
 # to the files the builders actually open, and proves the narrowing itself -- a comment-only edit
 # to gen_data.py must NOT move a page stamp, while an edit to a declared input must.
 BUILDER_INPUTS = {
+    "sweep_reference": [
+        "greenfield/eldenring/tables/data.py",
+        "greenfield/eldenring/tables/boss_sweeps.py",
+        "greenfield/eldenring/tables/boss_healthbars.py",
+        "greenfield/eldenring/contract.py",
+        "greenfield/eldenring/gamename.py",
+        "greenfield/desc_sources.py",
+        "greenfield/map_names.tsv",
+        "greenfield/nearest_grace.tsv",
+        "tools/build_sweep_reference.py",
+        "tools/sweep_reference_template.html",
+    ],
     "check_browser": [
         "greenfield/eldenring/tables/data.py",
         "greenfield/eldenring/tables/location_tags.py",
@@ -200,7 +212,7 @@ BUILDER_INPUTS = {
     ],
 }
 
-_TEXT_EXTS = {".csv", ".tsv", ".xml", ".py", ".js", ".md", ".json", ".txt", ".ps1", ".sh"}
+_TEXT_EXTS = {".csv", ".tsv", ".xml", ".py", ".js", ".md", ".json", ".txt", ".ps1", ".sh", ".html"}
 _ARTIFACT_PREFIX = "elden_ring_artifacts/"
 
 

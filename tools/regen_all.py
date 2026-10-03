@@ -284,6 +284,9 @@ STEPS = [
     Step(PAGES, "tools/build_check_browser.py",
          emits=["er-archipelago-check-browser.html"],
          why="embeds inputs_hash -> stale on every stamp move."),
+    Step(PAGES, "tools/build_sweep_reference.py",
+         emits=["er-archipelago-sweep-reference.html"],
+         why="player-facing original boss arenas and candidate checks from the live sweep tables."),
     Step(PAGES, "tools/build_evidence_browser.py",
          emits=["er-archipelago-evidence-browser.html"],
          why="stamped deterministic browser over the normalized Phase-1 fixture. The checked "

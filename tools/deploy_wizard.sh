@@ -270,6 +270,8 @@ install_one() {  # ref, source path in repo, destination path, sentinel, label
 WIZ_SRC="wizard/wizard.html"
 WIZ_SENTINEL='id="er-options-metadata"'
 CHK_SRC="er-archipelago-check-browser.html"
+SWEEP_SRC="er-archipelago-sweep-reference.html"
+SWEEP_SENTINEL='id="sweep-payload"'
 # The check browser's own map container -- structural, and nothing a 200-with-a-login-page has.
 CHK_SENTINEL='id="mapslot"'
 REVIEW_SRC="er-archipelago-evidence-browser.html"
@@ -324,6 +326,7 @@ if [ "$BETA_ONLY" = "1" ]; then
   install_one "$beta_ref" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (${beta_ref})"
   [ "$NO_CHECKS" = "1" ] || {
     install_one "$beta_ref" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (${beta_ref})"
+    install_one "$beta_ref" "$SWEEP_SRC" "${DEST}/beta/sweeps.html" "$SWEEP_SENTINEL" "sweeps  beta (${beta_ref})"
     install_one "$beta_ref" "$REVIEW_SRC" "${DEST}/beta/review.html" "$REVIEW_SENTINEL" "review  beta (${beta_ref})"
     install_one "$beta_ref" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (${beta_ref})"
   }
@@ -337,6 +340,7 @@ install_one "$stable_tag" "$WIZ_SRC" "${DEST}/wizard.html" "$WIZ_SENTINEL" "wiza
 install_one "$stable_tag" "$RPT_SRC" "${DEST}/report.html" "$RPT_SENTINEL" "report  stable (${stable_tag})"
 [ "$NO_CHECKS" = "1" ] || {
   install_one "$stable_tag" "$CHK_SRC" "${DEST}/checks.html" "$CHK_SENTINEL" "checks  stable (${stable_tag})"
+  install_one "$stable_tag" "$SWEEP_SRC" "${DEST}/sweeps.html" "$SWEEP_SENTINEL" "sweeps  stable (${stable_tag})"
   install_one "$stable_tag" "$REVIEW_SRC" "${DEST}/review.html" "$REVIEW_SENTINEL" "review  stable (${stable_tag})"
   install_one "$stable_tag" "$QDAG_SRC" "${DEST}/questlines.html" "$QDAG_SENTINEL" "qdag    stable (${stable_tag})"
 }
@@ -346,6 +350,7 @@ if [ "$STABLE_ONLY" = "0" ]; then
   install_one "$beta_ref" "$RPT_SRC" "${DEST}/beta/report.html" "$RPT_SENTINEL" "report  beta (${beta_ref})"
   [ "$NO_CHECKS" = "1" ] || {
     install_one "$beta_ref" "$CHK_SRC" "${DEST}/beta/checks.html" "$CHK_SENTINEL" "checks  beta (${beta_ref})"
+    install_one "$beta_ref" "$SWEEP_SRC" "${DEST}/beta/sweeps.html" "$SWEEP_SENTINEL" "sweeps  beta (${beta_ref})"
     install_one "$beta_ref" "$REVIEW_SRC" "${DEST}/beta/review.html" "$REVIEW_SENTINEL" "review  beta (${beta_ref})"
     install_one "$beta_ref" "$QDAG_SRC" "${DEST}/beta/questlines.html" "$QDAG_SENTINEL" "qdag    beta (${beta_ref})"
   }

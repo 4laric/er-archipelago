@@ -1,5 +1,10 @@
 # v0.6.4.1 — development window (draft)
 
+Before fighting a boss, look up what its arena may sweep. The new searchable reference
+groups original boss arenas by region and shows each complete candidate check list,
+with grace landmarks for orientation. Open it beside Dungeon Sweep in the wizard or
+from the optional offline tools. Your seed's tracker remains the authority for actual
+payouts. This documentation needs no new YAML, seed or client.
 Generation errors for already-placed items left in the unplaced pools now distinguish
 the affected item owners from the hook responsible. A world can place another game's
 items, so the error no longer tells hosts to update or disable the owner as if it
