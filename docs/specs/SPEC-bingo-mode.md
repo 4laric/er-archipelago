@@ -1,12 +1,14 @@
 # Elden Ring Archipelago bingo mode
 
-Draft specification, 2026-10-03. This proposes a new mode; no runtime implementation is included.
+Design specification, 2026-10-03. The final section records the implemented experimental boss-board slice; the broader catalogue, adapters, and multiplayer sections remain proposals.
 
 Give each Elden Ring slot a seeded 5 by 5 board built from Elden Ring bingo objectives, and make those objectives the progression surface: completing a square sends its AP reward. Completing a line can release a larger batch of checks, or end a short run. The recommended first release is an automatically tracked, per-slot board using a documented subset of Season 6 objectives, with a short-run preset and an optional line sweep. A separate referee mode can expose the full catalogue. Shared team boards and competitive lockout follow once synchronization and adjudication exist.
 
-Design direction revised with Alaric on 2026-10-03: the board should drive progression and payouts, rather than act only as a victory overlay on the ordinary location surface. Everything below remains a proposal until implemented.
+Design direction revised with Alaric on 2026-10-03: the board should drive progression and payouts, rather than act only as a victory overlay on the ordinary location surface. See the implemented slice below for the current scope.
 
 ## Square sources and completeness
+
+The [objective implementation audit](DESIGN-bingo-objective-audit.md) ranks all 213 Season 6 templates and all 300 expanded variants by implementation effort, with a [variant ledger](bingo-objective-audit.csv). Its effort estimates are separate from verified detector coverage. Start with persistent encounter facts and counters; collections, source provenance, actions, and restricted combat require further adapters.
 
 The best working source found is the [Elden Ring Bingo Community Tool](https://erb-community-tool.vercel.app/). It has season navigation for Seasons 1 through 6, searchable square descriptions, rules, and downloadable original-format JSON. It is a community archive, so its contents should be checked against the official season files before advertising tournament fidelity.
 
