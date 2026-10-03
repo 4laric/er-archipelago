@@ -55,16 +55,22 @@ def pool_view(multiworld, progitempool, usefulitempool, filleritempool, fill_loc
     # pool (`list.remove(item)` matches by name and player, so it removes an unplaced twin instead)
     # leaves the placed item behind. That is not ours to repair -- the twin is already gone -- and
     # it used to surface at exit as "a pass created or dropped an item", which sent the reader
-    # into our own passes. Name the owner instead. (2026-09-18: alttpr's pot hook, build of
+    # into our own passes. Name the affected owners, but do not blame their worlds: a hook can
+    # place another world's items, and this check cannot identify which hook did it.
+    # (2026-09-18: alttpr's pot hook, build of
     # 2026-08-28, fixed upstream in 7235bc60 by removing by identity.)
     stale = [item for pool in (progitempool, usefulitempool, filleritempool)
              for item in pool if item.location is not None]
     if stale:
         raise AssertionError(
             "fill_hook_shim: %d item(s) were already PLACED when Elden Ring's stage_fill_hook "
-            "started, yet are still in the unplaced pools: %s. Some world's own fill_hook placed "
-            "them without removing them from the pool it was handed -- not an Elden Ring pass. "
-            "Update or disable that world's apworld." % (len(stale), _describe(multiworld, stale)))
+            "started, yet are still in the unplaced pools. Affected items and their owners: %s. "
+            "The names above identify item owners, not the hook responsible: a fill hook can "
+            "place another world's items. This check cannot identify which earlier hook left "
+            "the pools inconsistent; Elden Ring's stage placement passes have not run yet. "
+            "To identify the responsible hook, check pool consistency after each preceding "
+            "fill hook, or reproduce with those worlds individually disabled."
+            % (len(stale), _describe(multiworld, stale)))
     multiworld.itempool[:] = list(progitempool) + list(usefulitempool) + list(filleritempool)
     try:
         yield
