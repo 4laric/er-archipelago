@@ -9,6 +9,7 @@ The narrative — what this project is and what v0.2 brings — lives in
   landmarks, and expand complete candidate sweep lists. Linked beside Dungeon Sweep in
   the wizard and included in the optional offline tools. Explains seed-specific payouts
   and the separate capital/sewer assignments; no YAML or runtime changes.
+- **Generation diagnostics:** when an earlier fill hook leaves already-placed items in the unplaced pools, label the listed games as item owners, not identified culprits. Explain how to isolate the responsible hook; keep the pool consistency check intact. Hosts need the updated apworld for the clearer message.
 
 ### What you need to update
 

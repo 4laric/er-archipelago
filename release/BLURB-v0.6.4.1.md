@@ -5,6 +5,11 @@ groups original boss arenas by region and shows each complete candidate check li
 with grace landmarks for orientation. Open it beside Dungeon Sweep in the wizard or
 from the optional offline tools. Your seed's tracker remains the authority for actual
 payouts. This documentation needs no new YAML, seed or client.
+Generation errors for already-placed items left in the unplaced pools now distinguish
+the affected item owners from the hook responsible. A world can place another game's
+items, so the error no longer tells hosts to update or disable the owner as if it
+were the proven culprit. Update the host's apworld for the clearer message and steps
+to isolate the responsible hook. The pool consistency check still stops generation.
 
 Mario Stat Upgrades is an optional, default-off setting that requires Mario Mode.
 Start at four of eight health wedges and 75% normal attack damage. Four Progressive
