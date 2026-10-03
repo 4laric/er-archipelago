@@ -21,7 +21,8 @@ def test_addon_ids_are_collision_free_useful_and_wire_optional():
            for _key, _name, aid, _count in items]
     assert ids == list(range(7910016, 7910021))
     assert len(set(core.item_name_to_id.values())) == len(core.item_name_to_id)
-    assert contract.CONTRACT_HASH.startswith("2aa64f43")
+    # The optional bingoBoard key moves the 0.6.5 contract; addon wire is unchanged.
+    assert contract.CONTRACT_HASH.startswith("189fbb37")
     for option, _label, items, _feature in ADDONS:
         assert contract.OPTIONS_BY_NAME[option].shape == "BOOL_OR_INT"
         for _key, name, aid, count in items:

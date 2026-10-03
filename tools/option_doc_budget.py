@@ -29,7 +29,7 @@ HARD_LINES = 14
 MAX_LINE_COLS = 90          # a continuation line keeps its source indent in the Kivy tooltip
 SUMMARY_MAX_COLS = 88       # line 1: one plain-language sentence
 DISPLAY_NAME_MAX = 50
-TOTAL_CEILING = 36442       # 2026-10-03: expose the supported incoming-confinement dial;
+TOTAL_CEILING = 37151       # 2026-10-03: expose the supported incoming-confinement dial;
                             # shorten deprecated/sharing tooltips; net +136.
                             # ratchet on the whole corpus (33,657 when this landed; 34200 -> 34340
                             # 2026-09-23, region_sweep: one new in-budget option's docstring, 134
@@ -47,6 +47,8 @@ TOTAL_CEILING = 36442       # 2026-10-03: expose the supported incoming-confinem
                             # 35808 -> 36306, 2026-10-02, mario_cappy and mario_sonic_movement:
                             # two new in-budget options, 266 + 232 chars / 5 lines each;
                             # existing descriptions verified unchanged)
+# 2026-10-03: bingo adds five in-budget descriptions (709 chars).
+# Existing descriptions are unchanged; this allowance covers only the new options.
 MIN_OPTIONS_WITNESS = 60    # a test that scans nothing passes vacuously
 
 # key -> (max chars, max lines): options allowed past the soft budget. Measured when this landed.

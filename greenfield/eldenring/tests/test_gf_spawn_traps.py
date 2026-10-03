@@ -634,7 +634,8 @@ class TheNameSurface(unittest.TestCase):
         # tracker's per-seed unobtainable set, Ace's Haligtree 116/123 report), ledgered under
         # v0.6.0.11 in release/CONTRACT-VERSIONS.tsv with the clients#686 bridge. Not this file's
         # move either; re-anchored for the same reason as the two above.
-        self.assertEqual(contract.CONTRACT_HASH[:8], "2aa64f43")
+        # The optional bingoBoard key moves 0.6.5; trap items still add no wire keys.
+        self.assertEqual(contract.CONTRACT_HASH[:8], "189fbb37")
 
     def test_a_name_the_game_writes_with_a_comma_is_offered_without_one(self):
         """🛑 A COMMA IS A SEPARATOR WHERE PLAYERS WRITE THESE. `spawn_traps: [Alexander, Warrior

@@ -1227,6 +1227,9 @@ def confined_surface_ids(world):
     Returns None when the feature is inactive (option off, surface mode off, empty surface, or tags not
     generated), meaning 'apply no foreign bar'. Uses the SAME surface resolution as apply()/slot_data(),
     so where foreign progression may land and where own progression is placed can never disagree."""
+    from .bingo import active, square_ids
+    if active(world):
+        return square_ids(world)
     if confine_pct(world) <= 0 or not LOCATION_TAGS:
         return None
     classes = selected_surface(_selection(world))
@@ -1520,6 +1523,19 @@ def apply(world) -> None:
 
     Always strict since progression_surface_mode was retired -- the soft (mark-and-spill) and off
     regimes were unreachable from any yaml for two releases before they were deleted."""
+    from .bingo import active, square_ids
+    if active(world):
+        # General restrictive fill enforces each square's objective prerequisites. Do not
+        # move items through the ordinary surface's exemptions or widening ladder.
+        mw = world.multiworld
+        n = sum(item.advancement for item in mw.itempool)
+        capacity = sum(not active(mw.worlds[loc.player]) or
+                       loc.address in square_ids(mw.worlds[loc.player])
+                       for loc in mw.get_unfilled_locations())
+        if n > capacity:
+            raise OptionError(f"bingo_mode reward capacity is {capacity} locations but the pool has {n} "
+                              "progression items; reduce bingo_region_limit or required unlocks, or add ordinary slots")
+        return
     if not LOCATION_TAGS:
         return
     surface = selected_surface(_selection(world))
@@ -1897,6 +1913,9 @@ class ProgressionSurfaceFeature(Feature):
         Emitting the surface itself makes that drift unrepresentable -- "where progression may be"
         and "what the client stars" are now one expression, evaluated once.
         """
+        from .bingo import active, square_ids
+        if active(world):
+            return {contract.PROGRESSION_SURFACE_LOCATIONS: sorted(square_ids(world))}
         classes = getattr(world, "gf_prog_surface_resolved", None)
         if classes is None:
             classes = selected_surface(_selection(world))

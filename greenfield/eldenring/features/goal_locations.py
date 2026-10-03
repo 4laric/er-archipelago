@@ -354,6 +354,9 @@ class GoalLocations(Feature):
     name = "goal_locations"
 
     def slot_data(self, world):
+        from .bingo import active
+        if active(world):
+            return {contract.GOAL_LOCATIONS: []}
         kept = list(world._kept())
         region, ids = terminal_goal_ids(
             kept, getattr(world, "gf_goal_choice", None),

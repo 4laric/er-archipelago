@@ -423,7 +423,11 @@ def enabled_sweeps(world):
     # remove it, and the surface would then be naming a member that no longer exists.
     surface_cut = sweep_surface_cut(world)
     out, cut_links, emptied = {}, 0, []
+    bingo_reserved = set(getattr(world, "gf_bingo_line_sweep", ()))
     for fl, members in rung.items():
+        members = [ap for ap in members if ap not in bingo_reserved]
+        if not members:
+            continue
         if surface_cut:
             kept_members = [ap for ap in members if ap not in surface_cut]
             cut_links += len(members) - len(kept_members)
@@ -634,8 +638,11 @@ class BossLocks(Feature):
             # collected by walking to it. What is lost is the convenience the sweep was, and saying
             # so beats rendering a row that will never move.
             _dropped = unreachable_sweeps(_live, kept)
-            sd[contract.DUNGEON_SWEEP_FLAGS] = {str(fl): _live[fl] for fl in _live
-                                                if sweep_trigger_reachable(fl, kept)}
+            reserved = set(getattr(world, "gf_bingo_line_sweep", ()))
+            sd[contract.DUNGEON_SWEEP_FLAGS] = {
+                str(fl): members for fl in _live
+                if sweep_trigger_reachable(fl, kept)
+                and (members := [ap for ap in _live[fl] if ap not in reserved])}
             _unaudited = [fl for fl in _live if fl not in SWEEP_ARENA_REGION]
             print("[greenfield] dungeon sweeps: %d group(s) armed; %d dropped as UNFIREABLE "
                   "(trigger's arena region not kept, #445)%s; %d group(s) UNAUDITED (no arena row -- "

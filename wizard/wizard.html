@@ -226,9 +226,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 {
  "schema": 1,
  "game": "Elden Ring",
- "apworld_version": "0.6.4.1",
+ "apworld_version": "0.6.5",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "0fdf6b3ec769a3985ef8601b9cff2a64e6e0726dd38e58c41816f89c9e6e8795",
+ "source_sha256": "95d1f7eeaa70cd3f800233d72e837a71a5ca05895fbf3e21cd5f273fa4692546",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -246,6 +246,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   "capital_reconciler",
   "armor_bundles",
   "auto_equip",
+  "bingo_mode",
+  "bingo_region_limit",
+  "bingo_goal",
+  "bingo_square_count",
+  "bingo_line_sweep_size",
   "no_equip_load",
   "dungeon_sweep",
   "full_area_sweeps",
@@ -339,6 +344,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     "start_region_pool",
     "start_regions",
     "region_grace_unlock",
+    "bingo_mode",
+    "bingo_region_limit",
+    "bingo_goal",
+    "bingo_square_count",
+    "bingo_line_sweep_size",
     "num_regions_order",
     "start_region_selection",
     "grace_attunement",
@@ -829,6 +839,118 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    "group_collapsed": false,
    "special_values": null,
    "essential": true
+  },
+  {
+   "key": "bingo_mode",
+   "class": "BingoMode",
+   "compatibility_only": false,
+   "display_name": "Bingo Mode",
+   "description": "An experimental boss board supplies progression rewards.\n\nObjectives choose their regions; Num Regions is ignored.\nRequires a fresh character and this branch's client. Default off.",
+   "kind": "toggle",
+   "base": "Toggle",
+   "default": false,
+   "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "bingo_region_limit",
+   "class": "BingoRegionLimit",
+   "compatibility_only": false,
+   "display_name": "Bingo Region Limit",
+   "description": "Cap the board's regions, including their prerequisites.\n\nObjectives are chosen first; unrelated regions are omitted.\nIncrease if 25 bosses cannot fit. Default six.",
+   "kind": "range",
+   "base": "Range",
+   "default": 6,
+   "choices": null,
+   "range": {
+    "start": 2,
+    "end": 12
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "bingo_goal",
+   "class": "BingoGoal",
+   "compatibility_only": false,
+   "display_name": "Bingo Goal",
+   "description": "Finish on a line, a square count, or all 25 squares.\n\nOnly applies to Bingo Mode. A line is the short-run default.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "line",
+   "choices": [
+    {
+     "name": "line",
+     "value": 0
+    },
+    {
+     "name": "count",
+     "value": 1
+    },
+    {
+     "name": "blackout",
+     "value": 2
+    }
+   ],
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "bingo_square_count",
+   "class": "BingoSquareCount",
+   "compatibility_only": false,
+   "display_name": "Bingo Square Count",
+   "description": "Squares needed for the count goal; line and blackout ignore this.",
+   "kind": "range",
+   "base": "Range",
+   "default": 13,
+   "choices": null,
+   "range": {
+    "start": 1,
+    "end": 25
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "bingo_line_sweep_size",
+   "class": "BingoLineSweepSize",
+   "compatibility_only": false,
+   "display_name": "Bingo First Line Sweep",
+   "description": "Release a batch of native checks on the first completed line.\n\nProgression stays on squares. Already collected members reduce payout.\nZero disables the bonus. Applies to every Bingo Goal.",
+   "kind": "range",
+   "base": "Range",
+   "default": 20,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 50
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
   },
   {
    "key": "no_equip_load",

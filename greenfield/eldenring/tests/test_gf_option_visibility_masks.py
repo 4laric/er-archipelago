@@ -44,6 +44,7 @@ COMPAT_KEYS = frozenset({
 })
 ADVANCED_KEYS = frozenset({
     "confine_foreign_progression",
+    "bingo_mode", "bingo_region_limit", "bingo_goal", "bingo_square_count", "bingo_line_sweep_size",
     "mario_stat_upgrades", "mario_fludd", "mario_cappy", "mario_sonic_movement",
     "curated_filler", "spawn_traps", "num_regions_order", "start_region_selection",
     "death_link_amnesty_inbound", "death_link_amnesty_outbound", "full_area_sweeps",

@@ -21,6 +21,87 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 
 
+@pytest.mark.parametrize("goal", ["line", "count", "blackout"])
+@pytest.mark.parametrize("seed", [1, 7, 22222])
+def test_bingo_seeded_fill(goal, seed):
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.features.bingo import square_ids
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"bingo_mode": True, "bingo_goal": goal, "num_regions": 12}
+
+    t = _T()
+    loc = None
+    try:
+        t.world_setup(seed=seed)
+        board = t.world.gf_bingo_board
+        assert len(board) == 25
+        assert len({c["flag"] for c in board}) == 25
+        assert len(t.multiworld.itempool) == len(t.multiworld.get_unfilled_locations(t.player))
+        distribute_items_restrictive(t.multiworld)
+        assert t.multiworld.can_beat_game()
+        for loc in t.multiworld.get_locations(t.player):
+            if loc.item and loc.item.advancement and loc.address is not None:
+                assert loc.address in square_ids(t.world)
+        sd = t.world.fill_slot_data()
+        assert sd["goalLocations"] == []
+        assert sd["bingoBoard"]["goal"] == goal
+        assert set(sd["progressionSurfaceLocations"]) == square_ids(t.world)
+        payout = set(sd["bingoBoard"]["line_sweep"])
+        assert len(payout) <= 20
+        native_flags = sd["locationFlags"]
+        assert {c["flag"] for c in board}.isdisjoint(native_flags.values())
+        for aid in payout:
+            flag = native_flags[str(aid)]
+            assert {int(k) for k, value in native_flags.items() if value == flag} <= payout
+        assert payout.isdisjoint(square_ids(t.world))
+        assert all(not mwloc.item.advancement for mwloc in t.multiworld.get_locations(t.player)
+                   if mwloc.address in payout)
+        assert payout.isdisjoint({ap for members in sd.get("dungeonSweepFlags", {}).values() for ap in members})
+        t.world.post_fill()
+    finally:
+        loc = None
+        t.tearDown()
+
+
+@pytest.mark.parametrize("other_bingo", [False, True])
+def test_bingo_two_player_fill(other_bingo):
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.features.bingo import square_ids
+    world_type = AutoWorldRegister.world_types[GAME]
+    mw = setup_multiworld([world_type, world_type], seed=42 if other_bingo else 22222, options=[
+        {"num_regions": 12, "bingo_mode": True},
+        {"num_regions": 12 if other_bingo else 3, "bingo_mode": other_bingo}])
+    assert len(mw.itempool) == len(mw.get_unfilled_locations())
+    distribute_items_restrictive(mw)
+    assert mw.can_beat_game()
+    for player in (1, 2) if other_bingo else (1,):
+        board_ids = square_ids(mw.worlds[player])
+        for loc in mw.get_locations(player):
+            if loc.item and loc.item.advancement and loc.address is not None:
+                assert loc.address in board_ids
+        mw.worlds[player].post_fill()
+
+
+def test_bingo_foreign_advancement_is_restricted_to_squares():
+    from test.general import setup_multiworld, TestWorld
+    from worlds.AutoWorld import AutoWorldRegister
+    from BaseClasses import ItemClassification
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.features.bingo import square_ids
+    mw = setup_multiworld([AutoWorldRegister.world_types[GAME], TestWorld], seed=111,
+                         options=[{"num_regions": 12, "bingo_mode": True}, {}])
+    probe = next(i for i in mw.itempool if not i.advancement)
+    probe.player, probe.name = 2, "Foreign bingo progression probe"
+    probe.classification = ItemClassification.progression
+    distribute_items_restrictive(mw)
+    host = next(loc for loc in mw.get_locations(1) if loc.item is probe)
+    assert host.address in square_ids(mw.worlds[1])
+
+
 @pytest.mark.parametrize("fludd", [False, True])
 @pytest.mark.parametrize("stats", [False, True])
 @pytest.mark.parametrize("seed", [1, 7, 22222])

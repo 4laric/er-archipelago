@@ -356,6 +356,8 @@ _item_class: Dict[str, Any] = registry.collect_item_classes(_core_item_class, _F
 location_name_to_id: Dict[str, int] = {
     name: ap_id for locs in LOCATIONS.values() for (name, ap_id, _flag) in locs
 }
+from .bingo_board import LOCATION_NAMES as _BINGO_LOCATIONS
+location_name_to_id.update(_BINGO_LOCATIONS)
 _AP_IDS_TO_ITEM_IDS: Dict[str, int] = {str(item_name_to_id[FILLER]): _FILLER_GAME_ID | _GOODS_NIBBLE}
 
 # real-item-pool: register each distinct vanilla item as an AP item (id -> game FullID). The
@@ -499,6 +501,7 @@ _OPTION_GROUPS = [
         "goal_region_unlock_policy", "ending_condition", "start_region_pool", "start_regions",
         "region_grace_unlock",
         # advanced (hidden from the simple UIs)
+        "bingo_mode", "bingo_region_limit", "bingo_goal", "bingo_square_count", "bingo_line_sweep_size",
         "num_regions_order", "start_region_selection", "grace_attunement",
         "grace_attunement_anchor",
         # compat-only (hidden everywhere but the weighted page)
@@ -878,6 +881,10 @@ class GreenfieldEldenRingWorld(World):
     def generate_early(self) -> None:
         # Frozen behaviour first: features read the removed knobs exactly as before (defaults.py).
         apply_frozen(self.options)
+        from .features.bingo import active as _bingo_active
+        if _bingo_active(self):
+            # Keep existing region-lock consumers enabled even if the ignored Num Regions is zero.
+            self.options.num_regions.value = self.options.bingo_region_limit.value
         # progression_sharing resolves onto the two hidden knobs it governs before anything reads them.
         _ps.apply_progression_sharing(self.options)
         # multiworld_scope: surface overrides keep_local / filler_foreign_pct / confine share, and
@@ -945,7 +952,18 @@ class GreenfieldEldenRingWorld(World):
         # could only say "no region can open this run" without saying WHICH name was the problem.
         _named_pool: frozenset = self._resolve_start_region_pool()
 
+        from .features.bingo import active as _bingo_active, draw_regions as _bingo_draw
+        _bingo_kept = None
+        if _bingo_active(self):
+            _bingo_kept = _bingo_draw(self, _named_pool)
+            self.gf_goal_forced = _forced = ()
+            self.gf_dlc_terminus = False
+            _auto_forced = ()
+            _draw_parts["drawn"] = list(_bingo_kept)
+
         def _draw_kept(forced):
+            if _bingo_kept is not None:
+                return list(_bingo_kept)
             return compute_kept(
                 _nr,
                 self.random,
@@ -988,6 +1006,8 @@ class GreenfieldEldenRingWorld(World):
         self._lint_goal_reachability()
         for f in _FEATURES:
             f.generate_early(self)
+        from .features.bingo import prepare as _prepare_bingo
+        _prepare_bingo(self)
 
     def _lint_goal_reachability(self) -> None:
         """Refuse, AT GENERATION, a seed whose goal is already complete when the player connects.
@@ -1025,6 +1045,9 @@ class GreenfieldEldenRingWorld(World):
         trivial i think that's legit" (Alaric, 2026-08-16) -- but the seed did not become trivial
         on its own, #768 made it so, and the error has to name the levers that get the player out.
         """
+        from .features.bingo import active as _bingo_active
+        if _bingo_active(self):
+            return
         # A rune requirement always leaves progression to find. `none` deliberately permits an
         # immediately open goal, while `regions_completed` is gated by checked locations rather
         # than items that can be precollected. This lint only owns the legacy held-lock policy.
@@ -1076,8 +1099,9 @@ class GreenfieldEldenRingWorld(World):
         that region's lock item, so it names Enir Ilim's Lock on a `promised_consort` seed without
         being told. No contract change and no client change: the world simply stops minting the
         item the client was already prepared to grant."""
-        if _np.is_on(self) or _vp.is_on(self):
-            return None                 # no synthetic locks exist in these modes
+        from .features.bingo import active as _bingo_active
+        if _bingo_active(self) or _np.is_on(self) or _vp.is_on(self):
+            return None                 # these modes do not withhold a terminal region lock
         choice = getattr(self, "gf_goal_choice", None)
         region = _gl.goal_region(choice)
         if region is None or region not in self._kept():
@@ -1390,7 +1414,7 @@ class GreenfieldEldenRingWorld(World):
                 # The player's own sentence, already validated in generate_early. A HARD filter --
                 # see pick_anchor_regions' docstring for why this one does not degrade the way the
                 # MajorBoss bias beside it does.
-                only=getattr(self, "gf_start_pool", frozenset()),
+                only=getattr(self, "gf_bingo_anchor_pool", getattr(self, "gf_start_pool", frozenset())),
                 gated=frozenset(REGION_PARENT),
                 # The goal region never rides in as an EXTRA: a run that opens on the region it
                 # ends in is not a run (Alaric, 2026-08-06), and at start_regions 3 that would stop

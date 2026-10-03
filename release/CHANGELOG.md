@@ -3,6 +3,20 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
+## v0.6.5 — 2026-10-03
+
+### What you need to update
+
+- **Client:** Required for bingo seeds; build the matching `codex/bingo-mode` client. Its F6 tracker displays the board and reports square rewards from local defeat flags.
+- **APWorld:** Host-only update to generate the experimental boss board.
+- **YAML:** **New YAML optional. Existing YAMLs remain valid.** For bingo use `presets/bingo-short.yaml`; bingo defaults off. Objectives choose regions, so `num_regions` is ignored for these runs.
+- **Existing seed/save:** New seed required to try bingo; use a fresh character. Existing board-free seeds remain compatible. The new client bridges the previously shipped contract windows.
+- **Profile/assets:** Reinstall or replace the paired bingo DLL; no new graphics assets. This branch is experimental and has not been published as a release.
+
+Bingo uses 25 synthetic square checks as the progression surface. Local and foreign advancement placed in the Elden Ring slot stays on the board. The first completed line releases a reserved batch of existing non-progression checks, default twenty; already collected members reduce the payout. Choose one line, a square count, or blackout as the goal.
+
+The first catalogue covers generated base-game field and small-dungeon boss encounters. Objectives choose at most six regions by default, including prerequisites, and unrelated finale regions are omitted. DLC-only, vanilla placement, natural progression, Mario mode, boss keys, and ordinary explicit goals are currently rejected. The full community catalogue, referee/team modes, stronger per-board save binding, and live acceptance are still outstanding.
+
 ## v0.6.4.1 — 2026-10-03
 
 - **Mario compatibility:** the paired client accepts current 300/400/500/600-unit FLUDD tanks and legacy 60/80/100/120-unit tanks. F9 belongs to Mario's camera while its DLL is loaded; ordinary Nightfall delivery and F11 remain available.

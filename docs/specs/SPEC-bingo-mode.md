@@ -191,4 +191,19 @@ Required verification includes deterministic imports and boards; all 12 winning 
 
 Client verification distinguishes pure logic tests, source inspection, Windows compilation, and live game observations. Live acceptance must include a local boss kill, a remote item delivery, sold/stored duplicates, a failed grant, reload, a flag written by reconciliation, and one objective in a gated arena. Referee mode must never show manual confirmation as automatically verified. With bingo off, existing generation, goal payloads, victory behaviour, and item counts must remain unchanged.
 
-The next concrete implementation deliverable is the coverage ledger and automatic subset, not a claim that all 300 expanded variants already work. The source catalogue is available; mapping attainability and trustworthy observations is the substantial engineering work.
+The prototype below begins the automatic subset. The full coverage ledger remains necessary before importing the community catalogue; all 300 expanded variants are not implemented. Mapping attainability and trustworthy observations remains the substantial engineering work.
+
+
+## Implemented experimental slice — 2026-10-03
+
+The `codex/bingo-mode` branches in the world and client implement a 25-square automatic boss board (`ap-boss-board-v1`), square progression rewards, a reserved first-line sweep, line/count/blackout goals, and an F6 board display. Start with `presets/bingo-short.yaml`; use a fresh character and this branch's client. This is an AP boss adaptation, not a claim that the 300 community variants are implemented or licensed for redistribution.
+
+Objectives select the regions. The draw uses the eligible content pool, chooses 25 eligible boss encounters under `bingo_region_limit` (default six, counting prerequisite regions), and retains exactly their owners plus prerequisite closure. `num_regions` is ignored during bingo; named starting regions must have objectives on the board. Ordinary capital/DLC finale force-keeps are omitted. Board randomness is isolated from item fill.
+
+The initial catalogue uses the generated base-game field/catacomb/cave/tunnel defeat-flag table, with legacy and major-rune/festival fights excluded. DLC-only currently fails clearly because this audited table supplies no eligible DLC encounters. Natural progression, vanilla placement, Mario mode, boss keys, and explicit ordinary goals are rejected. Oversubscribed progression rewards fail with the available capacity rather than spilling into native checks. Collection, restricted combat, quests, referee mode, teams, and lockout remain planned work.
+
+Square reports and the first-line bonus are retried through the existing AP reporting queue and deduplicated by checked locations. Local persistent defeat flags reconstruct progress after reload. Server collection alone cannot earn a local victory. The board hash is schema identity metadata, not cryptographic authentication. Fresh-character use is required; live game acceptance and stronger per-board save binding remain outstanding.
+
+The first-line reservation keeps all checks sharing a pickup flag together and excludes boss-defeat flags. The client reconstructs acquisition-flag debt from an earned line after reconnect, so acknowledged checks do not leave dead pickups behind. Goal waits for the reward reports and owed flag flush. Board defeat flags are checked against the resolved per-seed detection table, including Great Rune overrides.
+
+Validation: native Windows optimized client build; 1,552 pure client and 128 DLL library tests; default and profile Clippy; 25/25 final bingo generations; 24/24 existing fill-regression generations. The full world suite was exercised in four batches; its integration failures were corrected and verified in targeted reruns (336 regression tests and 76 final bingo/sweep tests). Live game observations remain unverified.

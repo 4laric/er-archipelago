@@ -225,10 +225,11 @@ def test_stat_upgrade_multiworld_pool_wire_and_legacy_identity(stats, fludd):
     assert mw.can_beat_game()
 
 
-def test_stat_ids_do_not_collide_and_contract_hash_unchanged():
+def test_stat_ids_do_not_collide_with_bingo_contract():
     assert MarioStatUpgrades.default == 0
     assert len(set(core.item_name_to_id.values())) == len(core.item_name_to_id)
-    assert contract.CONTRACT_HASH.startswith("2aa64f43")
+    # Bingo adds an optional top-level key in 0.6.5; Mario still uses the existing wire.
+    assert contract.CONTRACT_HASH.startswith("189fbb37")
     assert contract.OPTIONS_BY_NAME["mario_stat_upgrades"].shape == "BOOL_OR_INT"
 
 
@@ -261,7 +262,8 @@ def test_fludd_zero_start_quantity_and_default_are_compatible():
         start_inventory=SimpleNamespace(value={"Progressive FLUDD Tank": 0})))
     MarioFeature().generate_early(world)
     assert contract.OPTIONS_BY_NAME["mario_fludd"].shape == "BOOL_OR_INT"
-    assert contract.CONTRACT_HASH.startswith("2aa64f43")
+    # Bingo adds an optional top-level key in 0.6.5; Mario still uses the existing wire.
+    assert contract.CONTRACT_HASH.startswith("189fbb37")
     assert [aid for _key, _name, aid, _count in contract.MARIO_FLUDD_ITEMS] == list(
         range(7910012, 7910016))
 

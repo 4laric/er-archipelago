@@ -1,0 +1,8 @@
+name: BingoPlayer
+game: Elden Ring
+Elden Ring:
+  # Experimental boss objectives; square rewards form the progression surface.
+  bingo_mode: true
+  bingo_goal: line
+  bingo_line_sweep_size: 20
+  bingo_region_limit: 6
