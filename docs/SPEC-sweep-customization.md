@@ -28,6 +28,11 @@ into the player's normal YAML. Empty means shipped behavior. Carry only override
 a format version and the source catalogue hash; never a local filesystem path or an
 external URL that another host would have to fetch. YAML import/export preserves it.
 
+Keep the profile hidden from generic wizard controls. The current dictionary control
+is a numeric weight grid, not a nested profile editor, so the dedicated editor needs
+its own import/export handling. A profile imported from YAML must be retained even
+when that panel stays closed; otherwise the wizard would silently reset custom sweeps.
+
 Identity is an original arena's boss-defeat flag plus each check's acquisition flag.
 Do not store positional AP IDs: retirement and older seeds make those unsuitable for
 portable profiles. Display names are labels, never lookup keys. A profile built against
