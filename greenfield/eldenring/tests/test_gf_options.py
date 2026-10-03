@@ -21,6 +21,51 @@ pytest.importorskip("worlds.eldenring")
 GAME = "Elden Ring"
 
 
+@pytest.mark.parametrize("extra", [
+    {"vanilla_placement": "all"},
+    {"start_inventory": {"Boltdrake Talisman +3": 1}},
+    {"start_inventory": {"Progressive Boltdrake Talisman": 1}},
+])
+def test_progressive_talisman_conflicts_reject_before_fill(extra):
+    from Options import OptionError
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"progressive_talismans": True, **extra}
+
+    with pytest.raises(OptionError, match="progressive_talismans"):
+        _T().world_setup(seed=1)
+
+
+@pytest.mark.parametrize("seed", [1, 7, 22222])
+@pytest.mark.parametrize("extra", [
+    {"num_regions": 3, "enable_dlc": False},
+    {"num_regions": 6, "enable_dlc": True},
+    {"num_regions": 0, "dlc_only": True},
+])
+def test_progressive_talisman_seeded_fill(extra, seed):
+    from Fill import distribute_items_restrictive
+    from worlds.eldenring.features.power_progression import families, FEATURE_TAG
+
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"progressive_talismans": True, **extra}
+
+    t = _T()
+    t.world_setup(seed=seed)
+    distribute_items_restrictive(t.multiworld)
+    assert t.multiworld.can_beat_game()
+    assert not t.multiworld.get_unfilled_locations(t.player)
+    members = {member for ladder in families(t.world.tables.item_catalog,
+               t.world.gf_dlc_excluded).values() for member in ladder}
+    assert not any(loc.item.name in members for loc in t.multiworld.get_locations(t.player) if loc.item)
+    sd = t.world.fill_slot_data()
+    assert FEATURE_TAG in sd["requiresClientFeatures"]
+    for name, ladder in sd["progressiveGrants"].items():
+        if name.startswith("Progressive ") and any(r.get("goods", 0) >> 28 == 2 for r in ladder):
+            assert all(r["goods"] >> 28 == 2 and r["consumed"] for r in ladder)
+
+
 @pytest.mark.parametrize("fludd", [False, True])
 @pytest.mark.parametrize("stats", [False, True])
 @pytest.mark.parametrize("seed", [1, 7, 22222])

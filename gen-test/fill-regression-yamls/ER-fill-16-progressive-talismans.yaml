@@ -1,0 +1,8 @@
+name: fillreg16
+description: Progressive talisman families on a short base-game seed
+game: Elden Ring
+
+Elden Ring:
+  progressive_talismans: true
+  num_regions: 3
+  enable_dlc: false

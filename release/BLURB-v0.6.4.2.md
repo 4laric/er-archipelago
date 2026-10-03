@@ -1,5 +1,10 @@
 # v0.6.4.2 — finish Elden Beast and Radahn
 
+Optional `progressive_talismans: true` makes numbered talisman families arrive
+base first, then +1/+2/+3. Small seeds can stop earlier. Defaults off and
+requires a client supporting `progressive_talismans_v1`. Weapon and Rune Level
+hard caps are still under development and are not available options.
+
 You can keep Elden Beast as your finale and require either Radahn, or both, too.
 Choose Additional Required Bosses under Regions & Finish Line → Advanced in the YAML
 builder. Their regions stay in the seed even if you roll a small set of regions.

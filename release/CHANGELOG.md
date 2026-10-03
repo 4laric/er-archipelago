@@ -5,6 +5,12 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 ## v0.6.4.2 — 2026-10-03
 
+- **Progressive talisman families:** opt into `progressive_talismans` to receive
+  numbered families from base to +3 in order. Keeps the existing seed copy count;
+  short seeds may stop at an earlier rank. Defaults off. Requires the matching
+  client (`progressive_talismans_v1`). Weapon and Rune Level hard caps remain
+  unfinished and are not exposed as options.
+
 - **Additional required bosses:** keep your selected Final Boss and require Starscourge
   Radahn, Promised Consort Radahn, or both as well. Their regions are included even in
   smaller seeds. Completion needs local defeats, regardless of shuffled rewards or

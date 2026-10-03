@@ -440,6 +440,12 @@ for _key, _nm, _aid, _count in (*contract.MARIO_CAPPY_ITEMS, *contract.MARIO_SON
     item_name_to_id[_nm] = _aid
     _item_class[_nm] = ItemClassification.useful
 
+# Progressive talismans reserve a fixed band so new families cannot renumber older items.
+from .features.power_progression import ITEM_IDS as _POWER_ITEM_IDS
+for _nm, _aid in _POWER_ITEM_IDS.items():
+    item_name_to_id[_nm] = _aid
+    _item_class[_nm] = ItemClassification.useful
+
 # FEATURE-MINTED GRANTS. `registry.allocate_item_ids` gives a feature's ITEMS an AP id, but nothing
 # tells the client what one resolves to: `_AP_IDS_TO_ITEM_IDS` is built from ITEM_CATALOG above, so
 # a minted item is a name the game can never hand over. That is why scadu_supply's fragment stayed
@@ -515,7 +521,7 @@ _OPTION_GROUPS = [
     # Enemy scaling dials and trap items.
     ("Difficulty & Traps", [
         "traps", "trap_count", "minimum_enemy_difficulty", "maximum_enemy_difficulty",
-        "difficulty_ramp_speed",
+        "difficulty_ramp_speed", "progressive_talismans",
         # advanced (hidden from the simple UIs)
         "spawn_traps", "coop_difficulty", "scale_rune_rewards",
     ]),
@@ -1750,6 +1756,9 @@ class GreenfieldEldenRingWorld(World):
             from .features.mario_mode import filter_rewards as _mario_filter_rewards
             pool = _mario_filter_rewards(self, pool, FILLER)
             _fb.declare_early_items(self, [_it.name for _it in pool])
+        if shuffle and not _vanilla:
+            from .features.power_progression import remap_rewards
+            pool = remap_rewards(self, pool, FILLER)
         self.multiworld.itempool += pool
 
     def pre_fill(self) -> None:

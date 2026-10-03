@@ -29,7 +29,7 @@ HARD_LINES = 14
 MAX_LINE_COLS = 90          # a continuation line keeps its source indent in the Kivy tooltip
 SUMMARY_MAX_COLS = 88       # line 1: one plain-language sentence
 DISPLAY_NAME_MAX = 50
-TOTAL_CEILING = 36752       # 2026-10-03: one new required_bosses tooltip; corpus measured 36752.
+TOTAL_CEILING = 37071       # 2026-10-03: progressive_talismans adds 319 chars; prior docs unchanged.
                             # Previous ceiling 36442; existing descriptions unchanged.
                             # 2026-10-03: expose the supported incoming-confinement dial;
                             # shorten deprecated/sharing tooltips; net +136.

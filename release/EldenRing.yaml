@@ -566,6 +566,10 @@ Elden Ring:
   # Values: true or false (default true)
   progressive_flasks: true
 
+  # Numbered talisman families arrive base first, then +1/+2/+3.
+  # Short seeds may stop earlier. Requires the matching client. Defaults off.
+  progressive_talismans: false
+
   # Flask Upgrade Minimum
   #
   # The fewest Progressive Flask Upgrades your seed will hold.

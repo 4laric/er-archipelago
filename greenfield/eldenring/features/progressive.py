@@ -654,6 +654,8 @@ class Progressive(Feature):
         grants: Dict[str, List[Dict[str, Any]]] = {}
         for name in self._active_items(world):
             grants[name] = self._grant_ladder(world, name)
+        from .power_progression import grant_ladders
+        grants.update(grant_ladders(world))
         out: Dict[str, Any] = {contract.PROGRESSIVE_GRANTS: grants}
         # flaskLadder: the cumulative {charges, potency} target per received PROG_FLASK copy (charges are
         # the load-bearing axis client-side; potency is documentation). Emitted only when
