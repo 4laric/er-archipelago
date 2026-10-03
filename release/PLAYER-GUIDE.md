@@ -301,3 +301,24 @@ shipped profile needs no Alt Saves DLL. Remove the client and Elden Ring plays
 exactly as you left it.
 
 Now go find out which region the seed decided you deserve first.
+
+## Requiring Radahn alongside your final boss
+
+Set Final Boss normally, then use **Additional Required Bosses** under Regions & Finish
+Line → Advanced in the YAML builder. For Elden Beast plus base-game Radahn:
+
+```yaml
+goal: elden_beast
+required_bosses: [starscourge_radahn]
+```
+
+Use `promised_consort_radahn` for DLC Radahn, or list both names. Enable DLC for the
+consort; Starscourge Radahn is incompatible with DLC Only. Selected boss regions are
+always included, even in small seeds. Normal rune and region requirements still apply;
+Elden Beast also retains its existing Hoarah Loux requirement. Defeat the bosses in
+either order. Rewards may be shuffled, but the extra requirements count your local
+boss defeat flags, not possession of their Remembrances or server-side `!collect`.
+Generate a new seed and use the paired client supporting `required_bosses_v1`.
+The default `required_bosses: []` leaves existing goals unchanged.
+
+With boss randomization, these requirements follow the original Radahn arenas.

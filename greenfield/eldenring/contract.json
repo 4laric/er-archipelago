@@ -186,6 +186,17 @@
       "doc": "runtime option echo sub-dict; every client-read option lives here (features' top-level copies are legacy duplicates the client ignores).",
       "subkeys": [
         {
+          "name": "required_boss_flags",
+          "shape": "INT_LIST",
+          "required": false,
+          "profiles": [
+            "greenfield"
+          ],
+          "producer": "core._options_echo (features/goal_locations.py)",
+          "consumer": "goal.rs parse / is_met",
+          "doc": "additional local boss defeat flags ANDed with the finale; empty preserves old goals. Nonempty requires required_bosses_v1. Does not alter goalLocations or finale access."
+        },
+        {
           "name": "mario_cappy",
           "shape": "BOOL_OR_INT",
           "required": false,

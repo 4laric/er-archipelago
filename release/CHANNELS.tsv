@@ -105,3 +105,5 @@ stable	v0.6.1.7	2026-10-01	the v0.6.1.7 release: Pace auto-equip backlogs and ad
 beta	main	2026-10-01	the open v0.6.1.8 window
 stable	v0.6.4	2026-10-02	the v0.6.4 release: Optional download; Experimental Mario move randomization (#1619); Native statue quest interaction; Paired overlays and icon composition; Validation and known limits. Drafted from that release's CHANGELOG section by open_window.py, so the promotion does not wait on the next window's prose; sharpen it in this PR if it misses the point.
 beta	main	2026-10-02	the open v0.6.4.1 window
+stable	v0.6.4.1	2026-10-03	the v0.6.4.1 release: Mario compatibility; YAML builder; Deprecated settings; Sweep boss reference; Generation diagnostics. Drafted from that release's CHANGELOG section by open_window.py, so the promotion does not wait on the next window's prose; sharpen it in this PR if it misses the point.
+beta	main	2026-10-03	the open v0.6.4.2 window

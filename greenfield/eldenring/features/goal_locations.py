@@ -94,6 +94,7 @@ Invariants promised here and enforced by tests/test_gf_goal_terminal.py + test_g
 import logging
 from dataclasses import dataclass
 from typing import Optional, Tuple
+from Options import OptionSet, OptionError, Visibility
 
 from ..registry import Feature, register
 from . import vanilla_placement as _vp
@@ -163,6 +164,57 @@ GOAL_CHOICES = {
     "malenia":          GoalChoiceSpec(MALENIA_REGION, (MALENIA_REGION,),
                                         (MALENIA_GOAL_LOCATION,), MALENIA_ENTRY_GRACE),
 }
+
+
+class RequiredBosses(OptionSet):
+    """Extra bosses you must defeat as well as your Final Boss.
+
+    starscourge_radahn: base-game Radahn; promised_consort_radahn: DLC Radahn.
+    Their regions are always included. DLC Radahn needs Enable DLC; base-game Radahn
+    is incompatible with DLC Only. Empty adds no requirement. Needs a new seed and
+    a client supporting required_bosses_v1. Defeats count, not shuffled rewards.
+    """
+    display_name = "Additional Required Bosses"
+    visibility = Visibility.all & ~Visibility.simple_ui
+    valid_keys = frozenset({"starscourge_radahn", "promised_consort_radahn"})
+    default = frozenset()
+
+    wizard_key_labels = {
+        "starscourge_radahn": "Starscourge Radahn (base game)",
+        "promised_consort_radahn": "Promised Consort Radahn (DLC)",
+    }
+
+
+# Boss reward checks identify logical reachability; defeat flags identify actual local kills.
+# The consort's 20010801 healthbar entry is NOT its death flag: boss_gated_graces.tsv
+# binds the post-fight grace to 20010800. Starscourge uses the boss_sweeps trigger 1252380800.
+REQUIRED_BOSS_SPECS = {
+    "starscourge_radahn": ("Caelid", 7770665, 1252380800),
+    "promised_consort_radahn": ("Enir Ilim", 7770670, 20010800),
+}
+REQUIRED_BOSSES_FEATURE = "required_bosses_v1"
+
+
+def required_boss_specs(world):
+    option = getattr(world.options, "required_bosses", None)
+    keys = sorted(option.value) if option is not None else []
+    return [REQUIRED_BOSS_SPECS[key] for key in keys]
+
+
+def required_boss_regions(world):
+    specs = required_boss_specs(world)
+    eligible = set(world.gf_eligible)
+    for region, _ap, _flag in specs:
+        if region not in eligible:
+            raise OptionError(
+                "Additional Required Bosses needs %s in the eligible regions. "
+                "Enable DLC for Promised Consort Radahn; disable DLC Only for Starscourge Radahn."
+                % region)
+    return tuple(dict.fromkeys(region for region, _ap, _flag in specs))
+
+
+def required_boss_flags(world):
+    return sorted({flag for _region, _ap, flag in required_boss_specs(world)})
 
 
 # ⭐⭐⭐ THE DLC'S TERMINUS, and the asymmetry it closes (2026-08-09).
@@ -352,6 +404,22 @@ def terminal_goal_ids(kept, chosen=None, finale_built=None, dlc_terminus=None):
 @register
 class GoalLocations(Feature):
     name = "goal_locations"
+    OPTIONS = {"required_bosses": RequiredBosses}
+
+    def set_rules(self, world):
+        specs = required_boss_specs(world)
+        if not specs:
+            return
+        names = []
+        for region, ap, _flag in specs:
+            rows = [name for name, aid, _reward in LOCATIONS.get(region, ()) if aid == ap]
+            if len(rows) != 1 or region not in world._kept():
+                raise contract.ContractError("Required boss check %s is absent from %s" % (ap, region))
+            names.append(rows[0])
+        previous = world.multiworld.completion_condition[world.player]
+        world.multiworld.completion_condition[world.player] = (
+            lambda state, base=previous, bosses=tuple(names), p=world.player:
+            base(state) and all(state.can_reach(name, "Location", p) for name in bosses))
 
     def slot_data(self, world):
         kept = list(world._kept())
@@ -364,6 +432,8 @@ class GoalLocations(Feature):
                 "goal_locations: no achievable goal location exists in the kept set %r -- the seed "
                 "would be unwinnable (goalLocations may never be empty)" % (sorted(kept),))
         out = {contract.GOAL_LOCATIONS: sorted(ids)}
+        if required_boss_specs(world):
+            out[contract.REQUIRES_CLIENT_FEATURES] = [REQUIRED_BOSSES_FEATURE]
         # goalRequiredItems = held Region Locks PLUS required ability unlocks (#980 follow-up). Both
         # halves are single-sourced -- locks at core.kept_lock_names, unlocks at
         # core._required_ability_unlocks -- and core.set_rules closes the same two lists into the

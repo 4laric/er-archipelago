@@ -229,6 +229,10 @@ def describe(key, cls):
     key_meta = getattr(cls, "wizard_key_meta", None)
     if callable(key_meta):
         d["key_meta"] = key_meta()
+    key_labels = getattr(cls, "wizard_key_labels", None)
+    if key_labels:
+        assert set(key_labels) <= set(d["valid_keys"]), "labels must name accepted set values"
+        d["key_labels"] = dict(sorted(key_labels.items()))
 
     # THE SAME OPT-IN, for the other presentation question a set-valued option can have an opinion
     # about: is this list of `valid_keys` a MENU (draw it) or a CATALOGUE (let them type)? Same
