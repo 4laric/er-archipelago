@@ -55,7 +55,8 @@ REQUIRED = [
     ("Options", "What does each boss sweep?"),
     ("Seed size", "How big is this seed?"),
     ("Seed size", "What are you putting into the multiworld?"),
-    ("Seed size", "checks that can hold progression"),
+    ("Seed size", "checks on your progression surface"),
+    ("Seed size", "Foreign progression placement ceiling"),
     ("Seed size", "Only these controls change how many checks exist."),
     ("Seed size", "do not remove a single check"),
 ]

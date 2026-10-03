@@ -35,6 +35,25 @@ const go = title => {
 const rows = () => doc.querySelectorAll('[data-option]');
 const row = key => rows().find(n=>n.getAttribute('data-option')===key);
 const visible = node => {let n=node;while(n){if(n.hidden)return false;n=n.parent;}return true;};
+// The incoming dial changes foreign placement, while the underlying surface stays fixed.
+P.state.values={num_regions:30,enable_dlc:true}; P.refresh();
+go('Seed size');
+const incoming = () => text(doc.getElementById('ss-head'));
+const confinementRow = doc.querySelectorAll('[data-option]').find(n=>n.getAttribute('data-option')==='confine_foreign_progression');
+const confinementSlider = confinementRow.querySelectorAll('input').find(n=>n.type==='range');
+const surfaceCeiling = incoming().match(/Foreign progression placement ceiling: ([\d,]+) checks\./)[1];
+const allChecks = incoming().match(/estimate\. ([\d,]+) checks/)[1];
+assert.notEqual(surfaceCeiling, allChecks);
+assert.ok(incoming().includes('Surface only (effective confinement 100%)'));
+confinementSlider.value='0'; confinementSlider.fire('input');
+assert.ok(incoming().includes('placement ceiling: '+allChecks+' checks.'), 'slider updates the main card immediately');
+assert.ok(incoming().includes('effective confinement 0%'));
+confinementSlider.value='35'; confinementSlider.fire('input');
+assert.ok(incoming().includes('65% of foreign progression item names'));
+assert.ok(incoming().includes('placement ceiling: '+allChecks+' checks.'), 'item-name selection is not a fractional check count');
+P.state.values.multiworld_scope='surface'; P.refresh();
+assert.ok(incoming().includes('placement ceiling: '+surfaceCeiling+' checks.'), 'surface scope overrides the incoming dial');
+P.state.values={}; P.refresh();
 go('Options');
 const search=doc.getElementById('settings-search');
 search.value='confine_foreign_progression'; search.fire('input');
