@@ -84,7 +84,10 @@ INFORMATIONAL_EXTRAS = {
 # full history -- so the pair was emitted-and-parsed-by-nothing, the exact half-feature this guard
 # exists to name. A gated child's grace bundle is now withheld outright (features/graces.py) and
 # both keys are tagged CONTRACT: DEAD in contract.py.
-_CONTRACT_NOT_EMITTED = {"enable_dlc", "runeGatedGraces", "greatRuneItemIds",
+_CONTRACT_NOT_EMITTED = {
+                         # Bingo is a replacement goal mode, off in these ordinary fixtures.
+                         # test_gf_bingo verifies its off payload and test_gf_options its on payload.
+                         "bingoBoard", "enable_dlc", "runeGatedGraces", "greatRuneItemIds",
                          "dlcScadutreeFloorRanges",
                          # abilityUnlockItems is emitted ONLY under ability_lock_mode: progressive
                          # (#980) -- the id->ability map for the shuffled 'Unlock: X' items. The rich

@@ -1,0 +1,1066 @@
+[
+  {
+    "variant": "S6-BASE-011-V01",
+    "source": "S6-BASE-011",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 1 Unique Red Wolf",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-011-V02",
+    "source": "S6-BASE-011",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Red Wolves",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-011-V03",
+    "source": "S6-BASE-011",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Red Wolves",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-015-V02",
+    "source": "S6-BASE-015",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Gargoyles/BBK",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-015-V03",
+    "source": "S6-BASE-015",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Unique Gargoyles/BBK",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-030-V01",
+    "source": "S6-BASE-030",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Bosses with \"God\" in their name",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-030-V02",
+    "source": "S6-BASE-030",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Bosses with \"God\" in their name",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-032-V01",
+    "source": "S6-BASE-032",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 1 Magma Wyrm",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-032-V02",
+    "source": "S6-BASE-032",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Magma Wyrms",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-032-V03",
+    "source": "S6-BASE-032",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Magma Wyrms",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-033-V01",
+    "source": "S6-BASE-033",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 1 Fallingstar Beast",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-033-V02",
+    "source": "S6-BASE-033",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Fallingstar Beasts",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-035-V01",
+    "source": "S6-BASE-035",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 1 Omenkiller Boss",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-035-V02",
+    "source": "S6-BASE-035",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Omenkiller Bosses",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-036-V01",
+    "source": "S6-BASE-036",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Deathbirds and 1 Death Rite Bird",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-037-V01",
+    "source": "S6-BASE-037",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Cemetery Shades",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-037-V02",
+    "source": "S6-BASE-037",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Cemetery Shades",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-039-V01",
+    "source": "S6-BASE-039",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Misbegotten Bosses",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-039-V02",
+    "source": "S6-BASE-039",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Misbegotten Bosses",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-040-V01",
+    "source": "S6-BASE-040",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Watchdogs",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-040-V02",
+    "source": "S6-BASE-040",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Watchdogs",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-040-V03",
+    "source": "S6-BASE-040",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Unique Watchdogs",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-041-V01",
+    "source": "S6-BASE-041",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 1 Duelist Boss",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-041-V02",
+    "source": "S6-BASE-041",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Duelist Bosses",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-042-V01",
+    "source": "S6-BASE-042",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Black Knife Assassins",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-042-V02",
+    "source": "S6-BASE-042",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Black Knife Assassins",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-042-V03",
+    "source": "S6-BASE-042",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Unique Black Knife Assassins",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-044-V01",
+    "source": "S6-BASE-044",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Dragon Heart Bosses",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-044-V02",
+    "source": "S6-BASE-044",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Dragon Heart Bosses",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-045-V01",
+    "source": "S6-BASE-045",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Erdtree or Putrid Avatars",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-045-V02",
+    "source": "S6-BASE-045",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Erdtree or Putrid Avatars",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-045-V03",
+    "source": "S6-BASE-045",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Unique Erdtree or Putrid Avatars",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-046-V01",
+    "source": "S6-BASE-046",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Night's Cavalry",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-046-V02",
+    "source": "S6-BASE-046",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Night's Cavalry",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-046-V03",
+    "source": "S6-BASE-046",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Unique Night's Cavalry",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-047-V01",
+    "source": "S6-BASE-047",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Tibia Mariners",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-047-V02",
+    "source": "S6-BASE-047",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Unique Tibia Mariners",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-047-V03",
+    "source": "S6-BASE-047",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Unique Tibia Mariners",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-048-V01",
+    "source": "S6-BASE-048",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 2 Bell Bearing Hunters",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-048-V02",
+    "source": "S6-BASE-048",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Bell Bearing Hunters",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-048-V03",
+    "source": "S6-BASE-048",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Bell Bearing Hunters",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-049-V01",
+    "source": "S6-BASE-049",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 3 Duo/Trio Bosses",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-050-V01",
+    "source": "S6-BASE-050",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 5 Bosses that Ride a Horse",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-051-V01",
+    "source": "S6-BASE-051",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 5 Bosses with \"Tree\" in their name",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-059-V01",
+    "source": "S6-BASE-059",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Bosses in Limgrave / Weeping",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-059-V02",
+    "source": "S6-BASE-059",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 5 Bosses in Limgrave / Weeping",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-059-V03",
+    "source": "S6-BASE-059",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 6 Bosses in Limgrave / Weeping",
+    "target": 6
+  },
+  {
+    "variant": "S6-BASE-060-V01",
+    "source": "S6-BASE-060",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Bosses in Liurnia",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-060-V02",
+    "source": "S6-BASE-060",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 5 Bosses in Liurnia",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-061-V01",
+    "source": "S6-BASE-061",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Bosses in Caelid / Dragonbarrow",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-061-V02",
+    "source": "S6-BASE-061",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 5 Bosses in Caelid / Dragonbarrow",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-062-V01",
+    "source": "S6-BASE-062",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 Bosses in Altus Plateau / Mt. Gelmir",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-062-V02",
+    "source": "S6-BASE-062",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 5 Bosses in Altus Plateau / Mt. Gelmir",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-062-V03",
+    "source": "S6-BASE-062",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 6 Bosses in Altus Plateau / Mt. Gelmir",
+    "target": 6
+  },
+  {
+    "variant": "S6-BASE-063-V01",
+    "source": "S6-BASE-063",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 2 Catacombs",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-063-V02",
+    "source": "S6-BASE-063",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 3 Catacombs",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-064-V01",
+    "source": "S6-BASE-064",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 2 Caves or Grottos",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-064-V02",
+    "source": "S6-BASE-064",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 3 Caves or Grottos",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-065-V01",
+    "source": "S6-BASE-065",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 2 Tunnels or Precipices",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-065-V02",
+    "source": "S6-BASE-065",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 3 Tunnels or Precipices",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-066-V01",
+    "source": "S6-BASE-066",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete an Altus Plateau or Mt. Gelmir Hero's Grave",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-067-V01",
+    "source": "S6-BASE-067",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 2 Evergaols",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-067-V02",
+    "source": "S6-BASE-067",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 3 Evergaols",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-067-V03",
+    "source": "S6-BASE-067",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Complete 4 Evergaols",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-069-V01",
+    "source": "S6-BASE-069",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect Somberstone Bell Bearing [1] and [2]",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-070-V01",
+    "source": "S6-BASE-070",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect Smithing-Stone Bell Bearing [1] and [2]",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-071-V01",
+    "source": "S6-BASE-071",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect Grave and Ghost Glovewort Bell Bearings [1]",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-072-V01",
+    "source": "S6-BASE-072",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect Grave and Ghost Glovewort Bell Bearings [2]",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-073-V01",
+    "source": "S6-BASE-073",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect Margit's and Mohg's Shackles",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-080-V01",
+    "source": "S6-BASE-080",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 10 Cracked Pots",
+    "target": 10
+  },
+  {
+    "variant": "S6-BASE-081-V01",
+    "source": "S6-BASE-081",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 5 Ritual Pots",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-082-V01",
+    "source": "S6-BASE-082",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 10 Unique Talismans",
+    "target": 10
+  },
+  {
+    "variant": "S6-BASE-082-V02",
+    "source": "S6-BASE-082",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 3 Legendary Talismans",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-083-V01",
+    "source": "S6-BASE-083",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect Both Scarseal Talismans",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-086-V01",
+    "source": "S6-BASE-086",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect the Fingerslayer Blade",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-094-V01",
+    "source": "S6-BASE-094",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 12 Unique Sorceries",
+    "target": 12
+  },
+  {
+    "variant": "S6-BASE-095-V01",
+    "source": "S6-BASE-095",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 14 Unique Incantations",
+    "target": 14
+  },
+  {
+    "variant": "S6-BASE-105-V01",
+    "source": "S6-BASE-105",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 6 Unique Staves",
+    "target": 6
+  },
+  {
+    "variant": "S6-BASE-108-V01",
+    "source": "S6-BASE-108",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 3 Memory Stones",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-108-V02",
+    "source": "S6-BASE-108",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 4 Memory Stones",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-108-V03",
+    "source": "S6-BASE-108",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 5 Memory Stones",
+    "target": 5
+  },
+  {
+    "variant": "S6-BASE-110-V01",
+    "source": "S6-BASE-110",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect the Full Haligtree Medallion",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-113-V01",
+    "source": "S6-BASE-113",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat Both Astel Bosses",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-114-V01",
+    "source": "S6-BASE-114",
+    "scope": "base",
+    "kind": "roster",
+    "label": "Defeat 4 NPC Bosses",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-116-V01",
+    "source": "S6-BASE-116",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect the Moon of Nokstella",
+    "target": 1
+  },
+  {
+    "variant": "S6-BASE-120-V01",
+    "source": "S6-BASE-120",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 2 Imbued Sword Keys",
+    "target": 2
+  },
+  {
+    "variant": "S6-BASE-120-V02",
+    "source": "S6-BASE-120",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 3 Imbued Sword Keys",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-121-V01",
+    "source": "S6-BASE-121",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 3 Whetstone Knives",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-121-V02",
+    "source": "S6-BASE-121",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 4 Whetstone Knives",
+    "target": 4
+  },
+  {
+    "variant": "S6-BASE-122-V01",
+    "source": "S6-BASE-122",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 3 Unique Seals",
+    "target": 3
+  },
+  {
+    "variant": "S6-BASE-122-V02",
+    "source": "S6-BASE-122",
+    "scope": "base",
+    "kind": "collection",
+    "label": "Collect 4 Unique Seals",
+    "target": 4
+  },
+  {
+    "variant": "S6-DLC-001-V01",
+    "source": "S6-DLC-001",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 2 Hanging Pot Bell Bearings",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-001-V02",
+    "source": "S6-DLC-001",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 3 Hanging Pot Bell Bearings",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-008-V01",
+    "source": "S6-DLC-008",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Complete 2 Catacombs",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-015-V01",
+    "source": "S6-DLC-015",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 3 Dragon Bosses",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-019-V01",
+    "source": "S6-DLC-019",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 2 Kindred Cookbooks",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-019-V02",
+    "source": "S6-DLC-019",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 3 Kindred Cookbooks",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-019-V03",
+    "source": "S6-DLC-019",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 4 Kindred Cookbooks",
+    "target": 4
+  },
+  {
+    "variant": "S6-DLC-020-V01",
+    "source": "S6-DLC-020",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Complete 2 Gaols",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-021-V01",
+    "source": "S6-DLC-021",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 1 Dancing Lion",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-021-V02",
+    "source": "S6-DLC-021",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 2 Dancing Lions",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-022-V01",
+    "source": "S6-DLC-022",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect Commander Gaius's Pants",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-025-V01",
+    "source": "S6-DLC-025",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect Jolan Summon",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-026-V01",
+    "source": "S6-DLC-026",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 1 Red Bear",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-026-V02",
+    "source": "S6-DLC-026",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 2 Red Bears",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-026-V03",
+    "source": "S6-DLC-026",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat all 3 Red Bears",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-028-V01",
+    "source": "S6-DLC-028",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 3 NPC Bosses",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-033-V01",
+    "source": "S6-DLC-033",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 3 DLC Ashes of War",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-034-V01",
+    "source": "S6-DLC-034",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 3 DLC Spirit Ashes",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-035-V01",
+    "source": "S6-DLC-035",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 2 Dragon Hearts",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-036-V01",
+    "source": "S6-DLC-036",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect the Two-Handed Sword Talisman",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-036-V02",
+    "source": "S6-DLC-036",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect the Two-Headed Turtle Talisman",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-039-V01",
+    "source": "S6-DLC-039",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect the Scorpion Stew",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-040-V01",
+    "source": "S6-DLC-040",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect the Golden Braid",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-046-V01",
+    "source": "S6-DLC-046",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect a Leda Rune",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-050-V01",
+    "source": "S6-DLC-050",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 2 Full DLC Armor Sets",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-050-V02",
+    "source": "S6-DLC-050",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 3 Full DLC Armor Sets",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-053-V01",
+    "source": "S6-DLC-053",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 4 Hefty Pots",
+    "target": 4
+  },
+  {
+    "variant": "S6-DLC-053-V02",
+    "source": "S6-DLC-053",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 5 Hefty Pots",
+    "target": 5
+  },
+  {
+    "variant": "S6-DLC-057-V01",
+    "source": "S6-DLC-057",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect Igon's Furled Finger",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-058-V01",
+    "source": "S6-DLC-058",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Complete 2 Nameless Mausoleums",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-058-V02",
+    "source": "S6-DLC-058",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Complete 3 Nameless Mausoleums",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-058-V03",
+    "source": "S6-DLC-058",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Complete all 4 Nameless Mausoleums",
+    "target": 4
+  },
+  {
+    "variant": "S6-DLC-070-V01",
+    "source": "S6-DLC-070",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 1 Unique Base Game Boss in the DLC",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-070-V02",
+    "source": "S6-DLC-070",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 2 Unique Base Game Bosses in the DLC",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-071-V01",
+    "source": "S6-DLC-071",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 3 Bosses with \"Knight\" in their name",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-074-V01",
+    "source": "S6-DLC-074",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect the Full Gravebird Armor Set",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-075-V01",
+    "source": "S6-DLC-075",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect Death Mask Helm, Winged Serpent Helm, and Salza's Hood",
+    "target": 1
+  },
+  {
+    "variant": "S6-DLC-077-V01",
+    "source": "S6-DLC-077",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 2 Blessings of Marika",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-077-V02",
+    "source": "S6-DLC-077",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 3 Blessings of Marika",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-080-V01",
+    "source": "S6-DLC-080",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 2 Unique Max Upgrade Materials",
+    "target": 2
+  },
+  {
+    "variant": "S6-DLC-080-V02",
+    "source": "S6-DLC-080",
+    "scope": "dlc",
+    "kind": "collection",
+    "label": "Collect 3 Unique Max Upgrade Materials",
+    "target": 3
+  },
+  {
+    "variant": "S6-DLC-082-V01",
+    "source": "S6-DLC-082",
+    "scope": "dlc",
+    "kind": "roster",
+    "label": "Defeat 1 Boss of each: Bear / Lion / Hippo",
+    "target": 3
+  }
+]

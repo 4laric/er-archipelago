@@ -1341,6 +1341,11 @@ CONTRACT = (
                 "'where the locks can be' and 'what the tracker points at' are ONE set. REPLACES "
                 "bigTicketLocations, which named a set progression could never reach (MajorBoss and "
                 "GreatRune are not on the surface)."),
+    ContractKey("bingoBoard", "ANY", False, (GREENFIELD,),
+                "features/bingo.py", "er_logic::bingo and core.rs",
+                "Version 1 boss board, version 2 E1 or version 3 E2: 25 cells with synthetic location ID, defeat flag (zero for other predicates), region and label; "
+                "goal line/count/blackout, count, catalogue, hash and reserved first-line sweep IDs. Optional state carries metric and target; v3 counters carry weighted encounter groups and collections carry item groups. Requires the matching bingo_v1, bingo_e1_v1 or bingo_e2_v1 capability; goalLocations "
+                "is empty for this explicitly selected goal kind."),
     ContractKey("goalLocations", "INT_LIST", True, (BOTH,),
                 "features/goal_locations.py", "goal.rs parse",
                 "AP location ids whose completion == victory; client sends Goal when all are done."),
@@ -1979,7 +1984,7 @@ mod nested_grants_tests {
 # forget; a derived one cannot go stale. (Same doctrine as the gen-input stamp.)
 import hashlib as _hashlib
 
-APWORLD_VERSION = "0.6.4.1"
+APWORLD_VERSION = "0.6.5"
 
 def _contract_hash() -> str:
     _mat = "\n".join(

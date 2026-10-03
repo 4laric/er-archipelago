@@ -1177,3 +1177,11 @@ Elden Ring:
 #
 #  `grace_rando` no longer exists at all.
 # ============================================================================
+
+  # Experimental bingo: objectives choose their regions; Num Regions is ignored.
+  # Requires this branch's client and a fresh character. Base-game boss catalogue only.
+  bingo_mode: false
+  bingo_region_limit: 6
+  bingo_goal: line             # line, count, blackout
+  bingo_square_count: 13       # used only for count
+  bingo_line_sweep_size: 20    # first-line native check bonus; 0 disables

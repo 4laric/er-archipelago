@@ -158,6 +158,10 @@ class Finale(Feature):
     name = "finale"
 
     def generate_early(self, world) -> None:
+        from .bingo import active as bingo_active
+        if bingo_active(world):
+            world.gf_finale_active = False
+            return
         # The scope is the ELIGIBLE pool, not the kept draw: the Ashen Capital is not rolled, so
         # "is it in this seed" cannot depend on which regions the draw happened to take. Reading
         # _kept() here would make a base-game seed whose draw took only DLC regions build no

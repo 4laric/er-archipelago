@@ -215,6 +215,9 @@ _CHECK_LOT_REASON = (
     "exact-keyset test owns the mutex invariant (exactly one of legacy / Map+Enemy, never none).")
 
 OFF_LEDGER = {
+    "bingoBoard": ("absent_test",
+                   "test_gf_bingo.py::test_bingo_off_preserves_default_generation",
+                   "Factory test explicitly sets bingo_mode False and asserts bingoBoard absent."),
     # --- the 2026-08-04 audit's motivating trio (finding P1) ---
     # The trio is a PAIR now. `dungeonSweeps` was dropped in #1463: greenfield never really produced
     # it (boss_locks.py wrote `{}` into it for its whole life), so it is no longer emitted and no

@@ -771,6 +771,17 @@
       "doc": "AP location ids on THIS seed's progression surface -- the ONLY locations that may hold this world's own progression (region Locks, required/gate Great Runes, folded legacy keys). Enia (EniaShop) always excluded. The client stars exactly these, so 'where the locks can be' and 'what the tracker points at' are ONE set. REPLACES bigTicketLocations, which named a set progression could never reach (MajorBoss and GreatRune are not on the surface)."
     },
     {
+      "name": "bingoBoard",
+      "shape": "ANY",
+      "required": false,
+      "profiles": [
+        "greenfield"
+      ],
+      "producer": "features/bingo.py",
+      "consumer": "er_logic::bingo and core.rs",
+      "doc": "Version 1 boss board, version 2 E1 or version 3 E2: 25 cells with synthetic location ID, defeat flag (zero for other predicates), region and label; goal line/count/blackout, count, catalogue, hash and reserved first-line sweep IDs. Optional state carries metric and target; v3 counters carry weighted encounter groups and collections carry item groups. Requires the matching bingo_v1, bingo_e1_v1 or bingo_e2_v1 capability; goalLocations is empty for this explicitly selected goal kind."
+    },
+    {
       "name": "goalLocations",
       "shape": "INT_LIST",
       "required": true,

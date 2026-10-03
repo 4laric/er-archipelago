@@ -395,6 +395,19 @@ class StartGrace(Feature):
 
     def slot_data(self, world):
         graces = [_ROUNDTABLE_GRACE]
+        from .bingo import active as bingo_active, curated_graces
+        if bingo_active(world):
+            # Generated bundles exclude boss arenas and absent/dangerous warp points.
+            curated = bool(world.options.bingo_graces.value)
+            if curated:
+                graces = curated_graces(world)
+            points = world.tables.modules["region_graces"].REGION_GRACE_POINTS
+            opens = world.tables.modules["region_open_flags"].REGION_OPEN_FLAGS
+            for region in sorted(world._kept()):
+                if not curated:
+                    graces += list(points.get(region, ()))
+                if not curated and region in opens:
+                    graces.append(opens[region])  # Tracker's region-open witness; no lock receipt.
         if world.options.early_leveling.value:
             graces += [_LEVEL_UP_FLAG, _MELINA_SUPPRESS_FLAG]
         graces.append(_FINGERSLAYER_CHEST_GATE)   # open the Ranni-gated Nokron chest (check 12027080)
