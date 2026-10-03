@@ -1,4 +1,4 @@
-# v0.6.4.1 — development window (draft)
+# v0.6.4.1 — YAML builder, sweep reference and optional Mario addons
 
 The player YAML builder now groups settings by purpose, searches labels and YAML keys,
 and lets you review just your changes. Advanced controls stay beside related settings.
@@ -26,9 +26,16 @@ current maximum. These useful items replace seven filler rewards and never gate
 checks or goals.
 
 Mario FLUDD is also optional and default off. Find one Hover, Rocket and Turbo
-Nozzle each; they start locked. Three Progressive FLUDD Tanks raise capacity from
-60 to 80, 100, then 120 units, without refilling on receipt. These six useful items
+Nozzle each; they start locked. Three Progressive FLUDD Tanks raise capacity through
+300/400/500/600 units on current workers, or 60/80/100/120 on legacy workers,
+without refilling on receipt. These six useful items
 replace filler and never gate checks or goals. Squirt is unfinished and excluded.
+
+Optional Cappy adds Cap Throw and Cap Bounce; optional Sonic movement adds Spin Dash,
+Drop Dash and Air Dash. Both default off, require Mario Mode and replace filler
+without gating checks or goals. Generate a new seed to add their progression.
+The paired AP client accepts both FLUDD tank schemes and leaves F9 to Mario's camera
+whenever its DLL is loaded, including before connecting to a room.
 
 ## Can I update the client during a run?
 

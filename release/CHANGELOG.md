@@ -3,7 +3,9 @@
 The narrative — what this project is and what v0.2 brings — lives in
 `RELEASE-NOTES-v0.2.md`. This file is the terse per-release delta.
 
-## v0.6.4.1 — 2026-10-02
+## v0.6.4.1 — 2026-10-03
+
+- **Mario compatibility:** the paired client accepts current 300/400/500/600-unit FLUDD tanks and legacy 60/80/100/120-unit tanks. F9 belongs to Mario's camera while its DLL is loaded; ordinary Nightfall delivery and F11 remain available.
 
 - **YAML builder:** Redesigned with category navigation, search by label or YAML key, changed-setting filtering, contextual advanced tuning, and a final review. Incoming Progression Confinement is now available under Multiworld & Placement → Advanced; 0 spreads other players' progression across safe checks without changing outgoing locks. Defaults remain unchanged.
 - **Deprecated settings:** Natural Progression is no longer offered for new runs. Imported values remain supported and visibly flagged. The builder also explains the ignored Leyndell rune count, merchant bell logic and flask surface keys, and the replacement for Global Scadutree Blessing.
@@ -28,12 +30,13 @@ to 100%, 125%, then 150%. Coins, grace and stars respect the current health maxi
 The toggle stays on advanced/weighted option surfaces to keep the simple page small.
 The seven items replace filler without changing check counts, and never gate checks
 or goals. The off setting preserves existing Mario item pools and slot payloads.
-The paired client pin is `6543a03`: it replays indexed move, stat, FLUDD, Cappy and Sonic items
+The paired client pin is `573ccbd`: it replays indexed move, stat, FLUDD, Cappy and Sonic items
 and waits for exact live acknowledgments before delivering checks or rewards.
 
 Optional Mario FLUDD starts with Hover, Rocket and Turbo locked. Each nozzle has
 one useful unlock item. Three useful Progressive FLUDD Tanks raise water capacity
-from 60 to 80, 100, then 120 units without refilling water on receipt. The six items
+through 300/400/500/600 units on current workers, or 60/80/100/120 on legacy workers,
+without refilling water on receipt. The six items
 replace filler, preserve check counts and identities, and never gate checks or goals.
 Squirt remains unfinished and has no item. The advanced option defaults off; old
 seeds retain their original pool and payload. Enabled FLUDD seeds require
