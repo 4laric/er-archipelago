@@ -1121,12 +1121,13 @@ def test_mario_addons_preserve_progression_equipment_rejection(addons):
     {"enable_dlc": True, "scadutree_blessing_scope": "dlc_only", "dlc_blessing_catchup": False},
     {"item_shuffle": False, "progressive_flasks": False},
 ])
-def test_bingo_e1_seeded_fill_combinations(seed, extra):
+@pytest.mark.parametrize("bingo_graces", [False, True])
+def test_bingo_e1_seeded_fill_combinations(seed, extra, bingo_graces):
     from Fill import distribute_items_restrictive
     from Options import OptionError
     class _T(WorldTestBase):
         game = GAME
-        options = {"bingo_mode": True, "bingo_catalogue": "e1", **extra}
+        options = {"bingo_mode": True, "bingo_catalogue": "e1", "bingo_graces": bingo_graces, **extra}
     t = _T()
     try:
         t.world_setup(seed=seed)

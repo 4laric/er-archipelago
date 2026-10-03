@@ -459,3 +459,11 @@ This is binary/source inspection, not a live gameplay verification. Our
 current AP bingo policy still grants the selected regions' safe bundles.
 The official fixed list is now available as evidence for a future travel
 policy change; it has not silently replaced the AP implementation.
+
+
+The curated list is now selectable with `bingo_graces: true` in Bingo Mode.
+Default false retains safe board-region bundles. Base boards receive the twelve
+flags above; DLC-only boards receive Roundtable and Gravesite Plain; mixed boards
+also receive Gravesite Plain when DLC objectives are selected. Tracker openness
+uses an empty `regionOpenFlags` map instead of extra grace flags. This adapts the
+DLC entry to AP's Roundtable start, without installing the official map/quest patches.

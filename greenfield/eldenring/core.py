@@ -502,7 +502,7 @@ _OPTION_GROUPS = [
         "goal_region_unlock_policy", "ending_condition", "start_region_pool", "start_regions",
         "region_grace_unlock",
         # advanced (hidden from the simple UIs)
-        "bingo_mode", "bingo_catalogue", "bingo_region_limit", "bingo_goal", "bingo_square_count", "bingo_line_sweep_size",
+        "bingo_mode", "bingo_catalogue", "bingo_graces", "bingo_region_limit", "bingo_goal", "bingo_square_count", "bingo_line_sweep_size",
         "num_regions_order", "start_region_selection", "grace_attunement",
         "grace_attunement_anchor",
         # compat-only (hidden everywhere but the weighted page)
@@ -2490,7 +2490,9 @@ class GreenfieldEldenRingWorld(World):
             # vanilla_placement receives no "<Region> Lock", so every one of these flags would
             # stay dark forever; the client treats a region absent from this map as UNLOCKED,
             # which is the correct answer when the base game owns the gating.
-            contract.REGION_OPEN_FLAGS: {} if _vp.is_on(self) else region_open,
+            # Bingo has no region gates. An empty map lets the tracker show open regions
+            # without unlocking extra anchor graces under the curated travel option.
+            contract.REGION_OPEN_FLAGS: {} if _vp.is_on(self) or _bingo_active(self) else region_open,
             contract.LOCATION_REGIONS: loc_regions,
             contract.REGION_COARSE_KEYS: coarse_keys,
             contract.OPTIONS: self._options_echo(),

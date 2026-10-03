@@ -19,7 +19,7 @@ class BingoMode(Toggle):
     """An experimental boss board supplies progression rewards.
 
     Objectives choose their regions; Num Regions is ignored.
-    Selected regions open with their safe graces; no Region Lock items.
+    No Region Lock items; Bingo Brawlers Graces chooses starting travel.
     Requires a fresh character and this branch's client. Default off."""
     visibility = Visibility.all & ~Visibility.simple_ui
     display_name = "Bingo Mode"
@@ -35,6 +35,35 @@ class BingoCatalogue(Choice):
     option_boss_board = 0
     option_e1 = 1
     default = 0
+
+
+class BingoGraces(Toggle):
+    """Use Bingo Brawlers' curated starting graces in Bingo Mode.
+
+    Base runs grant its 12 graces. DLC-only grants Gravesite Plain and Roundtable;
+    mixed boards also grant Gravesite Plain when they include DLC objectives.
+    Off grants every safe grace in the board's regions. Default off."""
+    visibility = Visibility.all & ~Visibility.simple_ui
+    display_name = "Bingo Brawlers Graces"
+
+
+# Season 6 download SHA c9f8039e...8509: BingoRandomizer selects Season5MiscPatcher.
+# unlockSeason3Graces emits common event 279551111, bank 2003/id 66 for these flags.
+# Names/identities cross-checked against grace_flags.tsv; full evidence in the audit doc.
+BRAWLERS_BASE_GRACES = (71190, 76154, 76413, 76303, 76353, 71222,
+                       76521, 76551, 71504, 76203, 76225, 71216)
+BRAWLERS_DLC_GRACE = 76800  # Gravesite Plain, Season5MiscPatcher.editEMEVD.
+
+
+def curated_graces(world):
+    from ..region_spine import DLC_REGIONS
+    kept = set(world._kept())
+    flags = list(BRAWLERS_BASE_GRACES) if kept - DLC_REGIONS else [71190]
+    if kept & DLC_REGIONS:
+        # AP starts in Roundtable: grant the DLC entry now instead of the official
+        # Chapel warp and deferred Roundtable unlock. Mixed boards need both routes.
+        flags.append(BRAWLERS_DLC_GRACE)
+    return flags
 
 
 class BingoRegionLimit(Range):
@@ -208,7 +237,7 @@ def prepare(world):
 @register
 class Bingo(Feature):
     name = "bingo"
-    OPTIONS = {"bingo_mode": BingoMode, "bingo_catalogue": BingoCatalogue, "bingo_region_limit": BingoRegionLimit, "bingo_goal": BingoGoal,
+    OPTIONS = {"bingo_mode": BingoMode, "bingo_catalogue": BingoCatalogue, "bingo_graces": BingoGraces, "bingo_region_limit": BingoRegionLimit, "bingo_goal": BingoGoal,
                "bingo_square_count": BingoSquareCount, "bingo_line_sweep_size": BingoLineSweepSize}
 
     def create_regions(self, world):

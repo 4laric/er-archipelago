@@ -166,3 +166,39 @@ def test_e1_every_audited_template_has_an_adapter():
             assert c["flag"] in BOSS_HEALTHBARS
     assert all(c["flag"] != 15000850 for c in cells if c["source"] == "S6-BASE-018")
     assert all(c["flag"] == 31110800 for c in cells if c["source"] == "S6-BASE-026")
+
+
+@pytest.mark.parametrize("extra", [{"enable_dlc": False}, {"dlc_only": True}, {}])
+def test_curated_graces_change_travel_only(extra):
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    from worlds.eldenring.region_spine import DLC_REGIONS
+    from worlds.eldenring.features.bingo import BRAWLERS_BASE_GRACES, BRAWLERS_DLC_GRACE
+    world_type = AutoWorldRegister.world_types["Elden Ring"]
+    opts = {"bingo_mode": True, "bingo_catalogue": "e1", **extra}
+    baseline = setup_multiworld(world_type, seed=42, options=opts)
+    curated = setup_multiworld(world_type, seed=42, options={**opts, "bingo_graces": True})
+    w = curated.worlds[1]
+    sd = w.fill_slot_data()
+    assert w.gf_bingo_board == baseline.worlds[1].gf_bingo_board
+    assert [(i.name, i.classification) for i in curated.itempool] == [
+        (i.name, i.classification) for i in baseline.itempool]
+    names = w.tables.modules["region_graces"].REGION_GRACE_POINTS
+    all_warp_flags = {f for flags in names.values() for f in flags} | {71190}
+    expected = set(BRAWLERS_BASE_GRACES) if set(w._kept()) - DLC_REGIONS else {71190}
+    if set(w._kept()) & DLC_REGIONS:
+        expected.add(BRAWLERS_DLC_GRACE)
+    assert set(sd["startGraces"]) & all_warp_flags == expected
+    assert sd["startGraces"][0] == 71190  # Existing client sentinel remains a real grace.
+    assert sd["areaLockFlags"] == [] and sd["regionGraces"] == {}
+    assert not any(i.name.endswith(" Lock") for i in curated.itempool)
+    assert sd["regionOpenFlags"] == {}  # Open tracker regions without extra anchor-grace grants.
+
+
+def test_curated_graces_ignored_outside_bingo():
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    world_type = AutoWorldRegister.world_types["Elden Ring"]
+    baseline = setup_multiworld(world_type, seed=42, options={"num_regions": 6})
+    enabled = setup_multiworld(world_type, seed=42, options={"num_regions": 6, "bingo_graces": True})
+    assert baseline.worlds[1].fill_slot_data()["startGraces"] == enabled.worlds[1].fill_slot_data()["startGraces"]

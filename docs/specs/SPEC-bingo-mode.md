@@ -231,3 +231,30 @@ which regions supply checks, and their generated safe grace bundles light at sta
 Starting-region and grace-attunement settings do not restrict bingo travel. The
 community square/rules source has no verified startup grace manifest; our bundles
 are an AP policy, not a reproduction of the official Season 6 mod's starting graces.
+
+
+### Optional Bingo Brawlers starting graces (2026-10-03)
+
+Set `bingo_graces: true` alongside `bingo_mode: true` to replace the board-region
+safe grace bundles with the verified Season 6 curated travel list. Default false
+preserves the existing bundle policy. Base-game boards receive all twelve official
+flags, including destinations outside the board's selected regions. DLC-only boards
+receive Roundtable and Gravesite Plain; mixed boards add Gravesite Plain when they
+contain DLC objectives. AP grants the DLC entry immediately because its starting
+hub is Roundtable, rather than reproducing the official Chapel warp and delayed
+Roundtable unlock. Non-bingo seeds ignore this option.
+
+Bingo still has no region locks. `regionOpenFlags` is empty so the client tracker
+considers regions open without setting extra anchor-grace flags. Other startup
+flags (leveling, quest bypasses and optional doors) retain their existing policy.
+The option does not change objective selection, item placement or reward capacity.
+
+```yaml
+Elden Ring:
+  bingo_mode: true
+  bingo_graces: true
+```
+
+The twelve flags, archive hash and exact binary event evidence are recorded in
+`DESIGN-bingo-objective-audit.md`. Native quest/dungeon gates remain part of play;
+curated travel does not reproduce every patch in the official randomizer.
