@@ -15,6 +15,8 @@ The narrative — what this project is and what v0.2 brings — lives in
 
 Bingo uses 25 synthetic square checks as the progression surface. Local and foreign advancement placed in the Elden Ring slot stays on the board. The first completed line releases a reserved batch of existing non-progression checks, default twenty; already collected members reduce the payout. Choose one line, a square count, or blackout as the goal.
 
+Map for Goblins can show the board's outstanding boss objectives through its **Progression items only** filter. Disable **In-logic only** to see locked objectives too. Square IDs are joined to actual boss markers, and local defeat evidence removes an objective; server collection alone does not. The optional map engine remains required for map markers.
+
 The first catalogue covers generated base-game field and small-dungeon boss encounters. Objectives choose at most six regions by default, including prerequisites, and unrelated finale regions are omitted. DLC-only, vanilla placement, natural progression, Mario mode, boss keys, and ordinary explicit goals are currently rejected. The full community catalogue, referee/team modes, stronger per-board save binding, and live acceptance are still outstanding.
 
 ## v0.6.4.1 — 2026-10-03
