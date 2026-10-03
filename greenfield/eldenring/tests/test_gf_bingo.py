@@ -86,8 +86,13 @@ def test_start_region_count_and_capacity_refusal():
     world = mw.worlds[1]
     starts = {item.name.removesuffix(" Lock") for item in mw.precollected_items[1]
               if item.name.endswith(" Lock")}
-    assert len(starts) == 3
-    assert starts <= {c["region"] for c in world.gf_bingo_board}
+    assert not starts
+    assert not any(i.name.endswith(" Lock") for i in mw.itempool)
+    sd = world.fill_slot_data()
+    assert sd["areaLockFlags"] == []
+    points = world.tables.modules["region_graces"].REGION_GRACE_POINTS
+    assert all(set(points[r]) <= set(sd["startGraces"]) for r in world._kept())
+    assert all(mw.state.can_reach(r, "Region", 1) for r in world._kept())
     # Foreign pressure beyond the square budget must fail before ordinary fill can spill it.
     for item in [i for i in mw.itempool if not i.advancement][:40]:
         item.classification = ItemClassification.progression
@@ -108,3 +113,56 @@ def test_bingo_off_preserves_default_generation():
         (l.name, l.address) for l in explicit.get_locations()]
     assert baseline.worlds[1].fill_slot_data() == explicit.worlds[1].fill_slot_data()
     assert "bingoBoard" not in explicit.worlds[1].fill_slot_data()
+
+
+@pytest.mark.parametrize("seed", [1, 7, 42, 22222, 99])
+@pytest.mark.parametrize("extra", [{"enable_dlc": False}, {"dlc_only": True}, {}])
+def test_e1_generation_and_reward_capacity(seed, extra):
+    from test.general import setup_multiworld
+    from worlds.AutoWorld import AutoWorldRegister
+    from worlds.eldenring.features.progression_surface import apply
+    from worlds.eldenring.region_spine import parent_chain
+    mw = setup_multiworld(AutoWorldRegister.world_types["Elden Ring"], seed=seed,
+        options={"bingo_mode": True, "bingo_catalogue": "e1", **extra})
+    w = mw.worlds[1]
+    board = w.gf_bingo_board
+    owners = {r for c in board for r in c.get("regions", [c["region"]])}
+    assert set(w._kept()) == owners | {p for r in owners for p in parent_chain(r)}
+    assert len(board) == 25
+    assert sum(bool(c.get("supply_goal")) for c in board) <= 1
+    assert len({c.get("family", f"boss:{c['flag']}") for c in board}) == 25
+    for name, count in w.gf_bingo_requirements.items():
+        assert sum(i.name == name and i.advancement for i in mw.itempool) >= count
+    assert len(mw.itempool) == len([l for l in mw.get_unfilled_locations() if l.address is not None])
+    apply(w)
+    sd = w.fill_slot_data()
+    assert sd["bingoBoard"]["version"] == 2
+    assert "bingo_e1_v1" in sd["requiresClientFeatures"]
+    flags = {c["flag"] for c in board if c["flag"]}
+    overrides = getattr(w, "gf_extra_location_flags", {})
+    for members in sd.get("dungeonSweepFlags", {}).values():
+        assert all(sd["locationFlags"].get(str(aid), overrides.get(aid, 0)) not in flags for aid in members)
+
+
+def test_e1_every_audited_template_has_an_adapter():
+    from worlds.eldenring import bingo_e1
+    from worlds.eldenring.tables.boss_healthbars import BOSS_HEALTHBARS
+    from worlds.eldenring.tables.boss_sweeps import SWEEP_ARENA_REGION, SWEEP_REGION
+    eligible = set(SWEEP_ARENA_REGION.values()) | {"Stormveil", "Liurnia"}
+    cells = bingo_e1.candidates(BOSS_HEALTHBARS, SWEEP_ARENA_REGION, eligible, sweep_regions=SWEEP_REGION)
+    assert {c["source"].removeprefix("S6-") for c in cells} == set(bingo_e1.BOSSES) | {s[0] for s in bingo_e1.STATE_GOALS}
+    assert len({(c["source"], c["state"]["target"]) for c in cells if "state" in c}) == 14
+    import csv
+    from pathlib import Path
+    from ._util import find_repo_root
+    root = find_repo_root(__file__)
+    assert root is not None
+    audit = list(csv.DictReader((Path(root) / "docs/specs/bingo-objective-audit.csv").open(encoding="utf-8")))
+    e1 = [r for r in audit if r["effort"] == "E1"]
+    assert len(e1) == 61
+    assert {r["id"] for r in e1} == {c["source"] for c in cells}
+    for c in cells:
+        if c["flag"]:
+            assert c["flag"] in BOSS_HEALTHBARS
+    assert all(c["flag"] != 15000850 for c in cells if c["source"] == "S6-BASE-018")
+    assert all(c["flag"] == 31110800 for c in cells if c["source"] == "S6-BASE-026")

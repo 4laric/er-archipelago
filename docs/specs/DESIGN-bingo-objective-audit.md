@@ -332,3 +332,81 @@ The machine-readable [variant ledger](bingo-objective-audit.csv) contains one ro
 | S6-DLC-060 | Defeat a Boss with %magic% Only (magic: Incantations, Sorceries) | 2 | C | Require uninterrupted encounter coverage with damage/action attribution, resets and reload handling; fail closed if events are lost; AP victory/check state alone is insufficient. |
 | S6-DLC-088 | Defeat a Boss after Inflicting %num% Unique Status Effects (num: 3, 4) | 2 | C | Track distinct status applications during the successful boss attempt, attributable under the source rules; equipment/buff presence is insufficient. |
 
+
+
+## E1 implementation (2026-10-03)
+
+`bingo_catalogue: e1` enables adapters for all 61 E1 audit variants: 47 boss
+variants and 14 native-state thresholds. Source alternatives are one board family;
+ambiguous boss families resolve to a labelled concrete encounter. The draw mixes
+these with the original boss pool and ordinary DLC encounters to fit 25 squares
+within the region cap. This is an AP adaptation, not strict tournament adjudication.
+The original catalogue remains the default; existing v1 seeds still load.
+
+State observations are rune level; base Faith, Arcane and Intelligence; total flask
+allocation and flask potency; earned Scadutree and Revered Spirit Ash blessing.
+Temporary stat buffs do not count. Completion is latched in the client sidecar,
+keyed by board hash and native save slot. The existing character binding clears
+that slot's ledger for a fresh/recreated character or a rolled-back play-time stamp.
+Respec, reconnect and client restart retain earned state squares. Server collect
+alone earns nothing. Victory still requires local evidence plus server acknowledgement.
+
+Only one supply-heavy state square is drawn. Flask squares require progressive
+flasks, raise that feature's supply floor and classify the required copies as
+progression. +7 needs 14 copies; 10 charges needs 11. Scadutree 9/10/11 needs
+17/20/23 units, supplied as 9/10/12 x2 progression drops. Revered Spirit Ash 5
+needs nine units (upgrade costs 1+2+2+2+2). All extra supplies displace filler;
+progression stays on the 25 squares. Unused Great Runes retain useful supply,
+because bingo replaces the rune ending. Level/stat squares assume repeatable
+native rune farming in their owner region, with no required finite rune item count.
+
+Scadutree squares are excluded when global or catch-up blessing modes manufacture
+the observed level. Use `presets/bingo-e1.yaml` for earned vanilla DLC blessings.
+Base-only and DLC-only draws omit objectives outside their eligible content.
+Boards that cannot fit the region cap reject with an option error.
+Ordinary capacity validation rejects configurations exceeding the square budget.
+
+Boss rules inherit their native reward checks' final access rules, including legacy
+keys. Chapel explicitly keeps Liurnia plus Stormveil and requires an Imbued Sword
+Key; Metyr keeps Scadu Altus, Cerulean and Shadow Keep. Duo/trio goals use the
+encounter's terminal flag, and multi-phase bosses use the mapped terminal encounter.
+AP flag writers are prevented from asserting any board defeat flag; native polling
+still reports boss reward checks normally.
+
+Map for Goblins continues highlighting boss targets. Its pinned boss catalogue
+contains 45 of the 53 concrete E1 encounter candidates. Labirith, Jori, Lamenter,
+both Death Knights, Chief Bloodfiend, the dungeon Ancient Dragon-Man and Rakshasa
+have no boss-marker row in that version. These and all state squares remain visible
+in the F6 board. Marker expansion is separate work; no marker is fabricated at an
+unverified coordinate.
+
+Evidence: generated `boss_healthbars`, `boss_sweeps`, `boss_reward_lots`; EMEVD
+terminal events (including m31_11's three-way death condition and Redmane's duo);
+locked fromsoftware-rs `af8f38c` PlayerGameData fields; GoodsName.fmg rows
+1000..1025 / 1050..1075 for current flask potency; `scadu_supply.SCADU_CUM`.
+The [Revered Spirit Ash upgrade table](https://eldenring.fandom.com/wiki/Revered_Spirit_Ash)
+corroborates its cumulative nine-unit floor. Native reads are restricted to a live,
+living player in their own world. Automated checks verify generation and threshold
+logic; a live E1 gameplay run is still required to validate native observations.
+
+
+### Bingo travel correction (2026-10-03)
+
+Bingo mints no Region Lock items and precollects none. Each selected region is
+reachable from the hub immediately; internal reached events preserve the existing
+feature logic without putting lock tokens in the item pool or network stream.
+`areaLockFlags` is explicitly empty, including for omitted regions, so the client
+has no kick enforcement. `start_regions` and `start_region_pool` do not restrict
+bingo starts. All generated safe graces for the selected regions are startup grants,
+with their region-open witnesses for the tracker. `regionGraces` and attunement are
+empty because travel is granted at startup. Board rewards remain the progression
+surface for equipment, keys and objective supplies.
+
+The community tool's Season 6 base rules API was retrieved on 2026-10-03
+(`/api/leagues/bingo-brawlers/seasons/season-6-base/rules`, published version 2).
+It covers both base and DLC rulings but contains no startup grace manifest. The
+square JSON also contains no startup configuration. The official Season 6 mod is
+[distributed separately on Nexus](https://www.nexusmods.com/eldenring/mods/9972).
+Its exact startup grace list remains unverified; these generated AP bundles are our
+own travel policy, not a claim to reproduce that mod's list. The public Nordgaren
+ERBingoRandomizer repository last changed in 2024 and is not Season 6 evidence.

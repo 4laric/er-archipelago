@@ -211,3 +211,23 @@ Square reports and the first-line bonus are retried through the existing AP repo
 The first-line reservation keeps all checks sharing a pickup flag together and excludes boss-defeat flags. The client reconstructs acquisition-flag debt from an earned line after reconnect, so acknowledged checks do not leave dead pickups behind. Goal waits for the reward reports and owed flag flush. Board defeat flags are checked against the resolved per-seed detection table, including Great Rune overrides.
 
 Validation: native Windows optimized client build; 1,552 pure client and 128 DLL library tests; default and profile Clippy; 25/25 final bingo generations; 24/24 existing fill-regression generations. The full world suite was exercised in four batches; its integration failures were corrected and verified in targeted reruns (336 regression tests and 76 final bingo/sweep tests). Live game observations remain unverified.
+
+
+### E1 catalogue
+
+Choose `bingo_catalogue: e1` (or `presets/bingo-e1.yaml`) to add the audit's
+47 boss variants and 14 state thresholds. This emits `bingoBoard` v2 and requires
+`bingo_e1_v1`; v1 boss boards remain supported. State cells have `flag: 0` and
+`state: {metric, target}`. The client validates the metric and supported threshold,
+reads native state and persists earned square IDs per board/character. See the
+[E1 implementation audit](DESIGN-bingo-objective-audit.md#e1-implementation-2026-10-03)
+for supply guarantees, source adaptations and the pinned map's DLC marker gaps.
+
+
+### Travel (updated 2026-10-03)
+
+Bingo has no Region Lock items or region kick enforcement. The board still chooses
+which regions supply checks, and their generated safe grace bundles light at startup.
+Starting-region and grace-attunement settings do not restrict bingo travel. The
+community square/rules source has no verified startup grace manifest; our bundles
+are an AP policy, not a reproduction of the official Season 6 mod's starting graces.

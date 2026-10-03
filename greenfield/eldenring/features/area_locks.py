@@ -99,6 +99,9 @@ class AreaLocks(Feature):
         Either way this feature still FAILS GEN on a coverage gap: any KEPT region that resolved
         a front-door open flag but has no geometry entry would have its in-game kick-watch
         silently off, so that is a hard error rather than a quiet degrade."""
+        from .bingo import active as bingo_active
+        if bingo_active(world):
+            return {contract.AREA_LOCK_FLAGS: [], contract.LOCK_REVEAL_FLAGS: {}}
         missing = [
             r for r in world._kept()
             if REGION_OPEN_FLAGS.get(r) is not None and r not in REGION_PLAY_IDS

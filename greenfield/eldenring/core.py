@@ -61,6 +61,7 @@ from .defaults import FROZEN_OPTIONS, apply_frozen
 from .option_presets import OPTIONS_PRESETS
 from . import contract
 from . import features as _features  # noqa: F401  -- import triggers feature self-registration
+from .features.bingo import active as _bingo_active
 from .features import natural_progression as _np  # vanilla/natural-progression mode (zero synthetic locks)
 from .features import vanilla_placement as _vp  # every item back in its base-game spot (zero AP gating)
 from .features import goal_locations as _gl  # GOAL_CHOICES / forced_regions (the explicit `goal` option)
@@ -501,7 +502,7 @@ _OPTION_GROUPS = [
         "goal_region_unlock_policy", "ending_condition", "start_region_pool", "start_regions",
         "region_grace_unlock",
         # advanced (hidden from the simple UIs)
-        "bingo_mode", "bingo_region_limit", "bingo_goal", "bingo_square_count", "bingo_line_sweep_size",
+        "bingo_mode", "bingo_catalogue", "bingo_region_limit", "bingo_goal", "bingo_square_count", "bingo_line_sweep_size",
         "num_regions_order", "start_region_selection", "grace_attunement",
         "grace_attunement_anchor",
         # compat-only (hidden everywhere but the weighted page)
@@ -766,7 +767,7 @@ class GreenfieldEldenRingWorld(World):
         if not named:
             return frozenset()
         _slr = getattr(self.options, "start_with_region_lock", None)
-        if _np.is_on(self) or _vp.is_on(self) or not (_slr is not None and _slr.value):
+        if _np.is_on(self) or _vp.is_on(self) or _bingo_active(self) or not (_slr is not None and _slr.value):
             return frozenset()
         eligible = set(self.gf_eligible)
         sealed = sorted(named - eligible)
@@ -1345,7 +1346,7 @@ class GreenfieldEldenRingWorld(World):
         # vanilla_placement mints no locks for the same reason natural_progression does not: the
         # base game's own doors gate this seed, so a synthetic lock would gate it TWICE.
         _vanilla = _vp.is_on(self)
-        _nolocks = _natural or _vanilla
+        _nolocks = _natural or _vanilla or _bingo_active(self)
         # `kept_lock_names` is THE list of locks this seed mints -- it already drops the goal
         # region's own Lock (#768 for the Ashen Capital, and the DLC terminus alongside it), so
         # minting from it keeps the pool and the goal reading the same source.
@@ -2085,7 +2086,7 @@ class GreenfieldEldenRingWorld(World):
             # off the hub and only the kept chokepoints keep a graph parent (natural_progression.
             # NATURAL_PARENT: Leyndell->Altus, Sewer->Leyndell); the entrance rule is the region's real
             # vanilla-key clause instead of has("<Region> Lock").
-            if _vanilla:
+            if _vanilla or _bingo_active(self):
                 parent = None
             else:
                 parent = _np.natural_parent(r) if _natural else REGION_PARENT.get(r)
@@ -2094,7 +2095,7 @@ class GreenfieldEldenRingWorld(World):
                     f"create_regions: gated child {r!r} kept without its parent {parent!r} -- "
                     f"compute_kept must close over REGION_PARENT")
             src = created[parent] if parent is not None else hub
-            if _vanilla:
+            if _vanilla or _bingo_active(self):
                 rule = lambda state: True
             elif _natural:
                 _erule = _np.entrance_rule(self, r)
@@ -2127,7 +2128,7 @@ class GreenfieldEldenRingWorld(World):
                 lock = f"{r} Lock"
                 rule = lambda state, l=lock: state.has(l, self.player)
             src.connect(reg, f"To {r}", rule=rule)
-        if _natural or _vanilla:
+        if _natural or _vanilla or _bingo_active(self):
             # ZERO synthetic locks, but MANY features still reason "region R is open" as
             # has("<R> Lock") (boss_locks, the finale's own Ashen Capital Lock, ...). Rather than teach each one about this mode, place "<R> Lock" as an
             # AP EVENT (code=None -> never in the item pool, never granted to the client, never a

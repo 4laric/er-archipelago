@@ -367,6 +367,9 @@ class RegionGracesFeature(Feature):
                "grace_attunement_anchor": GraceAttunementAnchor}
 
     def slot_data(self, world):
+        from .bingo import active as bingo_active
+        if bingo_active(world):
+            return {contract.REGION_GRACES: {}}  # Startup owns every bingo bundle.
         kept = set(world._kept())
         # SPEC-ashen-capital-lock: the Ashen Capital is never KEPT (never rolled) but it does carry
         # a Lock, and its four graces ARE the way in -- the region has no walk-in entrance at all.

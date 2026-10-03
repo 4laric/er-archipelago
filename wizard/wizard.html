@@ -228,7 +228,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  "game": "Elden Ring",
  "apworld_version": "0.6.5",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "95d1f7eeaa70cd3f800233d72e837a71a5ca05895fbf3e21cd5f273fa4692546",
+ "source_sha256": "7e0786ea8a54a6d6848440526a7f8bf8908f323b1bfd105dff07ab6c2793873b",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -247,6 +247,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   "armor_bundles",
   "auto_equip",
   "bingo_mode",
+  "bingo_catalogue",
   "bingo_region_limit",
   "bingo_goal",
   "bingo_square_count",
@@ -345,6 +346,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     "start_regions",
     "region_grace_unlock",
     "bingo_mode",
+    "bingo_catalogue",
     "bingo_region_limit",
     "bingo_goal",
     "bingo_square_count",
@@ -845,11 +847,38 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    "class": "BingoMode",
    "compatibility_only": false,
    "display_name": "Bingo Mode",
-   "description": "An experimental boss board supplies progression rewards.\n\nObjectives choose their regions; Num Regions is ignored.\nRequires a fresh character and this branch's client. Default off.",
+   "description": "An experimental boss board supplies progression rewards.\n\nObjectives choose their regions; Num Regions is ignored.\nSelected regions open with their safe graces; no Region Lock items.\nRequires a fresh character and this branch's client. Default off.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
    "choices": null,
+   "range": null,
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "bingo_catalogue",
+   "class": "BingoCatalogue",
+   "compatibility_only": false,
+   "display_name": "Bingo Catalogue",
+   "description": "Choose the original boss board or the E1 audit catalogue.\n\nE1 adds major bosses, levels, base stats, flasks and earned DLC blessings.\nUpgrade squares reserve reachable supplies. Requires the E1 client.",
+   "kind": "choice",
+   "base": "Choice",
+   "default": "boss_board",
+   "choices": [
+    {
+     "name": "boss_board",
+     "value": 0
+    },
+    {
+     "name": "e1",
+     "value": 1
+    }
+   ],
    "range": null,
    "valid_keys": null,
    "casefold": false,

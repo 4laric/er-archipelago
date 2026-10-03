@@ -1113,3 +1113,27 @@ def test_mario_addons_preserve_progression_equipment_rejection(addons):
 
     with pytest.raises(OptionError, match="mario_mode cannot replace progression equipment"):
         _T().world_setup(seed=22222)
+
+
+@pytest.mark.parametrize("seed", [1, 7, 42, 22222, 99])
+@pytest.mark.parametrize("extra", [
+    {"enable_dlc": False}, {"dlc_only": True},
+    {"enable_dlc": True, "scadutree_blessing_scope": "dlc_only", "dlc_blessing_catchup": False},
+    {"item_shuffle": False, "progressive_flasks": False},
+])
+def test_bingo_e1_seeded_fill_combinations(seed, extra):
+    from Fill import distribute_items_restrictive
+    from Options import OptionError
+    class _T(WorldTestBase):
+        game = GAME
+        options = {"bingo_mode": True, "bingo_catalogue": "e1", **extra}
+    t = _T()
+    try:
+        t.world_setup(seed=seed)
+        distribute_items_restrictive(t.multiworld)
+        assert not t.multiworld.get_unfilled_locations()
+        assert t.multiworld.can_beat_game()
+        assert all(loc.address is None or not loc.item.advancement or loc.address in {c["location"] for c in t.world.gf_bingo_board}
+                   for loc in t.multiworld.get_locations(t.player) if loc.item)
+    finally:
+        t.tearDown()

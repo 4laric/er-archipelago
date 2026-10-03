@@ -338,6 +338,9 @@ class LegacyKeyGates(Feature):
         # physical seal. Check-level keys (empty range, e.g. the Hole-Laden Necklace) gate no entry.
         # Multi-key gates are check-level (a sub-dungeon inside a kept region) -> no entrance rule.
         for key in single:
+            from .bingo import active as bingo_active
+            if bingo_active(world):
+                continue  # The startup grace grants already bypass the region entrance.
             region, (lo, hi) = _LEGACY_KEYS[key]
             if hi <= lo:
                 continue
