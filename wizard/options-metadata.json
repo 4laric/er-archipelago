@@ -3,7 +3,7 @@
  "game": "Elden Ring",
  "apworld_version": "0.6.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "718fc8fc017e2ee423ccbea256705ce35d004884b4059ec1a6ffd11fd4ab9e15",
+ "source_sha256": "0fdf6b3ec769a3985ef8601b9cff2a64e6e0726dd38e58c41816f89c9e6e8795",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -63,6 +63,7 @@
   "no_runes_in_shops",
   "progression_surface",
   "progression_sharing",
+  "confine_foreign_progression",
   "goal_region_unlock_policy",
   "region_sync",
   "enemy_scaling",
@@ -178,6 +179,7 @@
     "filler_foreign_pct",
     "region_sync",
     "trap_link",
+    "confine_foreign_progression",
     "keep_local_rune_cap",
     "multiworld_scope",
     "death_link_amnesty_inbound",
@@ -1026,9 +1028,9 @@
   {
    "key": "natural_progression",
    "class": "NaturalProgression",
-   "compatibility_only": false,
+   "compatibility_only": true,
    "display_name": "Natural Progression",
-   "description": "Opens regions with the game's own keys, not this randomizer's Region Locks.\n\nOff (default): Region Locks. On: regions open with their vanilla keys or boss\nRemembrances (the Rusty Key for Stormveil). Keys stay shuffled, even into other worlds,\nexcept Remembrances Keep Local holds. Number of Regions is ignored. The capital needs\nAltus plus any two Great Runes; the DLC needs the Blood Lord Remembrance. Stops\ngeneration with Vanilla Placement.",
+   "description": "Deprecated mode, retained for existing YAMLs. Use Region Locks for new runs.\n\nOn: regions open with shuffled vanilla keys or Remembrances; Number of Regions is\nignored. The capital needs Altus and two Great Runes; the DLC needs Blood Lord.\nOff: Region Locks (default). Cannot combine with Vanilla Placement.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
@@ -1039,6 +1041,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Deprecated mode. For new runs, use Region Locks. When enabled, regions use vanilla keys and Number of Regions is ignored. Builder size estimates assume Region Locks. Imported values are preserved; removing this key switches to Region Locks.",
    "essential": false
   },
   {
@@ -1057,6 +1060,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Ignored. Flask upgrades now prefer the Progression Surface when space permits in every seed. Remove this old key.",
    "essential": false
   },
   {
@@ -1263,6 +1267,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Ignored. Region Lock runs open Leyndell with its Lock; vanilla-key modes retain the game's two-rune wall. Remove this old key.",
    "essential": false
   },
   {
@@ -1542,7 +1547,7 @@
    "class": "ProgressionSurface",
    "compatibility_only": false,
    "display_name": "Progression Surface (where progression can land)",
-   "description": "Which kinds of check may hold progression items.\n\nFewer kinds = a tighter hunt; more = wider scatter. A list too small for your\nprogression widens itself; it stops generation only if every safe check is too few.\nAbility Unlock items ignore this list. Empty = no limit, except unsafe checks (missable\nones and similar). With Progression Sharing balanced, other players' progression is\nlimited to it.\nDefault: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest\nkeys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),\nShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon\nSweep is none).\nOptional: Basin (Crystal Tears), Legendary (rarest items), Boss (every boss drop, incl.\nFieldBoss, MinorDungeonBoss), Shop, ShopNonSpell (merchant wares; farm runes, buy your\nprogression).",
+   "description": "Which kinds of check may hold progression items.\n\nFewer kinds = a tighter hunt; more = wider scatter. A list too small for your\nprogression widens itself; it stops generation only if every safe check is too few.\nAbility Unlock items ignore this list. Empty = no limit, except unsafe checks (missable\nones and similar). Incoming Progression Confinement controls foreign progression.\nDefault: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest\nkeys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),\nShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon\nSweep is none).\nOptional: Basin (Crystal Tears), Legendary (rarest items), Boss (every boss drop, incl.\nFieldBoss, MinorDungeonBoss), Shop, ShopNonSpell (merchant wares; farm runes, buy your\nprogression).",
    "kind": "set",
    "base": "OptionSet",
    "default": [
@@ -1823,7 +1828,7 @@
    "class": "ProgressionSharing",
    "compatibility_only": false,
    "display_name": "Progression Sharing (with other players)",
-   "description": "How progression items travel between your world and other players' worlds.\n\nProgression items unlock other checks; yours are mainly Region Locks (the items that\nopen regions), so at balanced you may wait on another player for one. Pick open if a\npartner game cannot take early Elden Ring progression.\nbalanced: yours travel; theirs land only on Progression Surface (default)\nopen: Locks and runes stay in Elden Ring worlds; theirs on any safe check",
+   "description": "How progression travels between your world and other players.\n\nbalanced (default): your Region Locks can travel. Incoming progression uses the\nadvanced Incoming Progression Confinement setting (100: surface only by default).\nopen: Locks and runes stay in Elden Ring worlds; incoming progression uses any safe\ncheck. Use this if a partner game cannot take early Elden Ring progression.",
    "kind": "choice",
    "base": "Choice",
    "default": "balanced",
@@ -1843,6 +1848,49 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "confine_foreign_progression",
+   "class": "ConfineForeignProgression",
+   "compatibility_only": false,
+   "display_name": "Incoming Progression Confinement",
+   "description": "Share of incoming progression names confined to your Progression Surface.\n\n100: surface only (default). 0: any safe check. Intermediate values apply per item name.\nYour own progression and outgoing Locks are unchanged. No effect in solo play.\nProgression Sharing open forces 0; Multiworld Scope surface forces 100.\nAn empty surface disables confinement.",
+   "kind": "range",
+   "base": "NamedRange",
+   "default": 100,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": [
+    {
+     "name": "all",
+     "value": 100
+    },
+    {
+     "name": "false",
+     "value": 0
+    },
+    {
+     "name": "none",
+     "value": 0
+    },
+    {
+     "name": "true",
+     "value": 100
+    }
+   ],
+   "range_labels": {
+    "0": "Any safe check",
+    "100": "Surface only"
+   },
+   "range_unit": "%",
    "essential": false
   },
   {
@@ -2093,6 +2141,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Replaced by scadutree_blessing_scope and dlc_blessing_catchup. player_only maps to anywhere + catch-up off; scaled maps to anywhere + catch-up on. off does nothing. Contradictory old and new values reject generation.",
    "essential": false
   },
   {
@@ -2156,6 +2205,7 @@
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Ignored. Shop checks do not require Bell Bearings in logic. Remove this old key.",
    "essential": false
   },
   {

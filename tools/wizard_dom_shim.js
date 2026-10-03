@@ -26,9 +26,11 @@ class El {
     this._static = false; this.attributes = {};
     NODES.push(this);
   }
-  set innerHTML(h){ this._html = String(h); this.kids = []; this._adopt(h); }  // children go
+  set innerHTML(h){ for (const c of this.kids) if (c && c.tagName !== undefined) c.parent = null;
+    this._html = String(h); this.kids = []; this._adopt(h); }
   get innerHTML(){ return this._html; }
-  set textContent(t){ this._text = String(t); this.kids = []; this._html = ""; }
+  set textContent(t){ for (const c of this.kids) if (c && c.tagName !== undefined) c.parent = null;
+    this._text = String(t); this.kids = []; this._html = ""; }
   get textContent(){ return this._text || stripTags(this._html); }
   insertAdjacentHTML(_pos, h){ this._html += String(h); this._adopt(h); }
   /* Markup assigned as a string still produces REAL, FINDABLE elements in a browser, and the page

@@ -7,8 +7,8 @@
 <!--
   Single-file yaml options wizard for the Elden Ring Archipelago world.
   Everything below "er-options-metadata" is rendered from JSON extracted straight out of
-  worlds/eldenring/options.py by tools/dump_options_metadata.py, so this page cannot
-  describe an option that doesn't exist. To refresh after options.py changes:
+  greenfield/eldenring/core.py and feature-owned options by tools/dump_options_metadata.py.
+  To refresh after option changes:
 
       python tools/dump_options_metadata.py --presets --inject
 
@@ -16,33 +16,34 @@
 -->
 <style>
 :root{
-  --bg:#131110; --bg2:#1c1917; --panel:#232019; --panel2:#2a261e;
-  --gold:#c8a95a; --gold-dim:#8a7440; --text:#e8e0cf; --dim:#9a8f78;
+  --bg:#111413; --bg2:#151a18; --panel:#1b211e; --panel2:#242c27;
+  --gold:#dfc386; --gold-dim:#b69c68; --text:#f1eee4; --dim:#b6bcb4;
+  --line:#39443b; --sans:system-ui,-apple-system,'Segoe UI',sans-serif;
   --err:#e06c5a; --warn:#d9a53f; --info:#7fa8c9; --ok:#8fbf6f;
   --mono:ui-monospace,'Cascadia Code',Consolas,monospace;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);
-  font:15px/1.5 Georgia,'Times New Roman',serif}
-h1,h2,h3{font-weight:normal;color:var(--gold);letter-spacing:.04em}
+  font:15px/1.6 var(--sans)}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif;font-weight:normal;color:var(--gold);letter-spacing:.01em}
 a{color:var(--gold)}
-.wrap{max-width:1180px;margin:0 auto;padding:18px}
-header.top{border-bottom:1px solid var(--gold-dim);padding:14px 0 10px;margin-bottom:14px}
-header.top h1{margin:0;font-size:26px}
-header.top .sub{color:var(--dim);font-size:13px}
-.cols{display:flex;gap:18px;align-items:flex-start}
+.wrap{max-width:1440px;margin:0 auto;padding:32px}
+header.top{border-bottom:1px solid var(--line);padding:20px 0 28px;margin-bottom:24px}
+header.top h1{margin:10px 0;font-size:clamp(30px,4vw,48px);line-height:1.15}
+header.top .sub{color:var(--dim);font-size:14px;max-width:70ch}
+.cols{display:flex;gap:28px;align-items:flex-start}
 .main{flex:1 1 640px;min-width:0}
 /* min-width:0 is LOAD-BEARING, not tidying. A flex item defaults to min-width:auto, so it cannot
    shrink below its content's min-content width -- and the yaml <pre> is white-space:pre, whose
    min-content width is its LONGEST LINE. Tick every progression_surface class and that line is ~200
    characters, so the sidebar blew past its 420px basis, shoved the main column aside and rendered
    as a panel covering the page. .main already had this; .side did not. */
-.side{flex:0 0 420px;min-width:0;position:sticky;top:12px;max-height:calc(100vh - 24px);
+.side{flex:0 0 360px;min-width:0;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto;
   display:flex;flex-direction:column;gap:10px}
 @media (max-width:980px){.cols{flex-direction:column}.side{position:static;flex:1 1 auto;width:100%}}
-.card{background:var(--panel);border:1px solid #3a342a;border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 24px;margin-bottom:18px}
 .presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-.preset{cursor:pointer;background:var(--panel2);border:1px solid #3a342a;border-radius:8px;
+.preset{cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
   padding:12px;transition:border-color .15s}
 .preset{color:var(--text);font:inherit;text-align:left}
 .preset:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
@@ -50,12 +51,12 @@ header.top .sub{color:var(--dim);font-size:13px}
 .preset.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
 .preset h3{margin:0 0 4px;font-size:16px}
 .preset .tag{color:var(--dim);font-size:13px}
-.stepnav{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
-.stepnav button{background:var(--panel2);border:1px solid #3a342a;color:var(--dim);
-  border-radius:14px;padding:3px 11px;font:13px Georgia,serif;cursor:pointer}
+.stepnav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 24px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.stepnav button{background:var(--panel2);border:1px solid var(--line);color:var(--dim);
+  border-radius:6px;padding:9px 16px;font:14px var(--sans);cursor:pointer;min-height:42px}
 .stepnav button.cur{border-color:var(--gold);color:var(--gold)}
 .stepnav button.touched{color:var(--text)}
-.grouphead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #3a342a;
+.grouphead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);
   padding-bottom:6px;margin-bottom:8px}
 .grouphead h2{margin:0;font-size:20px}
 .grouphead .count{color:var(--dim);font-size:12px}
@@ -64,30 +65,30 @@ header.top .sub{color:var(--dim);font-size:13px}
 .metric-grid .desc{max-width:30ch}
 .control-kind{margin:16px 0 2px;color:var(--gold);font-size:14px;letter-spacing:.03em}
 .control-kind:first-of-type{margin-top:10px}
-.opt{padding:12px 4px;border-bottom:1px dotted #33301f}
+.opt{padding:22px 0;border-bottom:1px solid var(--line)}
 .opt:last-child{border-bottom:none}
 .opt .head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
-.opt .dname{font-size:16px;color:var(--text)}
+.opt .dname{font-size:16px;font-weight:600;color:var(--text)}
 .opt.mod .dname{color:var(--gold)}
-.opt .key{font:12px var(--mono);color:var(--dim)}
+.opt .key{font:11px var(--mono);color:var(--dim);overflow-wrap:anywhere}
 .opt .modbadge{font-size:11px;color:var(--gold);border:1px solid var(--gold-dim);
   border-radius:9px;padding:0 7px}
 .opt .reset{font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer;text-decoration:underline}
-.opt .desc{color:var(--dim);font-size:13.5px;margin:4px 0 8px;white-space:pre-line}
+.opt .desc{color:var(--dim);font-size:14px;margin:8px 0 12px;white-space:pre-line;max-width:78ch}
 .opt details.more{margin:-4px 0 8px}
 .opt details.more summary{color:var(--gold-dim);font-size:12.5px;cursor:pointer}
 .opt details.more .desc{margin-top:4px}
 .ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .ctl label.choice{display:inline-flex;align-items:center;gap:5px;background:var(--panel2);
-  border:1px solid #3a342a;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:14px}
+  border:1px solid var(--line);border-radius:6px;padding:8px 12px;cursor:pointer;font-size:14px;min-height:40px}
 .ctl label.choice:has(input:checked){border-color:var(--gold);color:var(--gold)}
 .ctl input[type=radio],.ctl input[type=checkbox]{accent-color:var(--gold)}
 .ctl select,.ctl input[type=number],.ctl input[type=text]{background:var(--bg2);color:var(--text);
-  border:1px solid #3a342a;border-radius:6px;padding:5px 8px;font:14px var(--mono)}
+  border:1px solid var(--line);border-radius:6px;padding:5px 8px;font:14px var(--mono)}
 .ctl input[type=range]{flex:1 1 160px;accent-color:var(--gold)}
 .ctl .bounds{color:var(--dim);font:12px var(--mono)}
-.toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
-.toggle input{width:36px;height:20px;appearance:none;background:#3a342a;border-radius:10px;
+.toggle{display:inline-flex;align-items:center;gap:8px;cursor:pointer;min-height:42px}
+.toggle input{width:36px;height:20px;appearance:none;background:var(--line);border-radius:10px;
   position:relative;cursor:pointer;transition:background .15s}
 .toggle input:checked{background:var(--gold-dim)}
 .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;
@@ -122,10 +123,10 @@ header.top .sub{color:var(--dim);font-size:13px}
 .kpresetbar button:hover{border-color:var(--gold-dim);color:var(--gold)}
 .fam{display:flex;flex-direction:column;gap:4px}
 .fam>.famlab{color:var(--gold-dim);font:12.5px var(--mono);text-transform:uppercase;
-  letter-spacing:.06em;border-bottom:1px solid #3a342a;padding-bottom:2px}
+  letter-spacing:.06em;border-bottom:1px solid var(--line);padding-bottom:2px}
 .famgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:4px}
 .ctl label.kchoice{display:flex;align-items:flex-start;gap:7px;background:var(--panel2);
-  border:1px solid #3a342a;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:14px}
+  border:1px solid var(--line);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:14px}
 .ctl label.kchoice:has(input:checked){border-color:var(--gold)}
 .ctl label.kchoice .kbody{display:flex;flex-direction:column;gap:1px;min-width:0}
 .ctl label.kchoice .klab{color:var(--text)}
@@ -157,10 +158,10 @@ header.top .sub{color:var(--dim);font-size:13px}
 .surftot .note{font-size:12px;color:var(--dim)}
 .navbtns{display:flex;justify-content:space-between;margin-top:10px}
 .navbtns button,.bigbtn{background:var(--panel2);color:var(--gold);border:1px solid var(--gold-dim);
-  border-radius:6px;padding:8px 20px;font:15px Georgia,serif;cursor:pointer}
+  border-radius:6px;padding:8px 20px;font:14px var(--sans);cursor:pointer}
 .navbtns button:hover,.bigbtn:hover{border-color:var(--gold)}
 .navbtns button:disabled{opacity:.35;cursor:default}
-.yamlbox{background:var(--bg2);border:1px solid #3a342a;border-radius:8px;padding:10px;
+.yamlbox{background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px;
   overflow:auto;flex:1 1 auto;min-height:180px}
 /* pre-wrap so a long list wraps instead of forcing a horizontal scrollbar. Safe for the yaml
    itself: Copy and Download both call ERW.buildYaml(), never this element's text, so how the
@@ -168,7 +169,7 @@ header.top .sub{color:var(--dim);font-size:13px}
 .yamlbox pre{margin:0;font:12.5px/1.45 var(--mono);color:#cfc6ad;white-space:pre-wrap;
   overflow-wrap:anywhere}
 .yamlbox .yk{color:var(--gold)}
-.yamlbox .yc{color:#6f6753}
+.yamlbox .yc{color:var(--dim)}
 .sidebtns{display:flex;gap:8px}
 .sidebtns button{flex:1}
 .findings{overflow:auto;max-height:30vh}
@@ -179,10 +180,38 @@ header.top .sub{color:var(--dim);font-size:13px}
 .finding .fk{font:12px var(--mono);color:var(--dim)}
 .allgood{color:var(--ok);font-size:13px}
 .namerow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.namerow input{font-size:16px;min-width:220px}
+.namerow input{font-size:16px;min-width:0;width:100%;max-width:420px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg2);color:var(--text)}
 .namerow .err{color:var(--err);font-size:13px}
 .small{font-size:12.5px;color:var(--dim)}
-footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px;padding-top:8px}
+footer{color:var(--dim);font-size:12px;border-top:1px solid var(--line);margin-top:24px;padding-top:12px}
+[hidden]{display:none!important}
+button,input,select,textarea{font-family:var(--sans)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.eyebrow{font:12px var(--sans);color:var(--gold);letter-spacing:.18em;text-transform:uppercase}
+.side .card{padding:18px;flex-shrink:0}.side .bigbtn{padding:9px 6px;font:13px var(--sans);min-height:42px}
+#dlbtn{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:650}
+.workspace-intro{margin-bottom:20px}.workspace-intro h2{font-size:32px;margin:0 0 8px}
+.workspace-intro p{color:var(--dim);margin:0;max-width:65ch}
+.settings-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.search-label{flex-basis:100%;font-size:13px;color:var(--dim)}
+.settings-search{flex:1 1 250px;min-width:0;min-height:44px;padding:11px 14px;border-radius:8px;border:1px solid var(--line);background:var(--bg2);color:var(--text);font-size:15px}
+.filter-button,.category-button{background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:6px;cursor:pointer;padding:10px 13px;min-height:42px;font:13px var(--sans)}
+.filter-button[aria-pressed=true],.category-button[aria-pressed=true]{background:var(--panel2);border-color:var(--gold);color:var(--gold)}
+.category-nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.settings-count{margin-bottom:18px}.settings-section>h2{font-size:24px;margin:0 0 8px}
+.advanced-tuning{border-top:1px solid var(--line);padding:16px 0 0;margin-top:16px}
+.advanced-tuning>summary,.legacy-reference>summary{font-weight:600;color:var(--gold);cursor:pointer;padding:6px 0}
+.advanced-tuning>.desc{color:var(--dim);font-size:14px}
+.legacy-notice{border:1px solid var(--warn);border-radius:10px;background:#2b281b;padding:18px 22px;margin-bottom:24px;font-size:14px}
+.legacy-notice p{margin:8px 0}.legacy-reference code,.legacy-notice code{overflow-wrap:anywhere}
+.review-change{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px}
+.review-change span{max-width:55%;overflow-wrap:anywhere;white-space:pre-wrap;text-align:right;color:var(--dim)}
+.profile-group{margin-top:24px}.profile-group h3{font:15px var(--sans);font-weight:600;color:var(--text)}
+.preset{min-height:92px;padding:16px}.preset.sel{background:#2b3327}
+.empty-state{padding:32px;text-align:center}
+@media (max-width:1100px){.side{flex-basis:320px}.wrap{padding:24px}.cols{gap:20px}}
+@media (max-width:980px){.side{max-height:none;overflow:visible;flex-basis:auto}.wrap{padding:18px}.card{padding:18px}.stepnav button{flex:1 1 auto}.review-change{flex-direction:column}.review-change span{max-width:100%;text-align:left}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 .hidden{display:none}
 .advgate{color:var(--dim)}
 </style>
@@ -199,7 +228,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
  "game": "Elden Ring",
  "apworld_version": "0.6.4.1",
  "source": "greenfield/eldenring core.py -> GFOptions (imported, upstream AP 0.6.7)",
- "source_sha256": "718fc8fc017e2ee423ccbea256705ce35d004884b4059ec1a6ffd11fd4ab9e15",
+ "source_sha256": "0fdf6b3ec769a3985ef8601b9cff2a64e6e0726dd38e58c41816f89c9e6e8795",
  "field_order": [
   "num_regions",
   "num_regions_order",
@@ -259,6 +288,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   "no_runes_in_shops",
   "progression_surface",
   "progression_sharing",
+  "confine_foreign_progression",
   "goal_region_unlock_policy",
   "region_sync",
   "enemy_scaling",
@@ -374,6 +404,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
     "filler_foreign_pct",
     "region_sync",
     "trap_link",
+    "confine_foreign_progression",
     "keep_local_rune_cap",
     "multiworld_scope",
     "death_link_amnesty_inbound",
@@ -1222,9 +1253,9 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
   {
    "key": "natural_progression",
    "class": "NaturalProgression",
-   "compatibility_only": false,
+   "compatibility_only": true,
    "display_name": "Natural Progression",
-   "description": "Opens regions with the game's own keys, not this randomizer's Region Locks.\n\nOff (default): Region Locks. On: regions open with their vanilla keys or boss\nRemembrances (the Rusty Key for Stormveil). Keys stay shuffled, even into other worlds,\nexcept Remembrances Keep Local holds. Number of Regions is ignored. The capital needs\nAltus plus any two Great Runes; the DLC needs the Blood Lord Remembrance. Stops\ngeneration with Vanilla Placement.",
+   "description": "Deprecated mode, retained for existing YAMLs. Use Region Locks for new runs.\n\nOn: regions open with shuffled vanilla keys or Remembrances; Number of Regions is\nignored. The capital needs Altus and two Great Runes; the DLC needs Blood Lord.\nOff: Region Locks (default). Cannot combine with Vanilla Placement.",
    "kind": "toggle",
    "base": "Toggle",
    "default": false,
@@ -1235,6 +1266,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Deprecated mode. For new runs, use Region Locks. When enabled, regions use vanilla keys and Number of Regions is ignored. Builder size estimates assume Region Locks. Imported values are preserved; removing this key switches to Region Locks.",
    "essential": false
   },
   {
@@ -1253,6 +1285,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Ignored. Flask upgrades now prefer the Progression Surface when space permits in every seed. Remove this old key.",
    "essential": false
   },
   {
@@ -1459,6 +1492,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Ignored. Region Lock runs open Leyndell with its Lock; vanilla-key modes retain the game's two-rune wall. Remove this old key.",
    "essential": false
   },
   {
@@ -1738,7 +1772,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "class": "ProgressionSurface",
    "compatibility_only": false,
    "display_name": "Progression Surface (where progression can land)",
-   "description": "Which kinds of check may hold progression items.\n\nFewer kinds = a tighter hunt; more = wider scatter. A list too small for your\nprogression widens itself; it stops generation only if every safe check is too few.\nAbility Unlock items ignore this list. Empty = no limit, except unsafe checks (missable\nones and similar). With Progression Sharing balanced, other players' progression is\nlimited to it.\nDefault: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest\nkeys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),\nShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon\nSweep is none).\nOptional: Basin (Crystal Tears), Legendary (rarest items), Boss (every boss drop, incl.\nFieldBoss, MinorDungeonBoss), Shop, ShopNonSpell (merchant wares; farm runes, buy your\nprogression).",
+   "description": "Which kinds of check may hold progression items.\n\nFewer kinds = a tighter hunt; more = wider scatter. A list too small for your\nprogression widens itself; it stops generation only if every safe check is too few.\nAbility Unlock items ignore this list. Empty = no limit, except unsafe checks (missable\nones and similar). Incoming Progression Confinement controls foreign progression.\nDefault: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest\nkeys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),\nShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon\nSweep is none).\nOptional: Basin (Crystal Tears), Legendary (rarest items), Boss (every boss drop, incl.\nFieldBoss, MinorDungeonBoss), Shop, ShopNonSpell (merchant wares; farm runes, buy your\nprogression).",
    "kind": "set",
    "base": "OptionSet",
    "default": [
@@ -2019,7 +2053,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "class": "ProgressionSharing",
    "compatibility_only": false,
    "display_name": "Progression Sharing (with other players)",
-   "description": "How progression items travel between your world and other players' worlds.\n\nProgression items unlock other checks; yours are mainly Region Locks (the items that\nopen regions), so at balanced you may wait on another player for one. Pick open if a\npartner game cannot take early Elden Ring progression.\nbalanced: yours travel; theirs land only on Progression Surface (default)\nopen: Locks and runes stay in Elden Ring worlds; theirs on any safe check",
+   "description": "How progression travels between your world and other players.\n\nbalanced (default): your Region Locks can travel. Incoming progression uses the\nadvanced Incoming Progression Confinement setting (100: surface only by default).\nopen: Locks and runes stay in Elden Ring worlds; incoming progression uses any safe\ncheck. Use this if a partner game cannot take early Elden Ring progression.",
    "kind": "choice",
    "base": "Choice",
    "default": "balanced",
@@ -2039,6 +2073,49 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "essential": false
+  },
+  {
+   "key": "confine_foreign_progression",
+   "class": "ConfineForeignProgression",
+   "compatibility_only": false,
+   "display_name": "Incoming Progression Confinement",
+   "description": "Share of incoming progression names confined to your Progression Surface.\n\n100: surface only (default). 0: any safe check. Intermediate values apply per item name.\nYour own progression and outgoing Locks are unchanged. No effect in solo play.\nProgression Sharing open forces 0; Multiworld Scope surface forces 100.\nAn empty surface disables confinement.",
+   "kind": "range",
+   "base": "NamedRange",
+   "default": 100,
+   "choices": null,
+   "range": {
+    "start": 0,
+    "end": 100
+   },
+   "valid_keys": null,
+   "casefold": false,
+   "group": null,
+   "group_collapsed": false,
+   "special_values": [
+    {
+     "name": "all",
+     "value": 100
+    },
+    {
+     "name": "false",
+     "value": 0
+    },
+    {
+     "name": "none",
+     "value": 0
+    },
+    {
+     "name": "true",
+     "value": 100
+    }
+   ],
+   "range_labels": {
+    "0": "Any safe check",
+    "100": "Surface only"
+   },
+   "range_unit": "%",
    "essential": false
   },
   {
@@ -2289,6 +2366,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Replaced by scadutree_blessing_scope and dlc_blessing_catchup. player_only maps to anywhere + catch-up off; scaled maps to anywhere + catch-up on. off does nothing. Contradictory old and new values reject generation.",
    "essential": false
   },
   {
@@ -2352,6 +2430,7 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
    "group": null,
    "group_collapsed": false,
    "special_values": null,
+   "deprecation": "Ignored. Shop checks do not require Bell Bearings in logic. Remove this old key.",
    "essential": false
   },
   {
@@ -5383,12 +5462,14 @@ footer{color:#6f6753;font-size:12px;border-top:1px solid #3a342a;margin-top:20px
 </script>
 <div class="wrap">
   <header class="top">
-    <h1>Elden Ring Archipelago — Options Wizard</h1>
-    <div class="sub">Answer a few questions, get a ready-to-run player yaml. No install needed.</div>
+    <div class="eyebrow">Elden Ring × Archipelago</div>
+    <h1>Make the Lands Between yours.</h1>
+    <div class="sub">Build your run, fine-tune the details, and take your player YAML into the multiworld.</div>
     <div class="sub" id="verstamp"></div>
     <div id="chanbanner" style="display:none;margin:10px 0;padding:10px 12px;border-radius:6px;
          background:rgba(186,117,23,.14);border:1px solid rgba(186,117,23,.5);font-size:14px"></div>
   </header>
+  <div id="legacy-notice" class="legacy-notice" role="status" hidden></div>
   <div class="cols">
     <div class="main" id="main"></div>
     <div class="side">
@@ -5507,6 +5588,9 @@ const ERW = (() => {
   }
   function inactiveReason(meta, state, key){
     const v = k => getVal(meta,state,k);
+    if (key === "confine_foreign_progression" && v("multiworld_scope") === "surface") return "Multiworld Scope: surface restricts all incoming items to your Progression Surface. Choose all to use this control.";
+    if (key === "confine_foreign_progression" && v("progression_sharing") === "open") return "Progression Sharing: open forces incoming confinement to 0. Choose balanced to tune incoming progression while keeping your outgoing settings.";
+    if (key === "confine_foreign_progression" && !v("progression_surface").length) return "Select a Progression Surface to use confinement. An empty surface allows progression on any safe check.";
     if (key === "goal_great_runes" && v("ending_condition") !== "great_runes") return "Enable the Great Runes ending condition to use this setting.";
     if (key.startsWith("death_link_amnesty") && !v("death_link")) return "Enable Death Link to use this setting.";
     if (["minimum_enemy_difficulty","maximum_enemy_difficulty","difficulty_ramp_speed","coop_difficulty"].includes(key) && !v("enemy_scaling")) return "Enable Enemy Scaling to use this setting.";
@@ -5690,6 +5774,9 @@ const ERW = (() => {
     const err  = (k,m) => out.push({sev:"error",key:k,msg:m});
     const warn = (k,m) => out.push({sev:"warn", key:k,msg:m});
     const info = (k,m) => out.push({sev:"info", key:k,msg:m});
+    for (const o of meta.options){
+      if (o.deprecation && set(o.key)) warn(o.key, o.deprecation);
+    }
 
     /* 🛑 EVERY RULE BELOW NAMES AN OPTION THAT EXISTS, AND SAYS SOMETHING THE WORLD ACTUALLY DOES.
        That was not true until 2026-08-08: this function carried ~20 rules about `world_logic`,
@@ -5735,7 +5822,8 @@ const ERW = (() => {
     if (has("progression_surface") && !(v("progression_surface") || []).length){
       warn("progression_surface", "Empty turns the confinement OFF \u2014 progression scatters " +
            "wherever AP's fill puts it, including your filler checks.");
-      if (has("progression_sharing") && v("progression_sharing") === "balanced")
+      if (has("progression_sharing") && v("progression_sharing") === "balanced" &&
+          (!has("confine_foreign_progression") || v("confine_foreign_progression") > 0))
         info("progression_sharing", "Nothing to confine other players' progression to " +
              "while Progression Surface is empty.");
     }
@@ -6172,21 +6260,16 @@ if (typeof module !== "undefined") module.exports = ERW;
     [{name:"Troubleshooting", options:["capital_reconciler"].filter(k => meta.byKey[k])},
      {name:"Experimental modes", options:["vanilla_placement"].filter(k => meta.byKey[k])},
      {name:"Archipelago Core", options:meta.apCore.map(o => o.key)}]);
-  /* ELEVEN STEPS -> FIVE (2026-08-20, player complaint: "too many tabs, too many options").
-     The seven option groups are no longer one rail tab each; they are collapsible SECTIONS inside
-     a single Options step. The GROUPING itself still lives in core.GFWeb.option_groups -- one
-     grouping, two surfaces -- this is a composition on top of it, not a second table. The step
-     carries the union of the group keys so the rail's touched-badge logic reads it unchanged. */
+  /* Categories derive from GFWeb.option_groups; search covers the entire editable surface. */
+  const settingsGroups = openGroups.concat(advanced).filter(g => g.options.length);
   const steps = [{id:"welcome", title:"Start"},
                  {id:"options", title:"Options",
-                  options:[].concat.apply([], openGroups.map(g => g.options))},
+                  options:[].concat.apply([], settingsGroups.map(g => g.options))},
                  {id:"seedsize", title:"Seed size"},
                  {id:"advanced", title:"Advanced"}, {id:"finish", title:"Finish"}];
   let cur = 0;
-  /* Which Options sections are open. Survives renderStep (preset picks re-render the whole step),
-     dies with the page -- deliberately not persisted. The first section starts open so the step
-     never reads as a wall of closed doors. */
-  const openSections = new Set(openGroups.length ? [openGroups[0].name] : []);
+  let settingsCategory = openGroups.length ? openGroups[0].name : "all";
+  let settingsQuery = "", settingsChanged = false;
 
   const $ = sel => document.querySelector(sel);
   const el = (tag, cls, html) => { const e = document.createElement(tag);
@@ -6288,7 +6371,10 @@ if (typeof module !== "undefined") module.exports = ERW;
          from 2026-08-20 to 2026-09-06, so `nameOf` never matched, the "auto" word never painted,
          the out-of-range chip never rendered, and the box read "0" next to "(default -1)" -- the
          exact mess the chip was written to fix. Nothing threw: `sv[1]` on an object is undefined. */
-      const nameOf = n => { const hit = specials.find(sv => sv.value === n); return hit && hit.name; };
+      const nameOf = n => {
+        if (o.range_labels && o.range_labels[n]) return o.range_labels[n];
+        const hit = specials.find(sv => sv.value === n); return hit && hit.name;
+      };
       const sl = Object.assign(document.createElement("input"),
         {type:"range", min:start, max:end, value:Math.max(start, Math.min(end, v))});
       const num = Object.assign(document.createElement("input"),
@@ -6296,7 +6382,7 @@ if (typeof module !== "undefined") module.exports = ERW;
       num.style.width = "80px";
       const word = el("span", "bounds");
       const paintWord = n => {
-        const nm = nameOf(n);
+        const nm = nameOf(n) || (o.range_unit ? n + o.range_unit : "");
         word.textContent = nm ? nm : "";
         word.style.marginLeft = nm ? "6px" : "0";
       };
@@ -6653,9 +6739,10 @@ if (typeof module !== "undefined") module.exports = ERW;
     const head = el("div", "head");
     head.append(el("span", "dname", esc(o.display_name)),
                 el("span", "key", esc(o.key)));
-    if (mod){
-      head.append(el("span", "modbadge", "changed"));
-      const rb = el("button", "reset", "reset to default");
+    const badge = el("span", "modbadge", "changed"); badge.hidden = !mod;
+    head.append(badge);
+    {
+      const rb = el("button", "reset", "Reset"); rb.hidden = !mod;
       /* 🛑 THE SAME ROOT AS THE TOGGLE LABEL, one step worse. Because `refresh()` does not rebuild
          rows, reset moved the YAML while the CONTROL kept the old value on screen -- the checkbox
          still checked, the radio still on the old choice, the slider still where it was dragged --
@@ -6664,14 +6751,19 @@ if (typeof module !== "undefined") module.exports = ERW;
          `more…` block closes. */
       rb.addEventListener("click", () => {
         delete state.values[o.key];
-        refresh();
         row.replaceWith(optRow(o));
+        refresh();
       });
       head.append(rb);
     }
     row.append(head);
     row.insertAdjacentHTML("beforeend", descBlocks(o));
-    row.append(controlFor(o));
+    const controls = controlFor(o);
+    controls.querySelectorAll("input, select, textarea").forEach(control => {
+      if (["number", "range", "text", "search"].includes(control.type) || control.tagName === "SELECT" || control.tagName === "TEXTAREA")
+        if (!control.closest("label") && !control.getAttribute("aria-label")) control.setAttribute("aria-label", o.display_name);
+    });
+    row.append(controls);
     row.append(el("div", "small inactive-reason", ""));
     return row;
   }
@@ -6721,7 +6813,7 @@ if (typeof module !== "undefined") module.exports = ERW;
   // matters but is usually decided once and left.
   const CHECK_COUNT_OPTIONS = ["num_regions", "start_region_pool", "enable_dlc", "dlc_only",
                                "shop_checks"];
-  const PLACEMENT_OPTIONS = ["progression_surface", "progression_sharing",
+  const PLACEMENT_OPTIONS = ["progression_surface", "progression_sharing", "confine_foreign_progression",
                              // the locality knobs -- they move the "what you send out" card below
                              "keep_local", "keep_local_rune_cap",
                              // 🛑 NOT item_shuffle: it is frozen ON and off the yaml surface, so it
@@ -6840,13 +6932,12 @@ if (typeof module !== "undefined") module.exports = ERW;
                       other: "other goods", progressive: "progressive upgrades" };
   const catLabel = c => CAT_LABEL[c] || c;
 
-  /* The share of foreign progression confined to your surface, 0-100, DERIVED from
-     `progression_sharing`: `balanced` is the old confine_foreign_progression default (100), `open`
-     is 0. The old knob is hidden from the yaml surface, so it is not read here -- an absent option
-     means its frozen/derived value, never `off`. */
+  /* Match the runtime overrides, then read the independent incoming-placement dial. */
   function confineShare(){
-    const o = meta.byKey["progression_sharing"];
-    return (o && ERW.getVal(meta, state, "progression_sharing") === "open") ? 0 : 100;
+    const v = k => ERW.getVal(meta,state,k);
+    if (v("multiworld_scope") === "surface") return 100;
+    if (v("progression_sharing") === "open") return 0;
+    return meta.byKey.confine_foreign_progression ? Number(v("confine_foreign_progression")) : 100;
   }
 
   function renderContribution(cs, size){
@@ -6954,8 +7045,7 @@ if (typeof module !== "undefined") module.exports = ERW;
           ? " \u2014 anywhere at all. <code>progression_sharing: open</code> puts no " +
             "restriction on where another world\u2019s key items may sit in yours."
           : " \u2014 your progression surface (" + n(surfMid) + "), plus the " + (100 - confine) +
-            "% share of foreign key-item names that a hand-set <code>confine_foreign_progression: " +
-            confine + "</code> lets out onto the rest.") + "</div>";
+            "% share of foreign key-item names allowed beyond the surface by Incoming Progression Confinement.") + "</div>";
     if (confine >= 100){
       /* MEASURED, which is why it is a warning and not a footnote: 3 real gens, 498 placements
          into a Hollow Knight slot, ZERO useful items. Confining a partner's progression to our
@@ -7189,6 +7279,126 @@ if (typeof module !== "undefined") module.exports = ERW;
       "<div class='small'>A ceiling, not a forecast \u2014 see Seed size for what that means.</div>";
   }
 
+  function deprecationReference(options = meta.options.filter(o => o.deprecation)){
+    const card = el("details", "card legacy-reference");
+    card.append(el("summary", "", "Deprecated settings & older YAMLs"));
+    card.append(el("p", "desc", "These keys remain accepted for older files. They are not offered for new runs. Imports preserve their values; review the guidance before removing or replacing them."));
+    for (const o of options){
+      card.append(el("h3", "", esc(o.display_name)), el("code", "", esc(o.key)), el("p", "desc", esc(o.deprecation)));
+    }
+    return card;
+  }
+
+  function paintDeprecations(){
+    const notice = $("#legacy-notice");
+    const legacy = meta.options.filter(o => o.deprecation && o.key in state.values);
+    notice.hidden = !legacy.length;
+    notice.innerHTML = legacy.length ? "<strong>This YAML includes deprecated settings</strong><p>Values are preserved. Review them before generating a new run. Removing a key uses the current settings in its place.</p>" : "";
+    for (const o of legacy){
+      const item = el("div", "legacy-item", "<p><code>" + esc(o.key) + "</code> — " + esc(o.deprecation) + "</p>");
+      const remove = el("button", "filter-button legacy-remove", o.key === "natural_progression" ? "Use Region Locks instead" : "Remove old key; use current settings");
+      remove.setAttribute("data-legacy-key", o.key);
+      remove.addEventListener("click", () => { delete state.values[o.key]; refresh(); renderStep(); });
+      item.append(remove); notice.append(item);
+    }
+  }
+
+  function paintOptionStatus(){
+    document.querySelectorAll("[data-option]").forEach(row => {
+      const mod = !ERW.isDefault(meta,state,row.getAttribute("data-option"));
+      row.className = "opt" + (mod ? " mod" : "");
+      const badge = row.querySelector(".modbadge"), reset = row.querySelector(".reset");
+      if (badge) badge.hidden = !mod;
+      if (reset) reset.hidden = !mod;
+    });
+  }
+
+  function renderSettingsWorkspace(){
+    const workspace = el("div", "settings-workspace");
+    workspace.append(el("div", "workspace-intro", "<h2>Shape your run.</h2><p class='desc'>Choose a category, or search every setting. The main choices lead; advanced tuning stays close by. Your YAML updates as you go.</p>"));
+    const tools = el("div", "settings-tools");
+    const label = el("label", "search-label", "Find a setting");
+    label.setAttribute("for", "settings-search");
+    const search = el("input", "settings-search"); search.id = "settings-search";
+    search.type = "search"; search.placeholder = "Search options or YAML keys…"; search.value = settingsQuery;
+    search.addEventListener("input", () => { settingsQuery = search.value; paintSettingsFilter(); });
+    const changed = el("button", "filter-button", "Changed settings"); changed.id = "settings-changed";
+    changed.addEventListener("click", () => { settingsChanged = !settingsChanged; paintSettingsFilter(); });
+    const clear = el("button", "filter-button", "Show all"); clear.id = "settings-clear";
+    clear.addEventListener("click", () => { settingsQuery = ""; search.value = ""; settingsChanged = false; settingsCategory = "all"; paintSettingsFilter(); });
+    tools.append(label, search, changed, clear); workspace.append(tools);
+    const categories = el("nav", "category-nav"); categories.setAttribute("aria-label", "Settings categories");
+    for (const g of settingsGroups){
+      const button = el("button", "category-button", esc(g.name));
+      button.setAttribute("data-category", g.name);
+      button.addEventListener("click", () => { settingsCategory = g.name; settingsQuery = ""; search.value = ""; settingsChanged = false; paintSettingsFilter(); });
+      categories.append(button);
+    }
+    const count = el("div", "small settings-count", "");
+    count.id = "settings-count"; count.setAttribute("role", "status");
+    workspace.append(categories, count);
+    settingsGroups.forEach((g, gi) => {
+      const section = el("section", "card settings-section"); section.setAttribute("data-category", g.name);
+      section.append(el("h2", "", esc(g.name) + " <span class='small' id='gsec-" + gi + "'></span>"));
+      const all = g.options.filter(k => meta.byKey[k]);
+      const essential = all.filter(k => meta.byKey[k].essential);
+      const head = essential.length ? essential : all;
+      const rest = essential.length ? all.filter(k => !meta.byKey[k].essential) : [];
+      if (g.options.includes("enemy_scaling")) section.append(scalingPicksCard());
+      for (const k of head) section.append(optRow(meta.byKey[k]));
+      if (rest.length){
+        const more = el("details", "advanced-tuning");
+        more.setAttribute("data-tuning", "true");
+        more.open = rest.some(k => !ERW.isDefault(meta,state,k));
+        more.append(el("summary", "", "Advanced · " + esc(g.name) + " <span class='small' id='gsec-" + gi + "-more'></span>"));
+        if (g.options.includes("confine_foreign_progression"))
+          more.append(el("p", "desc", "Incoming progression: choose where other players' important items can appear. Set Incoming Progression Confinement to 0 for any safe check while leaving Progression Sharing balanced to retain your outgoing settings."));
+        for (const k of rest) more.append(optRow(meta.byKey[k]));
+        section.append(more);
+      }
+      workspace.append(section);
+    });
+    const legacy = el("div", ""); legacy.id = "settings-legacy-results"; workspace.append(legacy);
+    const empty = el("div", "card empty-state", "<h3>No settings found.</h3><p>Try a shorter search or choose Show all.</p>");
+    empty.id = "settings-empty"; empty.hidden = true; workspace.append(empty);
+    return workspace;
+  }
+
+  function paintSettingsFilter(){
+    const search = $("#settings-search"); if (!search) return;
+    const query = settingsQuery.trim().toLowerCase();
+    let matches = 0;
+    document.querySelectorAll(".settings-section").forEach(section => {
+      const category = section.getAttribute("data-category");
+      const inCategory = !!query || settingsChanged || settingsCategory === "all" || category === settingsCategory;
+      let shown = 0;
+      section.querySelectorAll("[data-option]").forEach(row => {
+        const key = row.getAttribute("data-option"), o = meta.byKey[key];
+        const searchable = [key, o.display_name, o.description, category].join(" ").toLowerCase();
+        const show = inCategory && (!query || searchable.includes(query)) && (!settingsChanged || !ERW.isDefault(meta,state,key));
+        row.hidden = !show; if (show) shown++;
+      });
+      section.hidden = !shown; matches += shown;
+      section.querySelectorAll("[data-tuning]").forEach(fold => {
+        const rows = fold.querySelectorAll("[data-option]");
+        fold.hidden = !Array.from(rows).some(row => !row.hidden);
+        if ((query || settingsChanged) && !fold.hidden) fold.open = true;
+      });
+    });
+    document.querySelectorAll(".category-button").forEach(button => {
+      const selected = !query && !settingsChanged && settingsCategory === button.getAttribute("data-category");
+      button.setAttribute("aria-pressed", String(selected));
+    });
+    $("#settings-changed").setAttribute("aria-pressed", String(settingsChanged));
+    const legacy = query ? meta.options.filter(o => o.deprecation &&
+      [o.key, o.display_name, o.deprecation].join(" ").toLowerCase().includes(query)) : [];
+    const legacyResults = $("#settings-legacy-results"); legacyResults.innerHTML = "";
+    if (legacy.length){ const reference = deprecationReference(legacy); reference.open = true; legacyResults.append(reference); }
+    $("#settings-count").textContent = matches + " setting" + (matches === 1 ? "" : "s") + (settingsChanged ? " changed from defaults" : " shown") +
+      (legacy.length ? " · " + legacy.length + " deprecated reference" + (legacy.length === 1 ? "" : "s") : "");
+    $("#settings-empty").hidden = matches > 0 || legacy.length > 0;
+  }
+
   function renderStep(){
     const main = $("#main");
     main.innerHTML = "";
@@ -7203,6 +7413,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     steps.forEach((st, i) => {
       const dirty = stepKeys(st).some(k => meta.byKey[k] && !ERW.isDefault(meta, state, k));
       const b = el("button", (i === cur ? "cur" : (dirty ? "touched" : "")), esc(st.title));
+      b.setAttribute("aria-current", i === cur ? "step" : "false");
       b.addEventListener("click", () => { cur = i; renderStep(); });
       nav.append(b);
     });
@@ -7221,13 +7432,12 @@ if (typeof module !== "undefined") module.exports = ERW;
 
     if (step.id === "welcome"){
       const c1 = el("div", "card",
-        "<h2>What is this?</h2><div class='desc' style='color:var(--dim)'>" +
-        "<a href='https://archipelago.gg'>Archipelago</a> shuffles the items of many games " +
-        "into one shared multiworld — your Elden Ring checks can hold anyone's items, and " +
-        "yours can be found by others (solo works too). A <b>yaml</b> file is how you tell " +
-        "the generator who you are and which options you want. This wizard writes that " +
-        "file for you: choose profiles, adjust what you care about, download. The file includes " +
-        "your settings and defaults so your host knows exactly what you chose.</div>");
+        "<h2>A run that fits your group.</h2><p class='desc'>" +
+        "In <a href='https://archipelago.gg'>Archipelago</a>, your discoveries can help another " +
+        "player — and theirs can help you. Solo works too.</p><div class='metric-grid'>" +
+        "<div><b>01 · Build</b><p class='desc'>Pick your content, run size, and play style below.</p></div>" +
+        "<div><b>02 · Tune</b><p class='desc'>Adjust the settings you care about. Defaults cover the rest.</p></div>" +
+        "<div><b>03 · Take it with you</b><p class='desc'>Download your player YAML and send it to your host.</p></div></div>");
       const nameCard = el("div", "card");
       nameCard.innerHTML = "<h2>Your player name</h2><div class='small'>Shown to other " +
         "players in the multiworld. Up to 16 characters.</div>";
@@ -7255,11 +7465,11 @@ if (typeof module !== "undefined") module.exports = ERW;
       main.append(c1, nameCard, pc);
     } else if (step.id === "advanced"){
       const gate = el("div", "card advgate",
-        "<h2>Advanced customization</h2><div class='desc'>Whatever the world does not " +
-        "file under a tab of its own ends up here, alongside the Archipelago-wide options. " +
-        "Everything here is safe to skip — the defaults are fine. Open a section only if " +
-        "you're chasing something specific.</div>");
+        "<h2>Beyond the basics</h2><div class='desc'>Experimental modes, troubleshooting, and " +
+        "Archipelago-wide settings. Advanced tuning for regions, difficulty, and multiworld " +
+        "placement lives beside its related settings in Options. Defaults are a complete run.</div>");
       main.append(gate);
+      main.append(deprecationReference());
       for (const g of advanced){
         const det = el("details", "card");
         det.open = g.options.some(k => !ERW.isDefault(meta,state,k));
@@ -7280,47 +7490,19 @@ if (typeof module !== "undefined") module.exports = ERW;
         "client.\n\nFix anything red in Configuration checks first — red means generation will reject " +
         "the file.</div>";
       main.append(done);
+      const review = el("div", "card", "<h2>Your changes</h2><p class='small'>Review these before downloading. Imported deprecated keys are preserved and flagged above.</p>");
+      if (!devs.length) review.append(el("p", "desc", "You're using the defaults."));
+      for (const k of devs){
+        const o = meta.byKey[k]; if (!o) continue;
+        const line = el("div", "review-change");
+        line.append(el("strong", "", esc(o.display_name)), el("span", "", esc(ERW.fmtDefault(ERW.getVal(meta,state,k)))));
+        review.append(line);
+      }
+      main.append(review);
     } else if (step.id === "options"){
-      const total = openGroups.reduce((a, g) => a + g.options.length, 0);
-      main.append(el("div", "card",
-        "<h2>The options</h2><div class='desc'>" + openGroups.length + " sections, " + total +
-        " options. Each section leads with the decisions that shape the run; the tuning sits " +
-        "behind its More fold, and a fold holding a changed option opens itself. The yaml on the " +
-        "right moves as you do — a preset from the Start step is already a complete, playable " +
-        "file, so everything here is adjustment, not homework.</div>"));
-      openGroups.forEach((g, gi) => {
-        const det = el("details", "card");
-        det.open = openSections.has(g.name);
-        det.addEventListener("toggle",
-          () => { if (det.open) openSections.add(g.name); else openSections.delete(g.name); });
-        const sum = el("summary", "");
-        sum.style.cssText = "cursor:pointer;color:var(--gold)";
-        sum.innerHTML = esc(g.name) + " <span class='small' id='gsec-" + gi + "'></span>";
-        det.append(sum);
-        /* THE ESSENTIALS TIER (core._ESSENTIAL_OPTIONS -> metadata `essential`). The decisions
-           render expanded; the tuning goes behind one "More ..." fold per section, whose count is
-           live via paintSectionCounts. The fold auto-opens at render while something inside it
-           deviates -- a changed option must never be out of sight (the #554 class). If the
-           metadata carries NO essentials (an older blob), every option renders expanded: an
-           absent tier means "show everything", never "hide everything". */
-        if (g.options.includes("enemy_scaling")) det.append(scalingPicksCard());
-        const ess = g.options.filter(k => meta.byKey[k] && meta.byKey[k].essential);
-        const rest = ess.length ? g.options.filter(k => meta.byKey[k] && !meta.byKey[k].essential)
-                                : [];
-        const head = ess.length ? ess : g.options;
-        for (const k of head){ const o = meta.byKey[k]; if (o) det.append(optRow(o)); }
-        if (rest.length){
-          const more = el("details", "more");
-          more.open = rest.some(k => meta.byKey[k] && !ERW.isDefault(meta, state, k));
-          more.innerHTML = "<summary>More <span class='small' id='gsec-" + gi +
-                           "-more'></span></summary>";
-          for (const k of rest){ const o = meta.byKey[k]; if (o) more.append(optRow(o)); }
-          det.append(more);
-        }
-        main.append(det);
-      });
-      paintSectionCounts();  // AFTER the append -- it queries the document for #gsec-N
-      paintScalingPicks();   // ditto (#sp-*)
+      main.append(renderSettingsWorkspace());
+      paintSectionCounts();
+      paintScalingPicks();
     }
 
     const btns = el("div", "navbtns");
@@ -7333,6 +7515,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     btns.append(back, next);
     main.append(btns);
     paintProfiles(); paintDependencies(); paintScalingPicks();
+    paintSettingsFilter(); paintOptionStatus();
     window.scrollTo({top:0});
   }
 
@@ -7604,7 +7787,7 @@ if (typeof module !== "undefined") module.exports = ERW;
   }
 
   function paintSectionCounts(){
-    openGroups.forEach((g, gi) => {
+    settingsGroups.forEach((g, gi) => {
       const span = $("#gsec-" + gi);
       if (!span) return;
       const changed = g.options.filter(k => meta.byKey[k] && !ERW.isDefault(meta, state, k)).length;
@@ -7666,7 +7849,7 @@ if (typeof module !== "undefined") module.exports = ERW;
     const devs = ERW.deviations(meta, state);
     $("#devcount").textContent = "· " + devs.length + " change" + (devs.length === 1 ? "" : "s") +
       " from defaults · preset: " + state.presetTitle;
-    paintProfiles(); paintDependencies();
+    paintProfiles(); paintDependencies(); paintOptionStatus(); paintSettingsFilter(); paintDeprecations();
     paintChannelBanner();
     paintVersionStamp();
     renderSeedSize();
@@ -7918,6 +8101,9 @@ function stripYamlComment(line){
     // no-change default; other live keys remain mandatory to reject partial YAML.
     if (!("enable_dlc_gear" in result.values) && meta.byKey.enable_dlc_gear)
       result.values.enable_dlc_gear = false;
+    // Older complete wizard exports hid this supported dial; retain their original default.
+    if (!("confine_foreign_progression" in result.values) && meta.byKey.confine_foreign_progression)
+      result.values.confine_foreign_progression = meta.byKey.confine_foreign_progression.default;
     const missing = expectedKeys.filter(k => !meta.byKey[k].compatibility_only && !(k in result.values));
     const unexpected = gotKeys.filter(k => !expectedKeys.includes(k));
 
@@ -8081,13 +8267,15 @@ function stripYamlComment(line){
       // Reset existing option state first.
       state.values = {};
       for (const [key, value] of Object.entries(parsed.values)){
-        ERW.setVal(meta, state, key, value);
+        if (meta.byKey[key].compatibility_only) state.values[key] = value;
+        else ERW.setVal(meta, state, key, value);
       }
       state.presetId = null;
       state.presetTitle = "Imported YAML";
       refresh();
       renderStep();
-      $("#copymsg").textContent = "YAML imported successfully.";
+      const legacy = meta.options.filter(o => o.deprecation && o.key in parsed.values);
+      $("#copymsg").textContent = legacy.length ? "YAML imported. Review the deprecated settings notice above." : "YAML imported successfully.";
     } catch (err){
       $("#copymsg").textContent =
         err instanceof Error ? err.message : String(err);

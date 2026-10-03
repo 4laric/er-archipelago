@@ -687,6 +687,7 @@ class GlobalScadutreeBlessing(Choice):
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
     visibility = Visibility.complex_ui | Visibility.spoiler
     display_name = "Global Scadutree Blessing (old)"
+    wizard_deprecation = "Replaced by scadutree_blessing_scope and dlc_blessing_catchup. player_only maps to anywhere + catch-up off; scaled maps to anywhere + catch-up on. off does nothing. Contradictory old and new values reject generation."
     option_off = 0
     option_player_only = 1
     option_scaled = 2

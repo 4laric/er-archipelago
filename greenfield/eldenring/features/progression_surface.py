@@ -68,8 +68,7 @@ class ProgressionSurface(OptionSet):
     Fewer kinds = a tighter hunt; more = wider scatter. A list too small for your
     progression widens itself; it stops generation only if every safe check is too few.
     Ability Unlock items ignore this list. Empty = no limit, except unsafe checks (missable
-    ones and similar). With Progression Sharing balanced, other players' progression is
-    limited to it.
+    ones and similar). Incoming Progression Confinement controls foreign progression.
     Default: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest
     keys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),
     ShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon
@@ -158,13 +157,12 @@ class ProgressionSurfaceMode(Removed):
 
 
 class ProgressionSharing(Choice):
-    """How progression items travel between your world and other players' worlds.
+    """How progression travels between your world and other players.
 
-    Progression items unlock other checks; yours are mainly Region Locks (the items that
-    open regions), so at balanced you may wait on another player for one. Pick open if a
-    partner game cannot take early Elden Ring progression.
-    balanced: yours travel; theirs land only on Progression Surface (default)
-    open: Locks and runes stay in Elden Ring worlds; theirs on any safe check
+    balanced (default): your Region Locks can travel. Incoming progression uses the
+    advanced Incoming Progression Confinement setting (100: surface only by default).
+    open: Locks and runes stay in Elden Ring worlds; incoming progression uses any safe
+    check. Use this if a partner game cannot take early Elden Ring progression.
     """
     display_name = "Progression Sharing (with other players)"
     option_balanced = 0
@@ -176,15 +174,15 @@ class ProgressionSharing(Choice):
 # answered one question -- where does progression go -- and the useful combinations were two:
 # `progression_bias` (0), `cross_game_progression` (auto) and `confine_foreign_progression` (100)
 # at their shipped values is `balanced`; `cross_game_progression: never` +
-# `confine_foreign_progression: 0` is `open`. The three still EXIST, hidden (Visibility.none, so
-# no template or wizard entry) and still accepted in a yaml, because dozens of shipped yamls and
-# the measurement tooling set them by name. `open` overrides the latter two in
+# `confine_foreign_progression: 0` is `open`. The three still exist and are accepted in YAML.
+# Incoming confinement is now an advanced control; the two outbound knobs stay hidden.
+# `open` overrides cross-game progression and incoming confinement in
 # `apply_progression_sharing`; `balanced` leaves them exactly as written. `progression_bias`
 # is never overridden -- neither mode has an opinion about how many of your own Locks stay home.
 
 
 def apply_progression_sharing(options) -> None:
-    """Resolve `progression_sharing` onto the two hidden knobs it governs. Called once, first thing
+    """Resolve `progression_sharing` onto cross-game progression and incoming confinement. Called
     in generate_early, so every reader (item_rule install, incoming reservation, pre_fill) sees
     the resolved values."""
     mode = getattr(options, "progression_sharing", None)
@@ -274,34 +272,17 @@ class CrossGameProgression(NamedRange):
 
 
 class ConfineForeignProgression(NamedRange):
-    """What share of OTHER players' progression is confined to your Progression Surface, the way
-    your own is. A percentage, not a switch.
+    """Share of incoming progression names confined to your Progression Surface.
 
-    100 (`true`) confines all of it: another world's advancement may only be placed on your surface
-    locations -- the same high-confidence checks your own progression is curated onto -- never on
-    your filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check
-    of yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign
-    progression scatters across any reachable location of yours, which is standard Archipelago
-    behaviour. In between, that share of the foreign advancement you see is held to the surface and
-    the rest is free.
-
-    This is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect
-    -- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear
-    entirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its
-    own layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful
-    items into partner worlds before the general fill, whatever this option is set to. Re-measured
-    with the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every
-    confine value. Lower this only if you want foreign keys spread beyond your starred checks.
-
-    It is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item
-    name is fixed for the whole seed, so a name is either surface-only or free, never both.
-
-    No effect in a solo seed, because there is no foreign progression to confine. It never blocks
-    generation: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign
-    progression that will not fit your surface simply lands in its own world instead (only YOUR
-    filler checks are barred to it -- other worlds are untouched)."""
-    display_name = "Confine Foreign Progression"
-    visibility = Visibility.none  # governed by `progression_sharing`; still accepted in a yaml
+    100: surface only (default). 0: any safe check. Intermediate values apply per item name.
+    Your own progression and outgoing Locks are unchanged. No effect in solo play.
+    Progression Sharing open forces 0; Multiworld Scope surface forces 100.
+    An empty surface disables confinement.
+    """
+    display_name = "Incoming Progression Confinement"
+    wizard_range_labels = {0: "Any safe check", 100: "Surface only"}
+    wizard_range_unit = "%"
+    visibility = Visibility.all & ~Visibility.simple_ui
     range_start = 0
     range_end = 100
     default = 100

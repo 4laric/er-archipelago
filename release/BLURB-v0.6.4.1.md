@@ -1,5 +1,12 @@
 # v0.6.4.1 — development window (draft)
 
+The player YAML builder now groups settings by purpose, searches labels and YAML keys,
+and lets you review just your changes. Advanced controls stay beside related settings.
+Incoming Progression Confinement is available under Multiworld & Placement → Advanced:
+choose 0 to let other players' progression appear on any safe check while keeping
+Progression Sharing balanced for your outgoing settings. Defaults have not changed.
+Natural Progression is deprecated for new runs; older imports preserve it and show
+guidance, alongside the other retired compatibility settings.
 Before fighting a boss, look up what its arena may sweep. The new searchable reference
 groups original boss arenas by region and shows each complete candidate check list,
 with grace landmarks for orientation. Open it beside Dungeon Sweep in the wizard or

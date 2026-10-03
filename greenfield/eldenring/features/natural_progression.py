@@ -73,7 +73,7 @@ its pure helpers unit-test without a live world.
 """
 from itertools import combinations
 
-from Options import Toggle
+from Options import Toggle, Visibility
 from ..registry import Feature, register
 
 try:
@@ -221,15 +221,15 @@ NATURAL_PARENT = {
 
 
 class NaturalProgression(Toggle):
-    """Opens regions with the game's own keys, not this randomizer's Region Locks.
+    """Deprecated mode, retained for existing YAMLs. Use Region Locks for new runs.
 
-    Off (default): Region Locks. On: regions open with their vanilla keys or boss
-    Remembrances (the Rusty Key for Stormveil). Keys stay shuffled, even into other worlds,
-    except Remembrances Keep Local holds. Number of Regions is ignored. The capital needs
-    Altus plus any two Great Runes; the DLC needs the Blood Lord Remembrance. Stops
-    generation with Vanilla Placement.
+    On: regions open with shuffled vanilla keys or Remembrances; Number of Regions is
+    ignored. The capital needs Altus and two Great Runes; the DLC needs Blood Lord.
+    Off: Region Locks (default). Cannot combine with Vanilla Placement.
     """
     display_name = "Natural Progression"
+    visibility = Visibility.complex_ui | Visibility.spoiler
+    wizard_deprecation = "Deprecated mode. For new runs, use Region Locks. When enabled, regions use vanilla keys and Number of Regions is ignored. Builder size estimates assume Region Locks. Imported values are preserved; removing this key switches to Region Locks."
 
 
 # ---- pure helpers (world may be None-ish in unit tests; all reads are getattr-guarded) ----------

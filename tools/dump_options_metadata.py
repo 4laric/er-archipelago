@@ -116,6 +116,7 @@ PRESETS = [
 
 # Kept in metadata for old YAML imports, not offered as new player choices.
 COMPATIBILITY_ONLY = frozenset({
+    "natural_progression",
     "flask_upgrades_on_progression_surface",
     "global_scadutree_blessing",
     "merchant_bell_logic",
@@ -238,6 +239,12 @@ def describe(key, cls):
     # flag on is the only thing that can move this file -- and `--check` will notice when it does.
     if getattr(cls, "wizard_free_text", False):
         d["free_text"] = True
+    if getattr(cls, "wizard_deprecation", None):
+        d["deprecation"] = cls.wizard_deprecation
+    if getattr(cls, "wizard_range_labels", None):
+        d["range_labels"] = cls.wizard_range_labels
+    if getattr(cls, "wizard_range_unit", None):
+        d["range_unit"] = cls.wizard_range_unit
     return d
 
 

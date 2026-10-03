@@ -78,7 +78,7 @@ function replaceOption(yaml, key, replacement){
 }
 
 const legacy = P.meta.options.filter(o => o.compatibility_only);
-if (legacy.length !== 4) throw new Error("legacy witnesses disappeared");
+if (legacy.length !== 5) throw new Error("legacy witnesses disappeared");
 for (const option of legacy){
   P.state.values[option.key] = option.default;
 }
@@ -88,9 +88,10 @@ for (const option of legacy){
   if (!(option.key in legacyParsed.values) || JSON.stringify(legacyParsed.values[option.key]) !== JSON.stringify(option.default))
     throw new Error("legacy import lost " + option.key);
 }
-const oldComplete = replaceOption(legacyYaml,"enable_dlc_gear","");
+const oldComplete = replaceOption(replaceOption(legacyYaml,"enable_dlc_gear",""),"confine_foreign_progression","");
 const oldParsed = P.parseWizardYaml(oldComplete,P.meta);
 if (oldParsed.values.enable_dlc_gear !== false) throw new Error("old complete YAML enabled DLC gear");
+if (oldParsed.values.confine_foreign_progression !== 100) throw new Error("old complete YAML changed incoming progression confinement");
 const roundtrip = P.buildYaml(P.meta,{...P.state,values:oldParsed.values});
 for (const option of legacy) if (!roundtrip.includes("  " + option.key + ":")) throw new Error("roundtrip dropped " + option.key);
 const rejected = {};

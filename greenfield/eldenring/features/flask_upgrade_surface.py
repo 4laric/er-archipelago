@@ -18,6 +18,7 @@ class FlaskUpgradesOnProgressionSurface(Toggle):
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
     visibility = Visibility.complex_ui | Visibility.spoiler
     display_name = "Flask Upgrades on Progression Surface (no effect)"
+    wizard_deprecation = "Ignored. Flask upgrades now prefer the Progression Surface when space permits in every seed. Remove this old key."
     default = 0
 
 
