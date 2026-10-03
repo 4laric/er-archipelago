@@ -30,6 +30,10 @@ const search=nodes.get('search'), region=nodes.get('region'), rung=nodes.get('ru
 search.value='Mohg, the Omen';search.handlers.input();assert.equal(count(),1);
 assert(groups.innerHTML.includes('m35_00'));assert(groups.innerHTML.includes('candidate checks'));
 assert(!groups.innerHTML.includes('Morgott, the Omen King'));
+const unaudited=data.groups.find(g=>!g.arena_audited);
+assert(unaudited,'The production corpus must exercise the unaudited-arena disclosure');
+search.value=unaudited.boss;search.handlers.input();assert(groups.innerHTML.includes('Arena region unverified'));
+search.value='Mohg, the Omen';search.handlers.input();
 const sewer=data.groups.find(g=>g.boss==='Mohg, the Omen'), check=data.checks[sewer.checks[0]];
 assert(groups.innerHTML.includes('er-archipelago-check-browser.html#q='));
 search.value=check.name;search.handlers.input();assert(count()>0);assert(groups.innerHTML.includes('class="badge">match'));

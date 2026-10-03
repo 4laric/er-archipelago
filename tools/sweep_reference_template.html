@@ -61,7 +61,7 @@ function render(){
   const bossMatch=q&&bossText(g).includes(q);
   const rows=g.checks.map(id=>DATA.checks[id]);
   html+='<details class="boss" id="boss-'+g.flag+'"><summary><span class="boss-title">'+esc(g.boss)+'</span><span class="count">'+g.checks.length+' candidate checks</span>'
-   +'<span class="arena">Original boss arena in '+esc(g.region)+'</span>'
+   +'<span class="arena">'+(g.arena_audited?'Original boss arena in '+esc(g.region):'Arena region unverified; checks in '+esc(g.member_region))+'</span>'
    +(g.landmarks.length?'<span class="coverage">Check landmarks include '+g.landmarks.map(esc).join(' · ')+'</span>':'')+'</summary><div class="body">'
    +'<p>Complete candidate list. A seed can remove checks from this list; collected checks do not pay twice.</p>'
    +(g.member_region!==g.region?'<p class="badge">Arena in '+esc(g.region)+'; member checks in '+esc(g.member_region)+'. Both regions must be included in your seed.</p>':'')
