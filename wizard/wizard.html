@@ -1772,7 +1772,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    "class": "ProgressionSurface",
    "compatibility_only": false,
    "display_name": "Progression Surface (where progression can land)",
-   "description": "Which kinds of check may hold progression items.\n\nFewer kinds = a tighter hunt; more = wider scatter. A list too small for your\nprogression widens itself; it stops generation only if every safe check is too few.\nAbility Unlock items ignore this list. Empty = no limit, except unsafe checks (missable\nones and similar). With Progression Sharing balanced, other players' progression is\nlimited to it.\nDefault: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest\nkeys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),\nShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon\nSweep is none).\nOptional: Basin (Crystal Tears), Legendary (rarest items), Boss (every boss drop, incl.\nFieldBoss, MinorDungeonBoss), Shop, ShopNonSpell (merchant wares; farm runes, buy your\nprogression).",
+   "description": "Which kinds of check may hold progression items.\n\nFewer kinds = a tighter hunt; more = wider scatter. A list too small for your\nprogression widens itself; it stops generation only if every safe check is too few.\nAbility Unlock items ignore this list. Empty = no limit, except unsafe checks (missable\nones and similar). Incoming Progression Confinement controls foreign progression.\nDefault: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest\nkeys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),\nShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon\nSweep is none).\nOptional: Basin (Crystal Tears), Legendary (rarest items), Boss (every boss drop, incl.\nFieldBoss, MinorDungeonBoss), Shop, ShopNonSpell (merchant wares; farm runes, buy your\nprogression).",
    "kind": "set",
    "base": "OptionSet",
    "default": [
@@ -2053,7 +2053,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    "class": "ProgressionSharing",
    "compatibility_only": false,
    "display_name": "Progression Sharing (with other players)",
-   "description": "How progression items travel between your world and other players' worlds.\n\nProgression items unlock other checks; yours are mainly Region Locks (the items that\nopen regions), so at balanced you may wait on another player for one. Pick open if a\npartner game cannot take early Elden Ring progression.\nbalanced: yours travel; theirs land only on Progression Surface (default)\nopen: Locks and runes stay in Elden Ring worlds; theirs on any safe check",
+   "description": "How progression travels between your world and other players.\n\nbalanced (default): your Region Locks can travel. Incoming progression uses the\nadvanced Incoming Progression Confinement setting (100: surface only by default).\nopen: Locks and runes stay in Elden Ring worlds; incoming progression uses any safe\ncheck. Use this if a partner game cannot take early Elden Ring progression.",
    "kind": "choice",
    "base": "Choice",
    "default": "balanced",
@@ -5822,7 +5822,8 @@ const ERW = (() => {
     if (has("progression_surface") && !(v("progression_surface") || []).length){
       warn("progression_surface", "Empty turns the confinement OFF \u2014 progression scatters " +
            "wherever AP's fill puts it, including your filler checks.");
-      if (has("progression_sharing") && v("progression_sharing") === "balanced")
+      if (has("progression_sharing") && v("progression_sharing") === "balanced" &&
+          (!has("confine_foreign_progression") || v("confine_foreign_progression") > 0))
         info("progression_sharing", "Nothing to confine other players' progression to " +
              "while Progression Surface is empty.");
     }

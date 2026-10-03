@@ -682,13 +682,12 @@ Elden Ring:
 
   # Progression Sharing (with other players)
   #
-  # How progression items travel between your world and other players' worlds.
+  # How progression travels between your world and other players.
   #
-  # Progression items unlock other checks; yours are mainly Region Locks (the items that
-  # open regions), so at balanced you may wait on another player for one. Pick open if a
-  # partner game cannot take early Elden Ring progression.
-  # balanced: yours travel; theirs land only on Progression Surface (default)
-  # open: Locks and runes stay in Elden Ring worlds; theirs on any safe check
+  # balanced (default): your Region Locks can travel. Incoming progression uses the
+  # advanced Incoming Progression Confinement setting (100: surface only by default).
+  # open: Locks and runes stay in Elden Ring worlds; incoming progression uses any safe
+  # check. Use this if a partner game cannot take early Elden Ring progression.
   #
   # Values: balanced, open (default balanced)
   progression_sharing: balanced
@@ -723,8 +722,7 @@ Elden Ring:
   # Fewer kinds = a tighter hunt; more = wider scatter. A list too small for your
   # progression widens itself; it stops generation only if every safe check is too few.
   # Ability Unlock items ignore this list. Empty = no limit, except unsafe checks (missable
-  # ones and similar). With Progression Sharing balanced, other players' progression is
-  # limited to it.
+  # ones and similar). Incoming Progression Confinement controls foreign progression.
   # Default: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest
   # keys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),
   # ShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon

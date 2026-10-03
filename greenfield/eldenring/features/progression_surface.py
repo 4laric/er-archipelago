@@ -68,8 +68,7 @@ class ProgressionSurface(OptionSet):
     Fewer kinds = a tighter hunt; more = wider scatter. A list too small for your
     progression widens itself; it stops generation only if every safe check is too few.
     Ability Unlock items ignore this list. Empty = no limit, except unsafe checks (missable
-    ones and similar). With Progression Sharing balanced, other players' progression is
-    limited to it.
+    ones and similar). Incoming Progression Confinement controls foreign progression.
     Default: MajorBoss (major boss drops, incl. Remembrance and GreatRune), KeyItem (quest
     keys), Church (Sacred Tears), Seedtree (Golden Seeds), Fragment, Revered (DLC pickups),
     ShopSlot (one ware per merchant), SweepSlot (some checks per boss sweep; none if Dungeon
@@ -158,13 +157,12 @@ class ProgressionSurfaceMode(Removed):
 
 
 class ProgressionSharing(Choice):
-    """How progression items travel between your world and other players' worlds.
+    """How progression travels between your world and other players.
 
-    Progression items unlock other checks; yours are mainly Region Locks (the items that
-    open regions), so at balanced you may wait on another player for one. Pick open if a
-    partner game cannot take early Elden Ring progression.
-    balanced: yours travel; theirs land only on Progression Surface (default)
-    open: Locks and runes stay in Elden Ring worlds; theirs on any safe check
+    balanced (default): your Region Locks can travel. Incoming progression uses the
+    advanced Incoming Progression Confinement setting (100: surface only by default).
+    open: Locks and runes stay in Elden Ring worlds; incoming progression uses any safe
+    check. Use this if a partner game cannot take early Elden Ring progression.
     """
     display_name = "Progression Sharing (with other players)"
     option_balanced = 0
@@ -176,15 +174,15 @@ class ProgressionSharing(Choice):
 # answered one question -- where does progression go -- and the useful combinations were two:
 # `progression_bias` (0), `cross_game_progression` (auto) and `confine_foreign_progression` (100)
 # at their shipped values is `balanced`; `cross_game_progression: never` +
-# `confine_foreign_progression: 0` is `open`. The three still EXIST, hidden (Visibility.none, so
-# no template or wizard entry) and still accepted in a yaml, because dozens of shipped yamls and
-# the measurement tooling set them by name. `open` overrides the latter two in
+# `confine_foreign_progression: 0` is `open`. The three still exist and are accepted in YAML.
+# Incoming confinement is now an advanced control; the two outbound knobs stay hidden.
+# `open` overrides cross-game progression and incoming confinement in
 # `apply_progression_sharing`; `balanced` leaves them exactly as written. `progression_bias`
 # is never overridden -- neither mode has an opinion about how many of your own Locks stay home.
 
 
 def apply_progression_sharing(options) -> None:
-    """Resolve `progression_sharing` onto the two hidden knobs it governs. Called once, first thing
+    """Resolve `progression_sharing` onto cross-game progression and incoming confinement. Called
     in generate_early, so every reader (item_rule install, incoming reservation, pre_fill) sees
     the resolved values."""
     mode = getattr(options, "progression_sharing", None)
