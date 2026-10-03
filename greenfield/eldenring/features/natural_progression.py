@@ -229,7 +229,7 @@ class NaturalProgression(Toggle):
     """
     display_name = "Natural Progression"
     visibility = Visibility.complex_ui | Visibility.spoiler
-    wizard_deprecation = "Deprecated mode. For new runs, use Region Locks with Number of Regions. Existing YAMLs still enable vanilla-key progression; this is not an automatic migration."
+    wizard_deprecation = "Deprecated mode. For new runs, use Region Locks. When enabled, regions use vanilla keys and Number of Regions is ignored. Builder size estimates assume Region Locks. Imported values are preserved; removing this key switches to Region Locks."
 
 
 # ---- pure helpers (world may be None-ish in unit tests; all reads are getattr-guarded) ----------

@@ -80,6 +80,7 @@ assert.equal(P.state.values.natural_progression,true);
 assert.equal(P.ERW.getVal(P.meta,P.state,'confine_foreign_progression'),100);
 const notice=doc.getElementById('legacy-notice');
 assert.equal(notice.hidden,false); assert.ok(text(notice).includes('natural_progression'));
+assert.ok(text(notice).includes('size estimates assume Region Locks'));
 assert.ok(P.ERW.buildYaml(P.meta,P.state).includes('  natural_progression: true'));
 assert.equal(P.state.values.global_scadutree_blessing,'off','default-valued legacy key is preserved and explained');
 go('Advanced');
