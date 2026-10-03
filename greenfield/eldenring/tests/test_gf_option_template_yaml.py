@@ -157,7 +157,7 @@ def test_the_generated_template_keeps_every_default_weighted():
 
 def test_generated_template_omits_advanced_and_compatibility_only_controls():
     block = Utils.parse_yaml(_generate_template_for_this_game())[GAME]
-    omitted = {"vanilla_placement", "flask_upgrades_on_progression_surface",
+    omitted = {"vanilla_placement", "natural_progression", "flask_upgrades_on_progression_surface",
                "global_scadutree_blessing", "merchant_bell_logic", "leyndell_runes_required"}
     classes = dict(_option_classes())
     assert omitted <= classes.keys()
@@ -166,7 +166,7 @@ def test_generated_template_omits_advanced_and_compatibility_only_controls():
     # COMPAT keys (superseded / inert) live ONLY on the weighted-options page and in the spoiler;
     # vanilla_placement is still a real, listed choice that the template merely omits. Neither is
     # ever Visibility.none: a hidden key must keep parsing from an existing yaml.
-    compat = {"flask_upgrades_on_progression_surface", "global_scadutree_blessing",
+    compat = {"natural_progression", "flask_upgrades_on_progression_surface", "global_scadutree_blessing",
               "merchant_bell_logic", "leyndell_runes_required"}
     for key in omitted:
         cls = classes[key]
