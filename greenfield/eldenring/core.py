@@ -533,7 +533,7 @@ _OPTION_GROUPS = [
         "progression_surface", "keep_local", "progression_sharing", "filler_foreign_pct",
         "region_sync", "trap_link",
         # advanced (hidden from the simple UIs)
-        "keep_local_rune_cap", "multiworld_scope", "death_link_amnesty_inbound",
+        "confine_foreign_progression", "keep_local_rune_cap", "multiworld_scope", "death_link_amnesty_inbound",
         "death_link_amnesty_outbound",
     ]),
     # Shop checks, what may be sold, and merchant unlocks.

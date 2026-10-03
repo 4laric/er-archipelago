@@ -46,6 +46,7 @@ class LeyndellRunesRequired(Range):
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
     visibility = Visibility.complex_ui | Visibility.spoiler
     display_name = "Leyndell Great Runes Required (no effect)"
+    wizard_deprecation = "Ignored. Region Lock runs open Leyndell with its Lock; vanilla-key modes retain the game's two-rune wall. Remove this old key."
     range_start = 0
     range_end = 6
     default = 2

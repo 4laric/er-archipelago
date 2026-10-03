@@ -77,6 +77,7 @@ REQUIRED = [
 SIDE_ORDER = ["Your run", "Into the multiworld", "Seed size", "Configuration checks", "Generate &amp; host"]
 
 NUMBERS_MOVE = ["filler_foreign_pct", "keep_local",
+                "confine_foreign_progression",
                 "progression_sharing", "num_regions", "progression_surface",
                 "shop_checks"]
 # Real effects the card cannot COUNT (the rune cap's share of the runes category depends on which

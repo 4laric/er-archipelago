@@ -29,7 +29,9 @@ HARD_LINES = 14
 MAX_LINE_COLS = 90          # a continuation line keeps its source indent in the Kivy tooltip
 SUMMARY_MAX_COLS = 88       # line 1: one plain-language sentence
 DISPLAY_NAME_MAX = 50
-TOTAL_CEILING = 36306       # ratchet on the whole corpus (33,657 when this landed; 34200 -> 34340
+TOTAL_CEILING = 36523       # 2026-10-03: expose the supported incoming-confinement dial;
+                            # shorten Natural Progression's deprecated-mode tooltip; net +217.
+                            # ratchet on the whole corpus (33,657 when this landed; 34200 -> 34340
                             # 2026-09-23, region_sweep: one new in-budget option's docstring, 134
                             # chars -- not creep across many, so the ratchet moved instead of the
                             # option shrinking below what the summary sentence needs; 34340 -> 34590

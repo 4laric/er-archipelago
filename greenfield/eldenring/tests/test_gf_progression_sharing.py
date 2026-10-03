@@ -1,9 +1,9 @@
-"""`progression_sharing` -- the ONE player-facing switch over where progression goes.
+"""Progression Sharing presets plus independent advanced incoming confinement.
 
 `balanced` (default) must leave the two hidden knobs it governs exactly as the yaml wrote them, so the
 shipped seed cannot move; `open` must force the 1/N step off (`cross_game_progression: never`) AND lift
-the foreign-progression bar (`confine_foreign_progression: 0`). The three old keys must stay hidden
-from the player surface but still be ACCEPTED, or every existing yaml stops generating.
+the foreign-progression bar (`confine_foreign_progression: 0`). Incoming confinement is editable
+on advanced surfaces; the two outbound legacy keys remain hidden but accepted.
 """
 import pytest
 
@@ -13,7 +13,7 @@ pytest.importorskip("worlds.eldenring")
 from Options import Visibility  # noqa: E402
 
 GAME = "Elden Ring"
-HIDDEN = ("progression_bias", "cross_game_progression", "confine_foreign_progression")
+HIDDEN = ("progression_bias", "cross_game_progression")
 
 
 class SharingBalancedDefault(WorldTestBase):
@@ -30,6 +30,8 @@ class SharingBalancedDefault(WorldTestBase):
             opt = getattr(self.world.options, key)
             self.assertEqual(opt.visibility, Visibility.none, key)
         self.assertEqual(self.world.options.progression_sharing.visibility, Visibility.all)
+        self.assertEqual(self.world.options.confine_foreign_progression.visibility,
+                         Visibility.all & ~Visibility.simple_ui)
 
 
 class SharingBalancedRespectsOldKeys(WorldTestBase):

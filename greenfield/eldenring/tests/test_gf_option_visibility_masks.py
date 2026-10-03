@@ -38,10 +38,12 @@ COMPAT_MASK = Visibility.complex_ui | Visibility.spoiler
 ADVANCED_MASK = Visibility.all & ~Visibility.simple_ui
 
 COMPAT_KEYS = frozenset({
+    "natural_progression",
     "leyndell_runes_required", "global_scadutree_blessing", "merchant_bell_logic",
     "flask_upgrades_on_progression_surface",
 })
 ADVANCED_KEYS = frozenset({
+    "confine_foreign_progression",
     "mario_stat_upgrades", "mario_fludd", "mario_cappy", "mario_sonic_movement",
     "curated_filler", "spawn_traps", "num_regions_order", "start_region_selection",
     "death_link_amnesty_inbound", "death_link_amnesty_outbound", "full_area_sweeps",
@@ -103,7 +105,7 @@ def test_an_advanced_key_has_exactly_the_advanced_mask(key):
 LEGACY_NONE_KEYS = frozenset({
     "pool_builder", "pool_builder_scope", "pool_builder_juice_cap", "pool_builder_juice_pct",
     "local_item_only", "exclude_local_item_only", "progression_surface_mode", "progression_bias",
-    "confine_foreign_progression", "cross_game_progression", "completion_scaling_floor",
+    "cross_game_progression", "completion_scaling_floor",
     "completion_scaling_ramp",
 })
 

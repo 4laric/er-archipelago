@@ -1,5 +1,13 @@
 # v0.6.4.1 — development window (draft)
 
+The player YAML builder now groups settings by purpose, searches labels and YAML keys,
+and lets you review just your changes. Advanced controls stay beside related settings.
+Incoming Progression Confinement is available under Multiworld & Placement → Advanced:
+choose 0 to let other players' progression appear on any safe check while keeping
+Progression Sharing balanced for your outgoing settings. Defaults have not changed.
+Natural Progression is deprecated for new runs; older imports preserve it and show
+guidance, alongside the other retired compatibility settings.
+
 Mario Stat Upgrades is an optional, default-off setting that requires Mario Mode.
 Start at four of eight health wedges and 75% normal attack damage. Four Progressive
 Health items add one maximum wedge each, without healing; three Progressive Power

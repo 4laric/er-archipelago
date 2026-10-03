@@ -274,34 +274,17 @@ class CrossGameProgression(NamedRange):
 
 
 class ConfineForeignProgression(NamedRange):
-    """What share of OTHER players' progression is confined to your Progression Surface, the way
-    your own is. A percentage, not a switch.
+    """Share of incoming progression names confined to your Progression Surface.
 
-    100 (`true`) confines all of it: another world's advancement may only be placed on your surface
-    locations -- the same high-confidence checks your own progression is curated onto -- never on
-    your filler checks. So a foreign key spell lands on a major-boss / remembrance / key-item check
-    of yours, not on a random Smithing Stone pickup. 0 (`false`) confines none of it and foreign
-    progression scatters across any reachable location of yours, which is standard Archipelago
-    behaviour. In between, that share of the foreign advancement you see is held to the surface and
-    the rest is free.
-
-    This is purely about where INCOMING foreign keys may sit. It used to have a nasty side effect
-    -- at 100 the displacement it causes starved non-Elden-Ring partners of your useful gear
-    entirely (measured: 0 useful in 498 placements to Hollow Knight) -- but that is fixed at its
-    own layer since v0.4.10: a dedicated export-reservation pass places your fair share of useful
-    items into partner worlds before the general fill, whatever this option is set to. Re-measured
-    with the pass: partners receive the pool's own mix (about 1:1 useful to filler) at every
-    confine value. Lower this only if you want foreign keys spread beyond your starred checks.
-
-    It is a propensity by ITEM NAME, not a per-copy coin flip: the decision for a given foreign item
-    name is fixed for the whole seed, so a name is either surface-only or free, never both.
-
-    No effect in a solo seed, because there is no foreign progression to confine. It never blocks
-    generation: your OWN progression keeps its feasibility-ladder + spill safety valve, and foreign
-    progression that will not fit your surface simply lands in its own world instead (only YOUR
-    filler checks are barred to it -- other worlds are untouched)."""
-    display_name = "Confine Foreign Progression"
-    visibility = Visibility.none  # governed by `progression_sharing`; still accepted in a yaml
+    100: surface only (default). 0: any safe check. Intermediate values apply per item name.
+    Your own progression and outgoing Locks are unchanged. No effect in solo play.
+    Progression Sharing open forces 0; Multiworld Scope surface forces 100.
+    An empty surface disables confinement.
+    """
+    display_name = "Incoming Progression Confinement"
+    wizard_range_labels = {0: "Any safe check", 100: "Surface only"}
+    wizard_range_unit = "%"
+    visibility = Visibility.all & ~Visibility.simple_ui
     range_start = 0
     range_end = 100
     default = 100

@@ -161,6 +161,7 @@ class MerchantBellLogic(Choice):
     # Importable and visible in detailed tools/spoilers, never suggested in a new YAML.
     visibility = Visibility.complex_ui | Visibility.spoiler
     display_name = "Merchant Bell Logic (no effect)"
+    wizard_deprecation = "Ignored. Shop checks do not require Bell Bearings in logic. Remove this old key."
     option_off = 0
     option_logic_only = 1
     default = 0
